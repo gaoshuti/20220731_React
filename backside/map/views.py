@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from map.models import map
 
 def listmap(request):
+
   qs=map.objects.values()
   ph = request.GET.get('snow', None)
   if ph:
