@@ -32,6 +32,24 @@
   /* margin: 0; */
   background: #fff;
 }
+
+/* 修改表头文字、背景颜色   */
+.ant-table-thead > tr > th{
+  margin-top: -16px;
+  color: white;
+  background: #8ebcf0 !important;
+  text-align: center !important;
+}
+
+/* 修改列表文字、背景颜色   */
+.ant-table-tbody > tr > td{
+  color: #3071b9;
+  background: white !important;
+  text-align: center !important;
+  padding: 10px 10px !important;
+}
+
+
 .card-container p {
   margin: 0;
 }
@@ -40,7 +58,7 @@
   margin-top: -16px;
 }
 .card-container > .ant-tabs-card .ant-tabs-content > .ant-tabs-tabpane {
-  padding: 16px;
+  /* padding: 16px; */
   background: #fff;
 }
 .card-container > .ant-tabs-card > .ant-tabs-nav::before {

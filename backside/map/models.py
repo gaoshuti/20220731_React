@@ -54,3 +54,33 @@ class stock(models.Model):
   dsmvtll=models.FloatField(null=True,blank=True)#日个股总市值
   dretwd=models.FloatField(null=True,blank=True)#考虑现金红利再投资的日个股回报率
   changeRatio=models.FloatField(null=True,blank=True)#ChangeRatio
+
+class mapQuery(models.Model):
+  id = models.AutoField(primary_key=True)
+  area=models.CharField(default='',max_length=255)
+  label=models.CharField(default='',max_length=255)
+  cities=models.CharField(default='',max_length=255)
+  class Meta:
+    unique_together = ('area', 'label',)
+  num=models.IntegerField()
+  aboveNum=models.IntegerField()
+  belowNum=models.IntegerField() 
+  num0=models.IntegerField()
+  aboveNum0=models.IntegerField()
+  belowNum0=models.IntegerField() 
+  num1=models.IntegerField()
+  aboveNum1=models.IntegerField()
+  belowNum1=models.IntegerField() 
+  num2=models.IntegerField()
+  aboveNum2=models.IntegerField()
+  belowNum2=models.IntegerField() 
+  num3=models.IntegerField()
+  aboveNum3=models.IntegerField()
+  belowNum3=models.IntegerField() 
+  num4=models.IntegerField()
+  aboveNum4=models.IntegerField()
+  belowNum4=models.IntegerField() 
+
+class stkcdInCity(models.Model):
+  city=models.CharField(primary_key=True,max_length=255)
+  stkcd=models.CharField(max_length=2805)
