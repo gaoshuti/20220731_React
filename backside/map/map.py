@@ -132,15 +132,29 @@ def getCities(name):
         cities=cities+cityInProvince[i][1:]
         break
   return [name]+cities
-def getStkcdInCity(request,city):
+def getDataSource(request,area):
   print('get stkcd in city')
+  # qs2 = mapQuery.objects.values()
+  qs2 = mapQuery.objects.values().filter(area=area)
+  if len(qs2)==0:
+    cities=getCities(area)
+    print(cities)
+  else:
+    cities = qs2[0]['cities'].split('#')
+  if len(cities)==0:
+    return JsonResponse({'ret': 1, 'msg': '请检查该地区是否含有数据'})
   qs = stkcdInCity.objects.values()
-  qs = qs.filter(city=city)
-  if len(qs)==0:
-    print('no data in',city)
-    return JsonResponse({'ret': 1,'data':{'message':'no data in '+city}})
-  stkcd = qs[0]['stkcd']
-  return JsonResponse({'ret': 0,'data':{'stkcd':stkcd}})
+  myDict = {}
+  for city in cities:
+    record = qs.filter(city=city)
+    if len(record)==0:
+      print('no data in',city)
+      continue
+    # stkcd = qs[0]['stkcd']
+    myDict[city]=record[0]['stkcd']
+    if len(myDict)==0:
+      return JsonResponse({'ret': 1, 'msg': '请检查该地区是否含有数据'})
+  return JsonResponse({'ret': 0,'data':myDict})
 def listInfo(request,area,label,minvalue,maxvalue):
   print(area,label,minvalue,maxvalue)
   myDict={}
@@ -152,7 +166,6 @@ def listInfo(request,area,label,minvalue,maxvalue):
   if maxvalue=='-1':
     qs2 = mapQuery.objects.values()
     qs2 =qs2.filter(**conditions)
-    print(len(qs2),qs2)
     if len(qs2)!=0:
       print('has data')
       cities=qs2[0]['cities']
@@ -241,7 +254,7 @@ def listInfo(request,area,label,minvalue,maxvalue):
     print(myDict)
 
   return JsonResponse({'ret': 0, 'cities':'#'.join(cities) ,'data':myDict})
-def listRet(request,city,begindate,enddate):
+def listRet(request,city):
   print('list ret')
   qs=map.objects.values()
   record = qs.filter(city=city)
