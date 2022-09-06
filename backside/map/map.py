@@ -355,19 +355,40 @@ def listWeatherDistribution(request,city,x,y):
   dataDf = dataDf[dataDf!=-100].dropna()
   return JsonResponse({'ret': 0, 'data':{x:list(dataDf[x]),y:list(dataDf[y])}})
 
-def listWeatherRegression(request,city):
-  print('list weather regression:',city)
+def listWeatherRegression(request):
+  print('list weather regression')
+  label=request.POST.get('label',default='1')
+  model=request.POST.get('model',default='1')
+  weatherList=request.POST.get('weather',default='1').split('#')
+  area=request.POST.get('area',default='1').split('#')
+  print(label,model,weatherList,area)
+  cities = []
+  for name in area:
+    cities=cities+getCities(name)[1:]
   myDict={}
-  myInfo=regressionInfo(city)
-  weatherList=['snow', 'rain', 'cloud', 'max', 'min', 'wind', 'tempDiff7', 'API', 'AQI']
-  variableList=['ret(-1)', 'ris','smb','hml']
-  label='tur'
-  for w in weatherList:
-    # score=myInfo.myRegression(variableList+[w], label)
-    score=myInfo.myOLSRegression(variableList+[w], label)
-    print(score)
-    myDict[w]={'weights':myInfo.result[w],'score':score}
-  # myDict={'weights':myInfo.result,'score':score}
+  myInfo=regressionInfo(cities)
+  # weatherList=['snow', 'rain', 'cloud', 'max', 'min', 'wind', 'tempDiff7', 'API', 'AQI']
+  if label=='tur':
+    variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
+  elif label=='ret':
+    variableList=['ret(-1)', 'ris','smb','hml']
+  else:
+    return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
+  # label='tur'
+  if model=='linear':
+    for w in weatherList:
+      score=myInfo.myRegression(variableList+[w], label)
+      # score=myInfo.myOLSRegression(variableList+[w], label)
+      print(score)
+      myDict[w]={'weights':myInfo.result[w],'score':score}
+  elif model=='OLS':
+    for w in weatherList:
+      score=myInfo.myOLSRegression(variableList+[w], label)
+      print(score)
+      myDict[w]={'weights':myInfo.result[w],'score':score}
+  else:
+    return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
+  myDict={'weights':myInfo.result,'score':score}
   return JsonResponse({'ret': 0, 'data':myDict})
 
 

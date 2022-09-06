@@ -19,7 +19,7 @@ import { getKeyThenIncreaseKey } from "antd/lib/message";
 import Home from "./components/home";
 import History from "./components/historyMap";
 import MyHeader from "./components/header";
-import RegDemo from "./components/weatherReg";
+import WeatherReg from "./components/weatherReg";
 
 const { TabPane } = Tabs;
 const { Search } = Input;
@@ -46,7 +46,7 @@ class App extends React.Component {
     return (
       <Layout className="container">
         <MyHeader className="header" onClick={this.headerOnClick.bind(this)} />
-        {this.state.key==='home'?<Home/>:(this.state.key==='function-1'?<History/>:<RegDemo/>)}
+        {this.state.key==='home'?<Home/>:(this.state.key==='function-1'?<History/>:<WeatherReg/>)}
         {/* <History/> */}
       </Layout>
     );

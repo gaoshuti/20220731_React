@@ -192,10 +192,12 @@ function MySider(props) {
 }
 
 function HistoryData(props) {
-  if(props.data.length===0){
+  console.log(props.data);
+  if(props.data.length<2 ||  props.data[0].length===0){
     console.log('history ret is null');
     return(
-      <p>暂无数据</p>
+      <div><p>暂无数据</p></div>
+      
     );
   }
   let days = props.data[1];
@@ -203,18 +205,20 @@ function HistoryData(props) {
   console.log(days);
   var data = [];
   for(let i = 0; i<days.length; i++) {
-    if(i<days.length-1 && days[i]===days[i+1]) {
-      console.log(i,days[i]);
-    }
     let date = days[i].split('-');
-    let base = +new Date(date[0], date[1], date[2]);
-    console.log(date,base);
-    data.push([+base, rets[i]]);
+    let base = new Date(date[0], date[1], 0);
+    base.setDate(date[2]);
+    data.push([base, rets[i]]);
   }
   let options = {
     tooltip: {
       trigger: 'axis',
-      position: function(pt) {
+      position: function(pt, params, dom, rect, size) {
+        // var tipWidth = pt[0]+size.contentSize[0];
+        // if(tipWidth>size.viewSize[0]) {
+        if(pt[0]>size.viewSize[0]/2) {
+          return [pt[0]-size.contentSize[0],'10%'];
+        }
         return [pt[0], '10%'];
       }
     },
@@ -237,17 +241,17 @@ function HistoryData(props) {
     },
     yAxis: {
       type: 'value',
-      boundaryGap: [0, '50%']
+      boundaryGap: [0, '20%']
     },
     dataZoom: [
       {
         type: 'inside',
-        start: 0,
-        end: 20
+        start: 80,
+        end: 100
       },
       {
-        start: 0,
-        end: 20
+        start: 80,
+        end: 100
       }
     ],
     series: [
@@ -487,7 +491,7 @@ class Board extends React.Component {
   // }
   async getHistoryRet(area) {
     var data1=[],tempdata={},result;
-    console.log('get data source',area);
+    console.log('get history ret',area);
     if(this.state.cities[0]===area && this.state.target==='history ret'){
       console.log('已有数据');
       return;
@@ -529,7 +533,6 @@ class Board extends React.Component {
     if(activeKey==='data'){
       this.getDataSource(this.state.name);
     }else if(activeKey==='history'){
-      console.log('change to history')
       this.getHistoryRet(this.state.name);
     }else{
       this.getHistory(this.state.name,activeKey,-1,-1);

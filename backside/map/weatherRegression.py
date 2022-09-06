@@ -49,6 +49,7 @@ class regressionInfo:
             'API', 'AQI', ]
     for city in self.cities:
       record = qs.filter(city=city)
+      print(city,len(record))
       myDict['ret(-1)'].append(-100)
       myDict['tur(-1)'].append(-100)
       info=record[0]
