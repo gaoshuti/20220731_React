@@ -367,28 +367,59 @@ def listWeatherRegression(request):
     cities=cities+getCities(name)[1:]
   myDict={}
   myInfo=regressionInfo(cities)
-  # weatherList=['snow', 'rain', 'cloud', 'max', 'min', 'wind', 'tempDiff7', 'API', 'AQI']
+  # 分布图
+  myDf = myInfo.dataDf[weatherList+[label]]
+  myDf = myDf[myDf!=-100].dropna()
+  for i in weatherList+[label]:
+    myDict[i]=list(myDf[i])
+  # 所有城市数据的回归
+  myDict['all']={}
   if label=='tur':
     variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
   elif label=='ret':
     variableList=['ret(-1)', 'ris','smb','hml']
   else:
     return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
-  # label='tur'
+  
   if model=='linear':
     for w in weatherList:
-      score=myInfo.myRegression(variableList+[w], label)
-      # score=myInfo.myOLSRegression(variableList+[w], label)
-      print(score)
-      myDict[w]={'weights':myInfo.result[w],'score':score}
+      score,num=myInfo.myRegression([w]+variableList, label)
+      print(score,num)
+      myDict['all'][w]={'weights':myInfo.result[w],'score':score}
   elif model=='OLS':
     for w in weatherList:
-      score=myInfo.myOLSRegression(variableList+[w], label)
-      print(score)
-      myDict[w]={'weights':myInfo.result[w],'score':score}
+      score,num=myInfo.myOLSRegression([w]+variableList, label)
+      print(score,num)
+      myDict['all'][w]={'weights':myInfo.result[w],'score':score}
   else:
     return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
-  myDict={'weights':myInfo.result,'score':score}
+  # myDict['all']={'weights':myInfo.result,'score':score}
+  # 单个城市的回归
+  if len(cities)==1:
+    return JsonResponse({'ret': 0, 'data':myDict})
+  for city in cities:
+    myInfo=regressionInfo(city)
+    myDict[city]={}
+    if label=='tur':
+      variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
+    elif label=='ret':
+      variableList=['ret(-1)', 'ris','smb','hml']
+    else:
+      return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
+    
+    if model=='linear':
+      for w in weatherList:
+        score,num=myInfo.myRegression([w]+variableList, label)
+        print(score,num)
+        myDict[city][w]={'weights':myInfo.result[w],'score':score,'num':num}
+    elif model=='OLS':
+      for w in weatherList:
+        score,num=myInfo.myOLSRegression([w]+variableList, label)
+        print(score,num)
+        myDict[city][w]={'weights':myInfo.result[w],'score':score,'num':num}
+    else:
+      return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
+    # myDict[city]={'weights':myInfo.result,'score':score,'num':num}
   return JsonResponse({'ret': 0, 'data':myDict})
 
 

@@ -75,17 +75,17 @@ class regressionInfo:
       return 0
     if 'MarCap' in variableList:
       exam_df['MarCap'] = exam_df['MarCap'].apply(lambda x : math.log(x))
-#         print(exam_df[['ris','ret']].corr())
     exam_df=exam_df.apply(lambda x : (x-np.min(x))/(np.max(x)-np.min(x)))
     if exam_df[variableList[0]].isnull().sum()!=0:
       print(variableList[0],'has no change')
-      return 0
-    
+      return 0,0
+    # print('1:',exam_df)
+    # exam_df = exam_df[exam_df!=-100].dropna()
+    # print('2:',exam_df)
     exam_X=exam_df[variableList]
     exam_Y=exam_df[label]
     model = LinearRegression()
     model.fit(exam_X,exam_Y)
-#         model.fit(X_train,X_test)
     a  = model.intercept_#截距
     b = model.coef_#回归系数
     flag=0
@@ -95,7 +95,7 @@ class regressionInfo:
 
     score1 = model.score(exam_X,exam_Y)
     # print('test score:',score1)
-    return score1
+    return score1,len(exam_X)
       
   def myOLSRegression(self, variableList, label):
     exam_df=self.dataDf[variableList+[label]]
@@ -126,5 +126,5 @@ class regressionInfo:
 
     score1 = model.rsquared
     # print('test score:',score1)
-    return score1
+    return score1,len(x)
   

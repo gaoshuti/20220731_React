@@ -32,23 +32,24 @@ import {
   
 } from "antd";
 import { setCanvasCreator } from "echarts";
+import EChartsReact from 'echarts-for-react';
+
+
+const axios = require('axios');
 const CheckboxGroup = Checkbox.Group;
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { SHOW_PARENT } = TreeSelect;
 function FormDemo(props) {
-  const onFormLayoutChange=()=>{
-    console.log('onformlayoutchange');
-  };
-  
+  // const onFormLayoutChange=()=>{
+  //   console.log('onformlayoutchange');
+  // };
   const changeLabel = (e) => {
     console.log(e.target.value);
     props.setControlChecked(e.target.value);
   }
-
   const changeWeatherParams = (list) => {
-    console.log(list)
     props.setChecked(list,!!list.length && list.length < props.plainOptions.length,list.length === props.plainOptions.length);
   };
   const onCheckAllChange = (e) => {
@@ -229,7 +230,7 @@ function FormDemo(props) {
                 {label: "漳州", value: "漳州", key: "漳州"},
               ]
             },
-            { label: "台湾", value: "台湾", key: "台湾" },
+            { label: "台湾", value: "台湾", key: "台湾", disabled:true },
           ],
         },
         {
@@ -343,17 +344,34 @@ function FormDemo(props) {
   
   ];
   const onFinish = (values) => {
-    console.log('Success');
-    console.log('Label:', values.label);
-    console.log('Model:', values.model);
-    console.log('Weather:', props.checkedList);
-    console.log('Area:', props.area);
-  };
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    console.log('submit:',values.label,values.model,props.checkedList.join('#'),props.area.join('#'));
+    const formData = new FormData();
+    formData.append('label',values.label);
+    formData.append('model',values.model);
+    formData.append('weather',props.checkedList.join('#'));
+    formData.append('area',props.area.join('#'));
+    axios({
+      headers: {
+        'Content-Type':'application/json'
+      },
+      method: 'post',
+      url:`http://localhost:3000/weatherregression`,
+      data: formData,
+    }).then(res => {
+      if(res && res.status === 200){
+        // 响应成功的回调
+        console.log(res);
+        props.setSubmit(props.checkedList);
+        props.setResult(res.data['data']);
+      }else{
+        // 响应失败
+        console.log(res.msg);
+      }
+    })
   };
   const changeTreeSelect = (value,label,extra) => {
     props.setArea(value);
+    console.log(props.checkedList);
   }
   return (
     <>
@@ -361,7 +379,7 @@ function FormDemo(props) {
         labelCol={{span: 4,}}
         wrapperCol={{span: 14,}}
         layout="horizontal"
-        onValuesChange={onFormLayoutChange}
+        // onValuesChange={onFormLayoutChange}
         onFinish={onFinish}
       >
         <Form.Item></Form.Item>
@@ -376,7 +394,7 @@ function FormDemo(props) {
             <Radio value="ret"> 回归率 </Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item name="weatherParams" label="天气相关属性">
+        <Form.Item label="天气相关属性">
           <Checkbox indeterminate={props.indeterminate} onChange={onCheckAllChange} checked={props.checkAll}>
             全选
           </Checkbox>
@@ -421,7 +439,7 @@ function FormDemo(props) {
             </Row>
           </Checkbox.Group>
         </Form.Item>
-        <Form.Item name="controlParams" label="控制变量">
+        <Form.Item label="控制变量">
         <Checkbox.Group
             style={{
               width: '100%',
@@ -471,7 +489,7 @@ function FormDemo(props) {
             <Select.Option value="OLS">OLS回归</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item name="area" label="区域" >
+        <Form.Item label="区域" >
           <TreeSelect
             treeData={treeOptions}
             showSearch={true}
@@ -504,6 +522,9 @@ class RegDemo extends React.Component {
         '前一日回报率',''
       ],
       area: [],//选择的区域
+      setSubmit: props.setSubmit,//设置天气相关多选框的提交信息
+      setResult: props.setResult,//设置回归结果
+      setLabel: props.setLabel,
     };
   }
   setChecked(list,flag1,flag2) {//设置天气相关多选框的选中信息
@@ -512,9 +533,11 @@ class RegDemo extends React.Component {
       indeterminate: flag1,
       checkAll: flag2,
     })
+    // this.state.setChecked2(list);
   }
   setControlChecked(label) {//设置控制变量多选框的选中信息
     console.log('setControlChecked');
+    this.state.setLabel(label);
     if(label==='tur'){
       console.log('1');
       this.setState({
@@ -544,6 +567,8 @@ class RegDemo extends React.Component {
           setChecked={this.setChecked.bind(this)}
           setControlChecked={this.setControlChecked.bind(this)}
           setArea={this.setArea.bind(this)}
+          setSubmit={this.state.setSubmit}
+          setResult={this.state.setResult}
           plainOptions={this.state.plainOptions}
           indeterminate={this.state.indeterminate}
           checkAll={this.state.checkAll}
@@ -556,19 +581,149 @@ class RegDemo extends React.Component {
     );
   }
 }
-
+function ScatterDemo(props) {
+  let labelList=props.result[props.label],weatherList,data=[];
+  let scatterOptions=[],option;
+  var labelName='', weatherName='';
+  if(props.label==='tur'){
+    labelName='换手率';
+  }else if(props.label==='ret'){
+    labelName='回报率';
+  }else{
+    console.log('label error');
+  }
+  for(let i in props.submitList){
+    data=[]
+    console.log(props.submitList[i]);
+    if(props.submitList[i]==='max') weatherName='最高温';
+    else if(props.submitList[i]==='min') weatherName='最低温';
+    else if(props.submitList[i]==='wind') weatherName='风速';
+    else if(props.submitList[i]==='pres') weatherName='气压';
+    else if(props.submitList[i]==='tempDiff7') weatherName='温差';
+    else if(props.submitList[i]==='snow') weatherName='雪';
+    else if(props.submitList[i]==='rain') weatherName='雨';
+    else if(props.submitList[i]==='cloud') weatherName='云量';
+    else if(props.submitList[i]==='API') weatherName='API';
+    else if(props.submitList[i]==='AQI') weatherName='AQI';
+    else console.log(props.submitList[i],' error');
+    weatherList=props.result[props.submitList[i]];
+    for(let j = 0; j < labelList.length; j++) {
+      data.push([weatherList[j],labelList[j]]);
+    }
+    option = {
+      grid: {
+        //设置 上下左右距离dom容器距离 控制图标大小
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        //是否显示刻度标签 true显示
+        containLabel: true
+      },
+      xAxis: {
+        name: weatherName,
+        type: 'value',
+        nameLocation: "middle",
+        nameGap: 20,
+      },
+      yAxis: {
+        name: labelName,
+        type: 'value',
+        nameLocation: "middle",
+        nameGap: 20,
+      },
+      series: [
+        {
+          name: 'ret',
+          symbolSize: 10,
+          data: data,
+          type: 'scatter'
+        }
+      ]
+    };
+    scatterOptions.push(option)
+  }
+  return(
+    <>
+      <p>散点图</p>
+      {scatterOptions.map((option) => {
+        return (<EChartsReact option={option}/>);
+      })}
+    </>
+  );
+}
+function ResultDemo(props){
+  if(props.result.length===0){
+    console.log('history ret is null');
+    return(
+      <div><p>请先设置数据</p></div>  
+    );
+  }
+  console.log('resultDemo submitList',props.submitList);
+  console.log('resultDemo result',props.result);
+  return(
+    <div>
+     <ScatterDemo 
+      label={props.label}
+      submitList={props.submitList}  
+      result={props.result}
+      
+      />
+    </div>
+  );
+}
 class WeatherReg extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      label: '',// label的值
+      submitList: [],//天气相关多选框选中内容
+      result: [],
+      activeKey: ['1'],
+    };
+  }
+  setSubmit(list) {//设置天气相关多选框的选中信息
+    console.log(list);
+    this.setState({
+      submitList: list,
+    })
+  }
+  setLabel(label) {
+    this.setState({
+      label: label
+    });
+  }
   onChange(key) {
     console.log(key);
+    this.setState({
+      activeKey:key
+    })
   };
+  setResult(data) {
+    console.log(data);
+    this.setState({
+      result: data,
+      activeKey: '2'
+    });
+  }
   render() {
     return(
-      <Collapse lapse defaultActiveKey={['1']} onChange={this.onChange}>
+      <Collapse lapse defaultActiveKey={['1']} activeKey={this.state.activeKey} onChange={this.onChange.bind(this)}>
         <Panel header="设置数据" key="1">
-          <RegDemo/>
+          <RegDemo 
+            setResult={this.setResult.bind(this)}
+            // checkedList={this.state.checkedList}
+            indeterminate={this.state.indeterminate}
+            checkAll={this.state.checkAll}
+            setSubmit={this.setSubmit.bind(this)}
+            setLabel={this.setLabel.bind(this)}
+          />
         </Panel>
         <Panel header="回归结果" key="2">
-          <p>请先设置数据</p>
+          <ResultDemo 
+            result={this.state.result}
+            submitList={this.state.submitList}  
+            label={this.state.label}
+          />
         </Panel>
       </Collapse>
     );
