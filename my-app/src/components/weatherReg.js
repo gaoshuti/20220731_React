@@ -37,6 +37,8 @@ import EChartsReact from 'echarts-for-react';
 
 const axios = require('axios');
 const CheckboxGroup = Checkbox.Group;
+
+const { Column, ColumnGroup } = Table;
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -582,7 +584,7 @@ class RegDemo extends React.Component {
   }
 }
 function ScatterDemo(props) {
-  let labelList=props.result[props.label],weatherList,data=[];
+  let labelList,weatherList,data=[];
   let scatterOptions=[],option;
   var labelName='', weatherName='';
   if(props.label==='tur'){
@@ -606,18 +608,33 @@ function ScatterDemo(props) {
     else if(props.submitList[i]==='API') weatherName='API';
     else if(props.submitList[i]==='AQI') weatherName='AQI';
     else console.log(props.submitList[i],' error');
-    weatherList=props.result[props.submitList[i]];
+    weatherList=props.result[props.submitList[i]][0];
+    labelList=props.result[props.submitList[i]][1];
     for(let j = 0; j < labelList.length; j++) {
       data.push([weatherList[j],labelList[j]]);
     }
     option = {
+      title: {
+        text: weatherName
+      },
       grid: {
         //设置 上下左右距离dom容器距离 控制图标大小
         left: '3%',
         right: '4%',
-        bottom: '3%',
+        bottom: '5%',
         //是否显示刻度标签 true显示
         containLabel: true
+      },
+      tooltip: {
+        trigger: 'axis',
+        position: function(pt, params, dom, rect, size) {
+          // var tipWidth = pt[0]+size.contentSize[0];
+          // if(tipWidth>size.viewSize[0]) {
+          if(pt[0]>size.viewSize[0]/2) {
+            return [pt[0]-size.contentSize[0],'10%'];
+          }
+          return [pt[0], '10%'];
+        }
       },
       xAxis: {
         name: weatherName,
@@ -629,14 +646,14 @@ function ScatterDemo(props) {
         name: labelName,
         type: 'value',
         nameLocation: "middle",
-        nameGap: 20,
+        nameGap: 25,
       },
       series: [
         {
           name: 'ret',
           symbolSize: 10,
           data: data,
-          type: 'scatter'
+          type: 'scatter',
         }
       ]
     };
@@ -644,11 +661,75 @@ function ScatterDemo(props) {
   }
   return(
     <>
-      <p>散点图</p>
-      {scatterOptions.map((option) => {
-        return (<EChartsReact option={option}/>);
-      })}
+      <Row style={{
+        margin: 0,
+      }}>
+        {scatterOptions.map((option) => {
+          return (
+            <Col span={12} key={option.title.text}>
+              <EChartsReact option={option}/>
+            </Col>);
+        })}
+      </Row>
     </>
+  );
+}
+function RegCoefficientDemo(props) {
+  var valueTitle = (
+    <div>各城市回归结果(共{props.result['cities'].length}个城市)
+    </div>);
+  var data1=[], myDict, city, aboveNum, belowNum;
+  for(let i = 0; i < props.submitList.length; i++) {
+    myDict={};
+    aboveNum=0;
+    belowNum=0;
+    myDict['key']=props.submitList[i];
+    myDict['value']=props.submitList[i];
+    myDict['allCoefficient']=props.result['all'][props.submitList[i]]['weights'].toFixed(6);
+    if(props.result['cities'].length > 1){
+      for(let j = 0; j < props.result['cities'].length; j++) {
+        city=props.result['cities'][j];
+        myDict[city]=props.result[city][props.submitList[i]]['weights'].toFixed(6);
+        if(myDict[city]>0) aboveNum++;
+        else if(myDict[city]<0) belowNum++;
+      }
+    }else{
+      city=props.result['cities'][0];
+      myDict[city]=props.result['all'][props.submitList[i]]['weights'].toFixed(6);
+      if(myDict[city]>0) aboveNum++;
+      else if(myDict[city]<0) belowNum++;
+    }
+    myDict['aboveNum']=aboveNum;
+    myDict['belowNum']=belowNum;
+    data1.push(myDict);
+  }
+  return(
+    <div>
+      <Table dataSource={data1} size="small" scroll={{ x: 1300, }}>
+        {/* <Spin spinning={loading}> */}
+        <Column title="变量" width={200} dataIndex="value" key="value" fixed="left"/>
+        <Column title="总系数" width={100} dataIndex="allCoefficient" key="allCoefficient" fixed="left"/>
+        {/* <ColumnGroup title="各城市回归结果"  fixed="left"> */}
+          
+          {props.result['cities'].map((city) => {
+            return (
+              <Column title={city} dataIndex={city} key={city} />
+              );
+          })}
+          <Column title="系数>0" width={100} dataIndex="aboveNum" key="aboveNum" fixed="right"/>
+          <Column title="系数<0" width={100} dataIndex="belowNum" key="belowNum" fixed="right"/>
+          {/* <ColumnGroup title="数量">
+            <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
+            <Column title="<0" dataIndex="belowNum" key="belowNum" />
+          </ColumnGroup>
+          <ColumnGroup title="比例">
+            <Column title=">0" dataIndex="above" key="above" />
+            <Column title="<0" dataIndex="below" key="below" />
+          </ColumnGroup> */}
+        {/* </ColumnGroup> */}
+        {/* </Spin> */}
+      </Table>
+    </div>
   );
 }
 function ResultDemo(props){
@@ -662,12 +743,24 @@ function ResultDemo(props){
   console.log('resultDemo result',props.result);
   return(
     <div>
-     <ScatterDemo 
-      label={props.label}
-      submitList={props.submitList}  
-      result={props.result}
-      
-      />
+      <Collapse defaultActiveKey={['1']} ghost>
+        <Panel header="散点图" key="1">
+          <ScatterDemo 
+            label={props.label}
+            submitList={props.submitList}  
+            result={props.result}
+          />
+        </Panel>
+        <Panel header="回归系数" key="2">
+          <RegCoefficientDemo
+            submitList={props.submitList} 
+            result={props.result}
+          />
+        </Panel>
+        <Panel header="This is panel header 3" key="3">
+          <p>33333333333</p>
+        </Panel>
+      </Collapse>
     </div>
   );
 }

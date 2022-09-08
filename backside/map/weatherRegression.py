@@ -72,7 +72,7 @@ class regressionInfo:
       self.result[i]=0
     if len(exam_df)==0:
       print('len==0')
-      return 0
+      return 0,0
     if 'MarCap' in variableList:
       exam_df['MarCap'] = exam_df['MarCap'].apply(lambda x : math.log(x))
     exam_df=exam_df.apply(lambda x : (x-np.min(x))/(np.max(x)-np.min(x)))
@@ -105,13 +105,13 @@ class regressionInfo:
       self.result[i]=0
     if len(exam_df)==0:
       print('len==0')
-      return 0
+      return 0,0
     if 'MarCap' in variableList:
       exam_df['MarCap'] = exam_df['MarCap'].apply(lambda x : math.log(x))
     exam_df = exam_df.apply(lambda x : (x-np.min(x))/(np.max(x)-np.min(x)))
     if exam_df[variableList[0]].isnull().sum()!=0:
       print(variableList[0],'has no change')
-      return 0
+      return 0,0
     x = exam_df[variableList]
     y = exam_df[label]
     x=sm.add_constant(x) #添加常数项

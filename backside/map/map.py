@@ -354,7 +354,8 @@ def listWeatherDistribution(request,city,x,y):
   dataDf = DataFrame(myDict)
   dataDf = dataDf[dataDf!=-100].dropna()
   return JsonResponse({'ret': 0, 'data':{x:list(dataDf[x]),y:list(dataDf[y])}})
-
+def handleTemp(x):
+  return x-273.15
 def listWeatherRegression(request):
   print('list weather regression')
   label=request.POST.get('label',default='1')
@@ -366,12 +367,20 @@ def listWeatherRegression(request):
   for name in area:
     cities=cities+getCities(name)[1:]
   myDict={}
+  myDict['cities']=cities
   myInfo=regressionInfo(cities)
   # 分布图
-  myDf = myInfo.dataDf[weatherList+[label]]
-  myDf = myDf[myDf!=-100].dropna()
-  for i in weatherList+[label]:
-    myDict[i]=list(myDf[i])
+  # myDf = myInfo.dataDf[weatherList+[label]]
+  # myDf = myDf[myDf!=-100].dropna()
+  for i in weatherList:
+    myDict[i]={}
+    myDf = myInfo.dataDf[[i,label]]
+    myDf = myDf[myDf!=-100].dropna()
+    myDict[i][0]=list(myDf[i])
+    if i=='min' or i=='max':
+      myDict[i][0] = [i-273.15 for i in myDict[i][0]]
+    myDict[i][1] = list(myDf[label])
+    # myDict[i]=list(myDf[i])
   # 所有城市数据的回归
   myDict['all']={}
   if label=='tur':

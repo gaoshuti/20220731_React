@@ -192,7 +192,6 @@ function MySider(props) {
 }
 
 function HistoryData(props) {
-  console.log(props.data);
   if(props.data.length<2 ||  props.data[0].length===0){
     console.log('history ret is null');
     return(
