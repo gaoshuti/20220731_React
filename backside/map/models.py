@@ -2,7 +2,7 @@
 from django.db import models
 
 # Create your models here.
-class map(models.Model):
+class map(models.Model):# 数据
   id = models.AutoField(primary_key=True,default='')
   city=models.CharField(max_length=255)
   date=models.CharField(max_length=255)
@@ -37,7 +37,7 @@ class map(models.Model):
   API=models.IntegerField(null=True,blank=True)
   AQI=models.IntegerField(null=True,blank=True)
 
-class stock(models.Model):
+class stock(models.Model):# 暂无用
   id = models.AutoField(primary_key=True,default='')
   stkcd=models.CharField(max_length=255)
   date=models.CharField(max_length=255)
@@ -55,7 +55,7 @@ class stock(models.Model):
   dretwd=models.FloatField(null=True,blank=True)#考虑现金红利再投资的日个股回报率
   changeRatio=models.FloatField(null=True,blank=True)#ChangeRatio
 
-class mapQuery(models.Model):
+class mapQuery(models.Model): # 地图查询结果
   id = models.AutoField(primary_key=True)
   area=models.CharField(default='',max_length=255)
   label=models.CharField(default='',max_length=255)
@@ -81,6 +81,15 @@ class mapQuery(models.Model):
   aboveNum4=models.IntegerField()
   belowNum4=models.IntegerField() 
 
-class stkcdInCity(models.Model):
+class stkcdInCity(models.Model): # stkcd与city的对应关系
   city=models.CharField(primary_key=True,max_length=255)
   stkcd=models.CharField(max_length=2805)
+
+class predictModelPath(models.Model):
+  id = models.AutoField(primary_key=True,default='')
+  stkcd=models.CharField(max_length=255)
+  begindate=models.CharField(max_length=255)
+  enddate=models.CharField(max_length=255)
+  class Meta:
+    unique_together = ('stkcd', 'begindate', 'enddate')
+  path=models.CharField(max_length=255)
