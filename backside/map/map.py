@@ -1,6 +1,6 @@
 from webbrowser import get
 from django.http import JsonResponse
-from map.models import map,mapQuery,stkcdInCity
+from map.models import map,mapQuery,stkcdInCity,regQuery,predictModelPath
 from map.stkLSTM import CgcpLSTM
 from map.weatherRegression import regressionInfo
 from keras.models import load_model
@@ -8,10 +8,13 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from pandas import DataFrame
 
+from chinese_calendar import is_workday
 import json
 import akshare as ak
-
-
+import time
+import datetime
+import urllib.request
+import urllib.error
 
 def dispatcher(request):
   # 将请求参数统一放入request 的 params 属性中，方便后续处理
@@ -267,14 +270,79 @@ def listRet(request,city):
   return JsonResponse({'ret': 0, 'data':myDict})
 
 def listStkDate(request,stkcd):
-  stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date='20000101', end_date='20220822', adjust="")
-
-  begindate = stock_zh_a_hist_df['日期'].values[0].replace('-','')
-  enddate = stock_zh_a_hist_df['日期'].values[len(stock_zh_a_hist_df)-1].replace('-','')
-  print(stkcd,begindate,enddate)
-  myDict={'begindate':begindate,'enddate':enddate}
+  pmp = predictModelPath.objects.values().filter(stkcd=stkcd)
+  if len(pmp)==0:
+    return JsonResponse({'ret': 1, 'msg': 'not have model'})
+  else: 
+    T = time.localtime(time.time())
+    enddate=str(T.tm_year)+'0'+str(T.tm_mon) if T.tm_mon<10 else str(T.tm_year)+str(T.tm_mon)
+    enddate=str(enddate)+'0'+str(T.tm_mday) if T.tm_mday<10 else str(enddate)+str(T.tm_mday)
+    # T = datetime.datetime.now()
+    # enddate=str(T.year)+'0'+str(T.month) if T.month<10 else str(T.year)+str(T.month)
+    # enddate=str(enddate)+'0'+str(T.day) if T.day<10 else str(enddate)+str(T.day)
+    
+    # thisweek = str(int(T.tm_wday) + 1)
+    # if thisweek=='6':
+    #   T += datetime.timedelta(days=2)
+    # elif thisweek=='7':
+    #   T += datetime.timedelta(days=2) 
+    # # T = time.localtime(time.time())
+    # print(T)
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date='20000101', end_date=enddate, adjust="")
+    begindate = stock_zh_a_hist_df['日期'].values[0].replace('-','')
+    enddate = stock_zh_a_hist_df['日期'].values[len(stock_zh_a_hist_df)-1].replace('-','')
+    print(stkcd,begindate,enddate)
+    myDict={'begindate':begindate,'enddate':enddate}
   return JsonResponse({'ret': 0, 'data':myDict})
-  
+
+def weather(request,district_id): #获取实时天气与未来天气
+  # district_id='110100'
+  url = 'https://api.map.baidu.com/weather/v1/?district_id='+district_id+'&data_type=all&ak=z29V2EL1hlYaD0XOXOp1xmq3DM9sjtCW'
+  try:
+    request = urllib.request.Request(url)
+    response = urllib.request.urlopen(request)
+  except urllib.request.HTTPError as error:    # HTTP错误
+    print('HTTPError')
+    print('ErrorCode: %s' % error.code)
+  except urllib.request.URLError as error:     # URL错误
+      print(error.reason)
+  html = response.read().decode('utf-8')
+  # print(html)
+  html=eval(html)
+  for i in html.keys():
+      print(i)
+
+  myDict={}
+  myDict['city']=html['result']['location']['city']
+  myDict['now']={
+      'text':html['result']['now']['text'],
+      'temp':html['result']['now']['temp'],
+      'wind_class':html['result']['now']['wind_class'],
+      'wind_dir':html['result']['now']['wind_dir']
+  }
+  myDict['day']=[]
+  for i in range(3):
+      dayInfo=html['result']['forecasts'][i]
+      myDict['day'].append(
+        {
+          'date':dayInfo['date'],
+          'text':dayInfo['text_day'],
+          'high':dayInfo['high'],
+          'low':dayInfo['low'],
+          'wind_class':dayInfo['wc_day'],
+          'wind_dir':dayInfo['wd_day'],
+          'week':dayInfo['week']
+        }
+      )
+  print(myDict)
+  return JsonResponse({'ret': 0, 'data':myDict})
+
+def currentStkPrice(request,stkcd):
+  print('current stock pricd:', stkcd)
+
+
+
+
 def LSTMpredict(model,data):
   continuous_sample_point_num = 20
   sc = MinMaxScaler(feature_range=(0, 1))
@@ -314,7 +382,58 @@ def LSTMpredict(model,data):
     result.append(str(i[0]))
   print(result)
   return result
-def stkLstm(request,stkcd,begindate,enddate,name,predictbegin,predictend):
+def stkLstm(request):
+
+  stkcd=request.POST.get('stkcd',default='1')
+  begindate=request.POST.get('begindate',default='1')
+  enddate=request.POST.get('enddate',default='1')
+  name='收盘'
+  print('LSTM begin',stkcd,begindate,enddate,name)
+  
+  pmp = predictModelPath.objects.values().filter(stkcd=stkcd)
+  if len(pmp)!=0:
+    path = pmp[0]['path']
+    try:
+      new_model = load_model(path)
+    except IOError:
+      print('load error')
+      return JsonResponse({'ret': 1, 'msg': 'load error'})
+    data = []
+    dates = []
+
+    T = datetime.datetime(int(begindate[:4]),int(begindate[4:6]),int(begindate[6:8]))
+    T -= datetime.timedelta(days=60)
+    enddate2 = str(T.year)+'0'+str(T.month) if T.month<10 else str(T.year)+str(T.month)
+    enddate2 = enddate2+'0'+str(T.day) if T.day < 10 else enddate2+str(T.day)
+
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=enddate2, end_date=begindate, adjust="")
+    print(len(stock_zh_a_hist_df))
+    if len(stock_zh_a_hist_df)<20:
+      return JsonResponse({'ret':1,'msg':'选择时间段前数据不满20，不足以训练'})
+    for i in range(len(stock_zh_a_hist_df)-20,len(stock_zh_a_hist_df)):
+      data.append(stock_zh_a_hist_df[name].values[i])
+      dates.append(stock_zh_a_hist_df['日期'].values[i])
+
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=begindate, end_date=enddate, adjust="")
+    print(len(stock_zh_a_hist_df))
+    for i in stock_zh_a_hist_df[name].values:
+      data.append(i)
+    for i in stock_zh_a_hist_df['日期'].values:
+      dates.append(i)
+    predict = LSTMpredict(new_model,data)
+
+    T = datetime.datetime(int(enddate[:4]),int(enddate[4:6]),int(enddate[6:8]))
+    T += datetime.timedelta(days=1)
+    while is_workday(T.date())==False:
+      T+=datetime.timedelta(days=1)
+    dates.append(str(T.date()))
+    myDict={'num':len(data)-20, 'date': dates[20:], 'predict':predict,'real':[str(x) for x in data[20:]]}
+    print(len(myDict['predict']),len(myDict['real']),len(myDict['date']))
+    return JsonResponse({'ret': 0, 'data':myDict})
+  else:
+    return JsonResponse({'ret': 1, 'msg': 'have no model'})
+
+def stkLstm2(request,stkcd,begindate,enddate,name,predictbegin,predictend):
   print('LSTM begin',stkcd,begindate,enddate,name)
   try:
     new_model = load_model('/Users/rumeng/testModel/'+stkcd+'_'+begindate+'_'+enddate)
@@ -358,20 +477,37 @@ def handleTemp(x):
   return x-273.15
 def listWeatherRegression(request):
   print('list weather regression')
+  T1=time.time()
+  # 获取传入数据
   label=request.POST.get('label',default='1')
   model=request.POST.get('model',default='1')
   weatherList=request.POST.get('weather',default='1').split('#')
   area=request.POST.get('area',default='1').split('#')
   print(label,model,weatherList,area)
-  cities = []
-  for name in area:
-    cities=cities+getCities(name)[1:]
+
   myDict={}
+  # 控制变量内容
+  if label=='tur':
+    variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
+  elif label=='ret':
+    variableList=['ret(-1)', 'ris','smb','hml']
+  else:
+    return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
+  
+  # 查表
+  rq = regQuery.objects.values()
+  # 获取城市名单
+  cities = []
+  rqCities = rq.filter(area=area)
+  if len(rqCities)!=0:
+    cities = rqCities[0]['cities'].split('#')
+  else:
+    for name in area:
+      cities=cities+getCities(name)[1:]
   myDict['cities']=cities
-  myInfo=regressionInfo(cities)
+
   # 分布图
-  # myDf = myInfo.dataDf[weatherList+[label]]
-  # myDf = myDf[myDf!=-100].dropna()
+  myInfo=regressionInfo(cities)
   for i in weatherList:
     myDict[i]={}
     myDf = myInfo.dataDf[[i,label]]
@@ -380,55 +516,79 @@ def listWeatherRegression(request):
     if i=='min' or i=='max':
       myDict[i][0] = [i-273.15 for i in myDict[i][0]]
     myDict[i][1] = list(myDf[label])
-    # myDict[i]=list(myDf[i])
-  # 所有城市数据的回归
+
+  # 查看是否具有所有查询区域的总数据
   myDict['all']={}
-  if label=='tur':
-    variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
-  elif label=='ret':
-    variableList=['ret(-1)', 'ris','smb','hml']
-  else:
-    return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
-  
-  if model=='linear':
-    for w in weatherList:
-      score,num=myInfo.myRegression([w]+variableList, label)
-      print(score,num)
-      myDict['all'][w]={'weights':myInfo.result[w],'score':score}
-  elif model=='OLS':
-    for w in weatherList:
-      score,num=myInfo.myOLSRegression([w]+variableList, label)
-      print(score,num)
-      myDict['all'][w]={'weights':myInfo.result[w],'score':score}
-  else:
-    return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
-  # myDict['all']={'weights':myInfo.result,'score':score}
+  print('all')
+  # flag1=False
+  for weather in weatherList:
+    print(weather)
+    myDict['all'][weather]={}
+    conditions={
+      'area': '#'.join(area),
+      'label': label,
+      'model': model,
+      'weather': weather
+    }
+    rqall = rq.filter(**conditions)
+    if len(rqall)!=0:
+      myDict['all'][weather]['weights']=rqall[0]['weights']
+      myDict['all'][weather]['score']=rqall[0]['score']
+      myDict['all'][weather]['num']=rqall[0]['num']
+    else:
+      print('no data')
+      if model=='linear':
+        score,num=myInfo.myRegression([weather]+variableList, label)
+        print(score,num)
+        myDict['all'][weather]={'weights':myInfo.result[weather],'score':score,'num':num}
+      elif model=='OLS':
+        score,num=myInfo.myOLSRegression([weather]+variableList, label)
+        print(score,num)
+        myDict['all'][weather]={'weights':myInfo.result[weather],'score':score,'num':num}
+      else:
+        return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
+      regQuery.objects.create(
+        area='#'.join(area), label=label, cities='#'.join(cities),
+        weather=weather,model=model,weights=myInfo.result[weather],
+        score=score,num=num)
   # 单个城市的回归
   if len(cities)==1:
     return JsonResponse({'ret': 0, 'data':myDict})
   for city in cities:
-    myInfo=regressionInfo(city)
+    print(city)
     myDict[city]={}
-    if label=='tur':
-      variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
-    elif label=='ret':
-      variableList=['ret(-1)', 'ris','smb','hml']
-    else:
-      return JsonResponse({'ret': 1, 'msg': 'label数据错误'})
-    
-    if model=='linear':
-      for w in weatherList:
-        score,num=myInfo.myRegression([w]+variableList, label)
-        print(score,num)
-        myDict[city][w]={'weights':myInfo.result[w],'score':score,'num':num}
-    elif model=='OLS':
-      for w in weatherList:
-        score,num=myInfo.myOLSRegression([w]+variableList, label)
-        print(score,num)
-        myDict[city][w]={'weights':myInfo.result[w],'score':score,'num':num}
-    else:
-      return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
-    # myDict[city]={'weights':myInfo.result,'score':score,'num':num}
+    flag1=False
+    for weather in weatherList:
+      conditions={
+        'area': city,
+        'label': label,
+        'model': model,
+        'weather': weather
+      }
+      rqone = rq.filter(**conditions)
+      if len(rqone)!=0:
+        myDict[city][weather]={'weights':rqone[0]['weights'],'score':rqone[0]['score'],'num':rqone[0]['num']}
+      else:
+        print('no data')
+        if flag1==False:
+          myInfo=regressionInfo(city)
+          flag1=True
+        if model=='linear':
+          score,num=myInfo.myRegression([weather]+variableList, label)
+          print(score,num)
+          myDict[city][weather]={'weights':myInfo.result[weather],'score':score,'num':num}
+        elif model=='OLS':
+          score,num=myInfo.myOLSRegression([weather]+variableList, label)
+          print(score,num)
+          myDict[city][weather]={'weights':myInfo.result[weather],'score':score,'num':num}
+        else:
+          return JsonResponse({'ret': 1, 'msg': 'model数据错误'})
+        record = regQuery.objects.create(
+          area=city, label=label, cities=city,
+          weather=weather,model=model,weights=myInfo.result[weather],
+          score=score,num=num)
+  T2=time.time()
+  print('用时：',T2-T1)
   return JsonResponse({'ret': 0, 'data':myDict})
 
 

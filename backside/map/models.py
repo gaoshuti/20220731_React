@@ -93,3 +93,16 @@ class predictModelPath(models.Model):
   class Meta:
     unique_together = ('stkcd', 'begindate', 'enddate')
   path=models.CharField(max_length=255)
+
+class regQuery(models.Model):
+  id = models.AutoField(primary_key=True)
+  area=models.CharField(default='',max_length=255)
+  label=models.CharField(default='',max_length=255)
+  model=models.CharField(default='',max_length=255)
+  weather=models.CharField(default='',max_length=255)
+  cities=models.CharField(default='',max_length=510)
+  weights=models.FloatField()
+  score=models.FloatField()
+  num=models.IntegerField()
+
+

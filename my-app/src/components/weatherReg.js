@@ -47,6 +47,7 @@ function FormDemo(props) {
   // const onFormLayoutChange=()=>{
   //   console.log('onformlayoutchange');
   // };
+
   const changeLabel = (e) => {
     console.log(e.target.value);
     props.setControlChecked(e.target.value);
@@ -345,14 +346,31 @@ function FormDemo(props) {
     
   
   ];
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
+    props.setButtonFlag(true);
     console.log('submit:',values.label,values.model,props.checkedList.join('#'),props.area.join('#'));
     const formData = new FormData();
     formData.append('label',values.label);
     formData.append('model',values.model);
-    formData.append('weather',props.checkedList.join('#'));
-    formData.append('area',props.area.join('#'));
-    axios({
+    if(props.checkedList.length===0){
+      console.log('weather 0:',props.checkedList)
+      props.setChecked(['max', 'min', 'wind', 'pres', 'tempDiff7', 'snow', 'rain', 'cloud', 'API', 'AQI'],true,true);
+      formData.append('weather','max#min#wind#pres#tempDiff7#snow#rain#cloud#API#AQI');
+    }else{
+      console.log('weather else:',props.checkedList)
+      formData.append('weather',props.checkedList.join('#'));
+    }
+    
+    if(props.area.length===0){
+      console.log('area 0:',props.area)
+      props.setArea(['上海']);
+      formData.append('area','上海');
+    }else if(props.area[0]==='all'){
+      formData.append('area','东北地区#华北地区#华中地区#华东地区#华南地区#西北地区#西南地区');
+    }else{
+      formData.append('area',props.area.join('#'));
+    }
+    await axios({
       headers: {
         'Content-Type':'application/json'
       },
@@ -362,14 +380,24 @@ function FormDemo(props) {
     }).then(res => {
       if(res && res.status === 200){
         // 响应成功的回调
-        console.log(res);
-        props.setSubmit(props.checkedList);
+        console.log('res:',res);
+        // console.log('checkedList and area after res',props.checkedList,props.area)
+        let submitList;
+        if(props.checkedList.length===0) submitList=['max', 'min', 'wind', 'pres', 'tempDiff7', 'snow', 'rain', 'cloud', 'API', 'AQI'];
+        else submitList=props.checkedList;
+        props.setSubmit(submitList);
         props.setResult(res.data['data']);
+        props.setButtonFlag(false);
       }else{
         // 响应失败
         console.log(res.msg);
+        props.setButtonFlag(false);
       }
-    })
+    },err=>{
+      console.log(err);
+      props.setButtonFlag(false);
+    });
+    
   };
   const changeTreeSelect = (value,label,extra) => {
     props.setArea(value);
@@ -498,11 +526,12 @@ function FormDemo(props) {
             treeCheckable={true}
             showCheckedStrategy={SHOW_PARENT} 
             onChange={changeTreeSelect}
+            value={props.area}
           />
           <Divider />
         </Form.Item>
         <Form.Item wrapperCol={{offset: 4, span: 16,}}>
-          <Button type="primary" htmlType="submit">提交</Button>
+          <Button type="primary" htmlType="submit" disabled={props.buttonFlag}>提交</Button>
         </Form.Item>
       </Form>
     </>
@@ -527,6 +556,7 @@ class RegDemo extends React.Component {
       setSubmit: props.setSubmit,//设置天气相关多选框的提交信息
       setResult: props.setResult,//设置回归结果
       setLabel: props.setLabel,
+      buttonFlag: false, //按钮是否禁用
     };
   }
   setChecked(list,flag1,flag2) {//设置天气相关多选框的选中信息
@@ -562,6 +592,11 @@ class RegDemo extends React.Component {
       area:list
     });
   }
+  setButtonFlag(flag) {
+    this.setState({
+      buttonFlag:flag,
+    });
+  }
   render() {
     return (
       <div>
@@ -577,6 +612,8 @@ class RegDemo extends React.Component {
           checkedList={this.state.checkedList}
           checkedControlList={this.state.checkedControlList}
           area={this.state.area}
+          buttonFlag={this.state.buttonFlag}
+          setButtonFlag={this.setButtonFlag.bind(this)}
         />
           
       </div>
@@ -625,17 +662,17 @@ function ScatterDemo(props) {
         //是否显示刻度标签 true显示
         containLabel: true
       },
-      tooltip: {
-        trigger: 'axis',
-        position: function(pt, params, dom, rect, size) {
-          // var tipWidth = pt[0]+size.contentSize[0];
-          // if(tipWidth>size.viewSize[0]) {
-          if(pt[0]>size.viewSize[0]/2) {
-            return [pt[0]-size.contentSize[0],'10%'];
-          }
-          return [pt[0], '10%'];
-        }
-      },
+      // tooltip: {
+      //   trigger: 'axis',
+      //   position: function(pt, params, dom, rect, size) {
+      //     // var tipWidth = pt[0]+size.contentSize[0];
+      //     // if(tipWidth>size.viewSize[0]) {
+      //     if(pt[0]>size.viewSize[0]/2) {
+      //       return [pt[0]-size.contentSize[0],'10%'];
+      //     }
+      //     return [pt[0], '10%'];
+      //   }
+      // },
       xAxis: {
         name: weatherName,
         type: 'value',
@@ -684,7 +721,18 @@ function RegCoefficientDemo(props) {
     aboveNum=0;
     belowNum=0;
     myDict['key']=props.submitList[i];
-    myDict['value']=props.submitList[i];
+    if(props.submitList[i]==='max') myDict['value']='最高温';
+    else if(props.submitList[i]==='min') myDict['value']='最低温';
+    else if(props.submitList[i]==='wind') myDict['value']='风速';
+    else if(props.submitList[i]==='pres') myDict['value']='气压';
+    else if(props.submitList[i]==='tempDiff7') myDict['value']='温差';
+    else if(props.submitList[i]==='snow') myDict['value']='雪';
+    else if(props.submitList[i]==='rain') myDict['value']='雨';
+    else if(props.submitList[i]==='cloud') myDict['value']='云量';
+    else if(props.submitList[i]==='API') myDict['value']='API';
+    else if(props.submitList[i]==='AQI') myDict['value']='AQI';
+    else console.log(props.submitList[i],' error');
+    // myDict['value']=props.submitList[i];
     myDict['allCoefficient']=props.result['all'][props.submitList[i]]['weights'].toFixed(6);
     if(props.result['cities'].length > 1){
       for(let j = 0; j < props.result['cities'].length; j++) {
@@ -705,7 +753,7 @@ function RegCoefficientDemo(props) {
   }
   return(
     <div>
-      <Table dataSource={data1} size="small" scroll={{ x: 1300, }}>
+      <Table dataSource={data1} size="small" scroll={{ x: 'auto', }}>
         {/* <Spin spinning={loading}> */}
         <Column title="变量" width={200} dataIndex="value" key="value" fixed="left"/>
         <Column title="总系数" width={100} dataIndex="allCoefficient" key="allCoefficient" fixed="left"/>
@@ -718,15 +766,6 @@ function RegCoefficientDemo(props) {
           })}
           <Column title="系数>0" width={100} dataIndex="aboveNum" key="aboveNum" fixed="right"/>
           <Column title="系数<0" width={100} dataIndex="belowNum" key="belowNum" fixed="right"/>
-          {/* <ColumnGroup title="数量">
-            <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
-            <Column title="<0" dataIndex="belowNum" key="belowNum" />
-          </ColumnGroup>
-          <ColumnGroup title="比例">
-            <Column title=">0" dataIndex="above" key="above" />
-            <Column title="<0" dataIndex="below" key="below" />
-          </ColumnGroup> */}
-        {/* </ColumnGroup> */}
         {/* </Spin> */}
       </Table>
     </div>

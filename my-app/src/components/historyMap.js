@@ -406,7 +406,7 @@ class Board extends React.Component {
     //   let city=cities[i];
     await axios.get("http://localhost:3000/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
       result=res.data['data'];
-      cities=res.data['cities']
+      cities=res.data['cities'];
     });
     for (var key in result){
       var historyInfo={};
