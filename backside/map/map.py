@@ -274,13 +274,12 @@ def listStkDate(request,stkcd):
   if len(pmp)==0:
     return JsonResponse({'ret': 1, 'msg': 'not have model'})
   else: 
-    T = time.localtime(time.time())
-    enddate=str(T.tm_year)+'0'+str(T.tm_mon) if T.tm_mon<10 else str(T.tm_year)+str(T.tm_mon)
-    enddate=str(enddate)+'0'+str(T.tm_mday) if T.tm_mday<10 else str(enddate)+str(T.tm_mday)
-    # T = datetime.datetime.now()
-    # enddate=str(T.year)+'0'+str(T.month) if T.month<10 else str(T.year)+str(T.month)
-    # enddate=str(enddate)+'0'+str(T.day) if T.day<10 else str(enddate)+str(T.day)
+    # T = time.localtime(time.time())
+    # enddate=str(T.tm_year)+'0'+str(T.tm_mon) if T.tm_mon<10 else str(T.tm_year)+str(T.tm_mon)
+    # enddate=str(enddate)+'0'+str(T.tm_mday) if T.tm_mday<10 else str(enddate)+str(T.tm_mday)
     
+    T = datetime.datetime.now()
+    enddate = T.strftime('%Y-%m-%d')
     # thisweek = str(int(T.tm_wday) + 1)
     # if thisweek=='6':
     #   T += datetime.timedelta(days=2)
@@ -296,7 +295,7 @@ def listStkDate(request,stkcd):
   return JsonResponse({'ret': 0, 'data':myDict})
 
 def weather(request,district_id): #获取实时天气与未来天气
-  # district_id='110100'
+  print('weather:',district_id)
   url = 'https://api.map.baidu.com/weather/v1/?district_id='+district_id+'&data_type=all&ak=z29V2EL1hlYaD0XOXOp1xmq3DM9sjtCW'
   try:
     request = urllib.request.Request(url)
@@ -337,10 +336,29 @@ def weather(request,district_id): #获取实时天气与未来天气
   print(myDict)
   return JsonResponse({'ret': 0, 'data':myDict})
 
-def currentStkPrice(request,stkcd):
-  print('current stock pricd:', stkcd)
+def stock(request,stkcd):
+  print('stock:', stkcd)
+  myDict = {}
+  stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
+  myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
+  myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
+  myDict['TTM'] = stock_individual_info_em_df['value'].values[3]#上市时间
+  myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
+  myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
+  myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
+  myDict['tradedIssue'] = stock_individual_info_em_df['value'].values[7]#流通股
 
-
+  myDict['data'] = []
+  T1 = datetime.datetime.now()
+  T2 = T1-datetime.timedelta(days=7)
+  # print('时间：(%Y-%m-%d %H:%M:%S %f): ' , T1.strftime( '%Y-%m-%d %H:%M:%S %f' ) ) 
+  # print('时间：(%Y-%m-%d %H:%M:%S %p): ' , T1.strftime( '%y-%m-%d %I:%M:%S %p' ))
+  stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
+  for i in range(len(stock_zh_a_hist_min_em_df)):
+    a=list(stock_zh_a_hist_min_em_df.iloc[i])
+    a[5]=int(a[5])
+    myDict['data'].append(a)
+  return JsonResponse({'ret': 0, 'data':myDict})
 
 
 def LSTMpredict(model,data):
@@ -383,7 +401,6 @@ def LSTMpredict(model,data):
   print(result)
   return result
 def stkLstm(request):
-
   stkcd=request.POST.get('stkcd',default='1')
   begindate=request.POST.get('begindate',default='1')
   enddate=request.POST.get('enddate',default='1')
@@ -403,9 +420,9 @@ def stkLstm(request):
 
     T = datetime.datetime(int(begindate[:4]),int(begindate[4:6]),int(begindate[6:8]))
     T -= datetime.timedelta(days=60)
-    enddate2 = str(T.year)+'0'+str(T.month) if T.month<10 else str(T.year)+str(T.month)
-    enddate2 = enddate2+'0'+str(T.day) if T.day < 10 else enddate2+str(T.day)
-
+    # enddate2 = str(T.year)+'0'+str(T.month) if T.month<10 else str(T.year)+str(T.month)
+    # enddate2 = enddate2+'0'+str(T.day) if T.day < 10 else enddate2+str(T.day)
+    enddate2 = T.strftime('%Y-%m-%d')
     stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=enddate2, end_date=begindate, adjust="")
     print(len(stock_zh_a_hist_df))
     if len(stock_zh_a_hist_df)<20:

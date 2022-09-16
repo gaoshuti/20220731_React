@@ -33,7 +33,6 @@ import {
 } from "antd";
 import EChartsReact from 'echarts-for-react';
 
-
 const axios = require('axios');
 const CheckboxGroup = Checkbox.Group;
 
