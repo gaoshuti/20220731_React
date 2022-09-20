@@ -21,6 +21,7 @@ import History from "./components/historyMap";
 import MyHeader from "./components/header";
 import WeatherReg from "./components/weatherReg";
 import StockPredict from "./components/stockPredict";
+import TheoreticalSupport from "./components/theoreticalSupport";
 import { BrowserRouter  as Router, Route, NavLink, Navigate, Routes } from "react-router-dom";
 
 const { TabPane } = Tabs;
@@ -57,7 +58,11 @@ class App extends React.Component {
       <div>
       <Layout className="container">
         <MyHeader className="header" onClick={this.headerOnClick.bind(this)} />
-          {this.state.key==='home'?<Home/>:(this.state.key==='function-1'?<History/>:(this.state.key==='function-2'?<WeatherReg/>:<StockPredict/>))}
+          {this.state.key==='home'?<Home/>:
+          (this.state.key==='function-1'?<History/>:
+          (this.state.key==='function-2'?<WeatherReg/>:
+          (this.state.key==='function-3'?<StockPredict/>:
+          <TheoreticalSupport/>)))}
           {/* <Router>
           <Routes>
             <Route path="/historyMap" element={<History/>}></Route>

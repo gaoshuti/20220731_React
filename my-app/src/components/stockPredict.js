@@ -68,7 +68,7 @@ function SelectDemo(props) {
     formData.append('stkcd',values.stkcd);
     if(props.selectedBegin==='') {// 未完成
       //=============================================
-      props.setSelectedDate('20220104',props.enddate)
+      props.setSelectedDate('20220104',props.enddate);
     }else{
       formData.append('begindate',props.selectedBegin);
       formData.append('enddate',props.selectedEnd);
@@ -79,7 +79,7 @@ function SelectDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`http://localhost:3000/stock`,
+      url:`http://localhost:3000/stockpredict`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){

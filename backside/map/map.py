@@ -336,8 +336,33 @@ def weather(request,district_id): #获取实时天气与未来天气
   print(myDict)
   return JsonResponse({'ret': 0, 'data':myDict})
 
+def stock365(request,stkcd):
+  print('history 30:', stkcd)
+  myDict = {}
+  stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
+  myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
+  myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
+  myDict['TTM'] = stock_individual_info_em_df['value'].values[3]#上市时间
+  myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
+  myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
+  myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
+  myDict['tradedIssue'] = stock_individual_info_em_df['value'].values[7]#流通股
+  myDict['data'] = []
+  T1 = datetime.datetime.now()
+  T1 = T1-datetime.timedelta(days=1)
+  T2 = T1-datetime.timedelta(days=365)
+  stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
+  print(stock_zh_a_hist_df.iloc[0]) 
+  # stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
+  for i in range(len(stock_zh_a_hist_df)):
+    a=list(stock_zh_a_hist_df.iloc[i])
+    a[5]=int(a[5])
+    myDict['data'].append(a)
+  return JsonResponse({'ret': 0, 'data':myDict})
+
+
 def stock(request,stkcd):
-  print('stock:', stkcd)
+  print('real stock:', stkcd)
   myDict = {}
   stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
   myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
@@ -350,7 +375,8 @@ def stock(request,stkcd):
 
   myDict['data'] = []
   T1 = datetime.datetime.now()
-  T2 = T1-datetime.timedelta(days=7)
+  # T2 = T1-datetime.timedelta(days=7)
+  T2 = datetime.date(T1.year,T1.month,T1.day)
   # print('时间：(%Y-%m-%d %H:%M:%S %f): ' , T1.strftime( '%Y-%m-%d %H:%M:%S %f' ) ) 
   # print('时间：(%Y-%m-%d %H:%M:%S %p): ' , T1.strftime( '%y-%m-%d %I:%M:%S %p' ))
   stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')

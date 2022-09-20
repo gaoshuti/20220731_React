@@ -361,12 +361,25 @@ function SelectDemo(props) {
     props.setButtonFlag(true);
     console.log('submit:',values.stkcd);
     let stkcd = values.stkcd;
-    await axios.get("http://localhost:3000/stock/"+stkcd).then((res)=>{
+    await axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
-        console.log(result['data'])
+        console.log('stock365:',result['data'])
         props.setResult(result);
-        props.setButtonFlag(false);
+        axios.get("http://localhost:3000/stock/"+stkcd).then((res2)=>{
+          var result1=res2.data;
+          if(result['ret']===0)  {//成功
+            console.log('stock:',result1['data'])
+            props.setData(result1);
+            props.setButtonFlag(false);
+          } else { //失败
+            console.log(result['msg'])
+            props.setButtonFlag(false);
+          }
+        },err2=>{
+          console.log(err2);
+          props.setButtonFlag(false);
+        });
       } else { //失败
         console.log(result['msg'])
         props.setButtonFlag(false);
@@ -415,7 +428,7 @@ function SelectDemo(props) {
             </Col>
             <Col span={4}>
               <Form.Item>
-                <Button size="small" shape="round" type="ghost" htmlType="submit" disabled={props.buttonFlag}>提交</Button>
+                <Button size="small" shape="round" type="ghost" htmlType="submit" disabled={props.buttonFlag}>查询</Button>
               </Form.Item>
             </Col>
           </Row>
@@ -458,21 +471,59 @@ function StockInfo(props) {
     </div>
   );
 }
-function StockPrice(props) {
-  let data0 = props.splitData(props.data);
+function StockHistoryPrice(props) {
+  console.log('history:',props.historyData[0]);//日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+  let data0 = props.splitData(props.historyData);
+  // console.log(data0.values);
   let option = {
     title: {
-      text: '实时价格',
+      text: '历史价格',
       left: 0
     },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross'
-      }
+      },
+      formatter: function (params, ticket, callback) {
+        var htmlStr = '';
+        for(var i=0;i<params.length;i++){
+          var param = params[i];
+          var xName = param.name;//x轴的名称
+          var seriesName = param.seriesName;//图例名称
+          var value = param.value;//y轴值
+          var color = param.color;//图例颜色
+          if(i===0){
+            htmlStr += xName + '<br/>';//x轴的名称
+          }
+          htmlStr +='<div>';
+          const point1 = (color) => {
+            return '<span style="margin-right:5px;display:inline-block;width:10px;height:10px;border-radius:5px;background-color:'+color+';"></span>';
+          };
+          htmlStr += point1(color);
+          // htmlStr += seriesName+ '<br/>';
+          htmlStr += '股价' + '<br/>';
+          var point2 = '<span style="margin-left:3px;margin-right:8px;display:inline-block;width:4px;height:4px;border-radius:2px;background-color:'+color+';"></span>';
+          htmlStr += point2 + 'open：' + value[1] + '<br/>';
+          htmlStr += point2 + 'close：' + value[2] + '<br/>';
+          htmlStr += point2 + 'lowest：' + value[3] + '<br/>';
+          htmlStr += point2 + 'highest：' + value[4] + '<br/>';
+          var otherInfo = data0.otherInfo[xName];
+          let color1 = '#888888'
+          htmlStr += point1(color1) + '成交量：' + otherInfo[0] + '<br/>';
+          htmlStr += point1(color1) + '成交额：' + otherInfo[1] + '<br/>';
+          htmlStr += point1(color1) + '振幅：' + otherInfo[2] + '%<br/>';
+          htmlStr += point1(color1) + '涨跌幅：' + otherInfo[3] + '%<br/>';
+          htmlStr += point1(color1) + '涨跌额：' + otherInfo[4] + '<br/>';
+          htmlStr += point1(color1) + '换手率：' + otherInfo[5] + '%<br/>';
+          
+          htmlStr += '</div>';
+        }
+        return htmlStr;
+       }
     },
     // legend: {
-    //   data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+    //   data: ['日K', '成交量', '成交额', '振幅', '涨跌幅', '涨跌额', '换手率']
     // },
     grid: {
       left: '10%',
@@ -509,8 +560,7 @@ function StockPrice(props) {
       }
     ],
     series: [
-      {
-        name: '日K',
+      { name: '日K',
         type: 'candlestick',
         data: data0.values,
         itemStyle: {
@@ -603,14 +653,226 @@ function StockPrice(props) {
           ]
         }
       },
-      
+      // { name: '成交量',
+      //   type: 'line',
+      //   data: data0.tradingNum,
+      // },
+      // { name: '成交额',
+      //   type: 'line',
+      //   // lineStyle:{ 
+      //   //   color:'red' //改变折线颜色
+      //   // }, 
+      //   // symbol: 'none',
+      //   data: data0.tradingValue
+      // },
+      // { name: '振幅',
+      //   type: 'line',
+      //   data: data0.amplitude,
+      // },
+      // { name: '涨跌幅',
+      //   type: 'line',
+      //   data: data0.changePercent,
+      // },
+      // { name: '涨跌额',
+      //   type: 'line',
+      //   data: data0.changeAmount,
+      // },
+      // { name: '换手率',
+      //   type: 'line',
+      //   data: data0.turnoverRate,
+      // },
     ]
   };
   return(
     <div>
+      {/* <p>历史数据</p> */}
       <EChartsReact option={option}/>
     </div>
   );
+  
+  
+}
+class StockPrice extends React.Component {
+  componentDidMount() {
+    //设置定时器，5s更新一次
+    this.timer = setInterval(() => {
+      axios.get("http://localhost:3000/stock/"+this.props.stkcd).then((res)=>{
+        console.log('loading:',res.data['data']['data'][res.data['data']['data'].length-1][0]);
+        var result=res.data;
+        if(result['ret']===0)  {//成功
+          if(res.data['data']['data'][res.data['data']['data'].length-1][0]!==this.props.data[this.props.data.length-1][0]){
+            this.props.setData(result);
+          }
+          // console.log('loading:',result['data']['data'][0][0])
+        } else { //失败
+          console.log(result['msg'])
+        }
+      },err=>{
+        console.log(err);
+      });
+    }, 5000)
+  };
+  componentWillUnmount() { //组件卸载时清除定时器
+    clearInterval(this.timer);
+  }
+  
+  getOption() {
+    // console.log('data:',this.props.data);
+    let data0 = this.props.splitData(this.props.data);
+    let option = {
+      title: {
+        text: '今日实时价格',
+        left: 0
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross'
+        }
+      },
+      grid: {
+        left: '10%',
+        right: '10%',
+        bottom: '15%'
+      },
+      xAxis: {
+        type: 'category',
+        data: data0.categoryData,
+        boundaryGap: false,
+        axisLine: { onZero: false },
+        splitLine: { show: false },
+        min: 'dataMin',
+        max: 'dataMax'
+      },
+      yAxis: {
+        scale: true,
+        splitArea: {
+          show: true
+        }
+      },
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 100
+        },
+        {
+          show: true,
+          type: 'slider',
+          top: '90%',
+          start: 0,
+          end: 100
+        }
+      ],
+      series: [
+        {
+          name: '日K',
+          type: 'candlestick',
+          data: data0.values,
+          itemStyle: {
+            color: upColor,
+            color0: downColor,
+            borderColor: upBorderColor,
+            borderColor0: downBorderColor
+          },
+          markPoint: {
+            label: {
+              formatter: function (param) {
+                return param != null ? Math.round(param.value) + '' : '';
+              }
+            },
+            data: [
+              // {
+              //   name: 'Mark',
+              //   coord: ['2013/5/31', 2300],
+              //   value: 2300,
+              //   itemStyle: {
+              //     color: 'rgb(41,60,85)'
+              //   }
+              // },
+              {
+                name: 'highest value',
+                type: 'max',
+                valueDim: 'highest'
+              },
+              {
+                name: 'lowest value',
+                type: 'min',
+                valueDim: 'lowest'
+              },
+              {
+                name: 'average value on close',
+                type: 'average',
+                valueDim: 'close'
+              }
+            ],
+            tooltip: {
+              formatter: function (param) {
+                return param.name + '<br>' + (param.data.coord || '');
+              }
+            }
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            data: [
+              [
+                {
+                  name: 'from lowest to highest',
+                  type: 'min',
+                  valueDim: 'lowest',
+                  symbol: 'circle',
+                  symbolSize: 10,
+                  label: {
+                    show: false
+                  },
+                  emphasis: {
+                    label: {
+                      show: false
+                    }
+                  }
+                },
+                {
+                  type: 'max',
+                  valueDim: 'highest',
+                  symbol: 'circle',
+                  symbolSize: 10,
+                  label: {
+                    show: false
+                  },
+                  emphasis: {
+                    label: {
+                      show: false
+                    }
+                  }
+                }
+              ],
+              {
+                name: 'min line on close',
+                type: 'min',
+                valueDim: 'close'
+              },
+              {
+                name: 'max line on close',
+                type: 'max',
+                valueDim: 'close'
+              }
+            ]
+          }
+        },
+        
+      ]
+    };
+    return option;
+  };
+  render(){
+    // console.log('child data:',this.props.data[0]);
+    return(
+      <div>
+        <EChartsReact option={this.getOption()}/>
+      </div>
+    );
+  }
+  
 }
 class StockDemo extends React.Component {
   constructor(props) {
@@ -627,16 +889,50 @@ class StockDemo extends React.Component {
         'tradedIssue':0.0,//流通股本
       },
       data: [],           //股票实时数据
+      historyData: [],    //股票历史数据
       buttonFlag: false,  //控制按钮是否可用
     };
   }
   splitData(rawData) {
-    console.log('length:',rawData[0].length);
     const categoryData = [];
     const values = [];
+    console.log('rawdata length:',rawData[0].length);
+    if(rawData.length!==0 && rawData[0].length===11){
+      var myDict = {};
+      // const tradingNum = [];//成交量
+      // const tradingValue = [];//成交额
+      // const amplitude = [];//振幅
+      // const changePercent = [];//涨跌幅
+      // const changeAmount = [];//涨跌额
+      // const turnoverRate = [];//换手率
+      for (var i = 0; i < rawData.length; i++) {
+        categoryData.push(rawData[i].slice(0, 1)[0]);
+        values.push(rawData[i].slice(1,5));
+        myDict[rawData[i].slice(0, 1)[0]] = rawData[i].slice(5,12);
+        // tradingNum.push(rawData[i].slice(5,6)[0]);
+        // tradingValue.push(rawData[i].slice(6,7)[0]);
+        // amplitude.push(rawData[i].slice(7,8)[0]);
+        // changePercent.push(rawData[i].slice(8,9)[0]);
+        // changeAmount.push(rawData[i].slice(9,10)[0]);
+        // turnoverRate.push(rawData[i].slice(10,11)[0]);
+
+      }
+      // console.log(myDict);
+      return {
+        categoryData: categoryData,
+        values: values,
+        otherInfo: myDict,
+        // tradingNum: tradingNum,
+        // tradingValue: tradingValue,
+        // amplitude: amplitude,
+        // changePercent: changePercent,
+        // changeAmount: changeAmount,
+        // turnoverRate: turnoverRate
+      };
+    }
     for (var i = 0; i < rawData.length; i++) {
-      categoryData.push(rawData[i].splice(0, 1)[0]);
-      values.push(rawData[i].slice(0,4));
+      categoryData.push(rawData[i].slice(0, 1)[0]);
+      values.push(rawData[i].slice(1,5));
     }
     return {
       categoryData: categoryData,
@@ -652,6 +948,7 @@ class StockDemo extends React.Component {
     }
   }
   setResult(result) {
+    // console.log('result["data"]["data"]:',result['data']['data']);
     this.setState({
       info: {
         'name':result['data']['name'],               //股票简称
@@ -662,6 +959,13 @@ class StockDemo extends React.Component {
         'stkIssue':result['data']['stkIssue'],       //总股本
         'tradedIssue':result['data']['tradedIssue'], //流通股本
       },
+      historyData: result['data']['data'],
+      //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+    });
+  }
+  setData(result) {
+    // console.log('setData:',result['data']['data'][0][0]);
+    this.setState({
       data: result['data']['data'],
       //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价 
     });
@@ -672,6 +976,7 @@ class StockDemo extends React.Component {
     });
   }
   render() {
+    // console.log('parent data',this.state.data[0]);
     return(
       <div>
         {/* <p>实时股价</p> */}
@@ -681,15 +986,28 @@ class StockDemo extends React.Component {
           buttonFlag={this.state.buttonFlag}
           setButtonFlag={this.setButtonFlag.bind(this)}
           setResult={this.setResult.bind(this)}
+          setData={this.setData.bind(this)}
         />
         <Divider></Divider>
         {this.state.info['name']===''?<div><p>暂无数据</p></div>:
           <div>
             <StockInfo info={this.state.info}/>
+            <Divider/>
+            {this.state.data.length===0?<div><p>暂未开市</p></div>:
             <StockPrice
+              stkcd={this.state.stkcd}
               data={this.state.data}
+              setData={this.setData.bind(this)}
+              setResult={this.setResult.bind(this)}
               splitData={this.splitData.bind(this)}
             />
+            }
+            <Divider/>
+            <StockHistoryPrice
+              historyData={this.state.historyData}
+              splitData={this.splitData.bind(this)}
+            />
+            
           </div>
         }
         <div>

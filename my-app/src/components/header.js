@@ -28,6 +28,7 @@ function MyHeader(props) {
         { label: "股价预测", key: "function-3" },
       ],
     },
+    { label: "理论", keys: "theory"},
   ];
   return (
     <Header>

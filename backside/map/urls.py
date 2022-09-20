@@ -8,6 +8,7 @@ urlpatterns = [
     # url('map/',map.listInfo),
     url(r'^weather/(?P<district_id>\d+)$',map.weather),#获取实时天气与未来天气
     url(r'^stock/(?P<stkcd>\d+)$',map.stock),#获取实时股票信息
+    url(r'^stock365/(?P<stkcd>\d+)$',map.stock365),#获取历史一年的股票价格
     url(r'^history/(?P<area>[\u4e00-\u9fa5]+)/(?P<label>\w+)/(?P<minvalue>-?\d+)/(?P<maxvalue>-?\d+)$',map.listInfo),
     url(r'^historyret/(?P<city>[\u4e00-\u9fa5]+)$',map.listRet),
     url(r'^datasource/(?P<area>[\u4e00-\u9fa5]+)$',map.getDataSource),
