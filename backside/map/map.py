@@ -472,6 +472,11 @@ def stkLstm(request):
     dates.append(str(T.date()))
     myDict={'num':len(data)-20, 'date': dates[20:], 'predict':predict,'real':[str(x) for x in data[20:]]}
     print(len(myDict['predict']),len(myDict['real']),len(myDict['date']))
+    predictCorret = 0
+    for i in range(1,len(myDict['real'])):
+      if (float(myDict['real'][i])-float(myDict['real'][i-1]))*(float(myDict['predict'][i])-float(myDict['predict'][i-1]))>=0:
+        predictCorret+=1
+    myDict['predictCorrect'] = predictCorret
     return JsonResponse({'ret': 0, 'data':myDict})
   else:
     return JsonResponse({'ret': 1, 'msg': 'have no model'})

@@ -89,6 +89,79 @@ function LocalPreferences(props) {
     </div>
   );
 }
+function LSTM(props) {
+  return(
+    <div>
+      <Title level={3}>LSTM</Title>
+      <p>
+        LSTM的“记忆”被称作细胞/cells，其输入为前状态h<sub>t-1</sub>和当前输入x<sub>t</sub>，
+        细胞会决定哪些之前的状态和信息需要被保留，哪些被抹去。这种方式可以有效地保留很长时间之前的关联信息。
+        从而避免长期依赖问题，实现只保留相关信息而忘记不相关的数据。
+        具体结构如图所示:
+      </p>
+      <div><p>假装有一个图片.jpg</p></div>
+      <p>
+        重复的模块中包含四个交互层，分别为三个Sigmoid和一个tanh层。图中&sigma;表示的激活函数将值压缩至0-1之间。
+        当为0时代表忘记，数据会被剔除；为1时代表记住，信息会完整地保留。
+        LSTM的“门”结构由sigmoid神经网络层和pointwise乘法的非线性操作组成，包括记忆细胞、输入门、输出门、遗忘门。
+        0代表不允许任何量通过，1代表允许任意量通过，从而使得门结构能够去除或增加信息到细胞状态。
+      </p><br/>
+      <div><Title level={5}>遗忘门</Title>
+        <p>LSTM通过遗忘门的结构从细胞中丢弃信息。</p>
+        <p>
+          遗忘门读取上一个输出h<sub>t-1</sub>和当前输入x<sub>t</sub>，通过Sigmoid非线性映射，
+          输出向量f<sub>t</sub>（该向量的每一个维度的值都在0到1之间），最后与细胞状态C<sub>t-1</sub>相乘。
+        </p>
+        <p>
+          f<sub>t</sub> = &sigma;( W<sub>f</sub> · [ h<sub>t-1</sub>, x<sub>t</sub> ] + b<sub>f</sub> ) 
+          = &sigma;( W<sub>fh</sub>h<sub>t-1</sub> + W<sub>fx</sub>x<sub>t</sub> + b<sub>f</sub> ) 
+        </p>
+      </div><Divider/>
+      <div><Title level={5}>输入门</Title>
+        <p>LSTM通过输入门决定哪些新信息被存放在细胞状态中。</p>
+        <p>
+          分为两部分：Sigmoid层决定哪些值将被更新；tanh层创建新的候选值向量C<sub>t</sub>并加入状态中。
+        </p>
+        <p>
+          i<sub>t</sub> = &sigma;( W<sub>i</sub> · [ h<sub>t-1</sub>, x<sub>t</sub> ] + b<sub>i</sub> ) 
+          = &sigma;( W<sub>ih</sub>h<sub>t-1</sub> + W<sub>ix</sub>x<sub>t</sub> + b<sub>i</sub> ) 
+          <br/>
+          C<sub>t</sub> = tanh( W<sub>C</sub> · [ h<sub>t-1</sub>, x<sub>t</sub> ] + b<sub>C</sub> ) 
+          = tanh( W<sub>Ch</sub>h<sub>t-1</sub> + W<sub>Cx</sub>x<sub>t</sub> + b<sub>C</sub> ) 
+        </p>
+      </div><Divider/>
+      <div><Title level={5}>细胞状态</Title>
+        <p>
+          将细胞状态由C<sub>t-1</sub>更新为C<sub>t</sub>。
+        </p>
+        <p>
+          在遗忘门中我们决定了哪些信息需要被丢弃，在输入门中决定了要加入的新信息，
+          于是我们把旧状态与遗忘门得到的f<sub>t</sub>相乘，接着加上输入门得到的i<sub>t</sub>*C<sub>t</sub>，
+          得到了新的候选值，根据我们决定更新每个状态的程度进行变化。
+        </p>
+        <p>
+          C<sub>t</sub> = f<sub>t</sub> * C<sub>t-1</sub> + i<sub>t</sub> * C<sub>t</sub>
+        </p>
+        <span style={{textDecorationLine: 'overline', textDecorationStyle: 'wavy'}}>C</span>
+        <p>~</p><p style={{marginTop: -28}}>C</p>
+        <p>12345678<p>~</p><p style={{marginTop: -28}}>C</p></p>
+      </div><Divider/>
+      <div><Title level={5}>输出门</Title>
+        <p>
+          最终，我们需要确定输出什么值。这个输出将会基于细胞状态，但是也是一个过滤后的版本。
+          首先，我们运行一个sigmoid层来确定细胞状态的哪个部分将输出出去。
+          接着，我们把细胞状态通过tanh进行处理（得到一个在-1到1之间的值）并将它和sigmoid门的输出相乘，最终我们仅仅会输出我们确定输出的那部分。
+        </p>
+        <p>
+          o<sub>t</sub> = &sigma;( W<sub>o</sub> · [ h<sub>t-1</sub>, x<sub>t</sub> ] + b<sub>o</sub> ) 
+          = &sigma;( W<sub>oh</sub>h<sub>t-1</sub> + W<sub>ox</sub>x<sub>t</sub> + b<sub>o</sub> ) 
+          <br/>
+          h<sub>t</sub> = o<sub>t</sub> * tanh( C<sub>t</sub> )
+        </p>
+      </div><Divider/>
+    </div>
+  );
+}
 function DataSources(props) {
   var data1 = [
     { "key": "city", "value": "上海", "meaning": "城市",},
@@ -144,26 +217,28 @@ function DataSources(props) {
         <Column title="值" width={200} dataIndex="value" key="value"/>
         <Column title="说明" width={500} dataIndex="meaning" key="meaning"/>
       </Table>
-      <Divider/>
-      <p>101个拥有大于等于5支股票的城市：</p>
-      <Row style={{
-        margin: 0,
-      }}>
-        {city101.map((item) => {
-          return (
-            <Col span={3} key={item}>{item}</Col>);
-        })}
-      </Row>
-      <Divider/>
-      <p>42个拥有大于等于20支股票的城市：</p>
-      <Row style={{
-        margin: 0,
-      }}>
-        {city42.map((item) => {
-          return (
-            <Col span={3} key={item}>{item}</Col>);
-        })}
-      </Row>
+      <Collapse ghost>
+        <Panel header="101个拥有大于等于5支股票的城市" key="1">
+          <Row style={{
+            margin: 0,
+          }}>
+            {city101.map((item) => {
+              return (
+                <Col span={3} key={item}>{item}</Col>);
+            })}
+          </Row>
+        </Panel>
+        <Panel header="42个拥有大于等于20支股票的城市" key="2">
+          <Row style={{
+            margin: 0,
+          }}>
+            {city42.map((item) => {
+              return (
+                <Col span={3} key={item}>{item}</Col>);
+            })}
+          </Row>
+        </Panel>
+      </Collapse>
     </div>
   );
 }
@@ -281,8 +356,7 @@ function Verification(props) {
         因此提出假设：天气因素会影响换手率与收益率。
       </p>
       <br/>
-      <Title level={5}>验证天气对当前城市股票组合是否存在影响</Title>
-      <div>
+      <div><Title level={5}>验证天气对当前城市股票组合是否存在影响</Title>
         <p>
           以暴雪天气对所属城市组合换手率的影响为例。
           分别选取暴雪天气前七天、当天、第二天、后三天以及后七天的平均换手率，得到结果如图所示：
@@ -292,7 +366,7 @@ function Verification(props) {
           由图表可以看出，在暴雪当天，平均换手率明显低于前七日，且随着时间流逝，暴雪影响逐步消失，换手率恢复至原有水平。
           由此证明本地偏好的存在性以及天气确实会对股市造成一定程度上的影响。
         </p>
-        <Collapse ghost defaultActiveKey={['1']}>
+        <Collapse ghost>
           <Panel header="暴雪数据来源" key="1">
             <Row style={{
               margin: 0,
@@ -304,17 +378,15 @@ function Verification(props) {
             </Row>
           </Panel>
         </Collapse>
-      </div>
-      <Divider/>
+      </div><Divider/>
 
-      <Title level={5}>验证各天气因素对换手率的影响正负</Title>
-      <div>
+      <div><Title level={5}>验证各天气因素对换手率的影响正负</Title>
         <p>
           利用OLS回归方法，以前一日的组合换手率与组合回报率为动量因子，以该动量因子、机构持股率、流通市值、以及当日回报率作为控制变量，
           训练从而得知各天气因素对于各城市组合换手率回归的系数，根据其系数分布，从而判断是否存在显著影响以及影响正负。
         </p>
         <p>回归所得系数分布如下表所示（**为1%显著，*为5%显著）：</p>
-        <Table dataSource={turCoefficient} size="small" >
+        <Table dataSource={turCoefficient} size="small" pagination={false}>
           <Column title="变量" width={600} dataIndex="name" key="name"/>
           <Column title="总量" width={200} dataIndex="num" key="num"/>
           <Column title=">0" width={200} dataIndex="above0" key="above0"/>
@@ -323,20 +395,20 @@ function Verification(props) {
           <Column title=">0.05" width={200} dataIndex="above005" key="above005"/>
           <Column title="<-0.05" width={200} dataIndex="below005" key="below005"/>
         </Table>
+        <br/>
         <p>观察天气因素回归系数的正负比以及较大影响系数的分布，可以观察得出占比突出的分别为雨、云量、降水率、较七日平均温度温差、空气污染指数、空气质量指数。 </p>
         <b>分析结果：</b>
         <p>分析图表和回归结果，其中不矛盾且表现较突出的为降雨、云量、与前七日平均温度的温差，可以证实其对换手率具有影响。随云层覆盖率变高，或是雨量变大，或是温度的升高与降低，人的心情变得焦躁，表现为换手率变高。</p>
-      </div>
-      <Divider/>
+      </div><Divider/>
 
-      <Title level={5}>验证各天气因素对回报率的影响正负</Title>
-      <div>
+      <div><Title level={5}>验证各天气因素对回报率的影响正负</Title>
+      
         <p>
           利用OLS回归方法，以前一日的组合回报率为动量因子，以该动量因子、市场风险溢价因子、市值因子、以及账面市值比因子作为控制变量，
           训练从而得知各天气因素对于各城市组合回报率回归的系数，根据其系数分布，从而判断是否存在显著影响以及影响正负。
         </p>
         <p>回归所得系数分布如下表所示（**为1%显著，*为5%显著）：</p>
-        <Table dataSource={retCoefficient} size="small" >
+        <Table dataSource={retCoefficient} size="small" pagination={false}>
           <Column title="变量" width={600} dataIndex="name" key="name"/>
           <Column title="总量" width={200} dataIndex="num" key="num"/>
           <Column title=">0" width={200} dataIndex="above0" key="above0"/>
@@ -345,9 +417,18 @@ function Verification(props) {
           <Column title=">0.05" width={200} dataIndex="above005" key="above005"/>
           <Column title="<-0.05" width={200} dataIndex="below005" key="below005"/>
         </Table>
+        <br/>
         <p>观察天气因素回归系数的正负比以及较大影响系数的分布，可以观察得出占比突出的分别为风速、近地表气压、较昨日温差、较七日平均温度温差、空气污染指数。 </p>
         <b>分析结果：</b>
         <p>分析图表和回归结果，其中不矛盾且表现较突出的为风速、与前七日平均温度的温差的绝对值、空气污染指数，可以证实其对收益率具有影响。随风速变高，或是温差变大，或是空气污染指数降低，收益率变高。</p>
+      </div><Divider/>
+
+      <div><Title level={5}>验证LSTM模型对股票价格预测的准确性</Title>
+        <p>
+          股价波动是一个高度复杂的非线性系统。
+          结合LSTM（Long Short-Term Memory）递归神经网络的特性与股票市场的特点，
+          搭建LSTM模型以预测股票价格的波动，猜想其能提动预测的准确率。
+        </p>
       </div>
     </div>
   );
@@ -355,7 +436,18 @@ function Verification(props) {
 function CorrelativePaper(props) {
   return(
     <div>
-      <p>相关论文</p>
+      <Title level={3}>相关论文</Title>
+      <Title level={5}>本地偏好</Title>
+      <p>[1]杨晓兰,沈翰彬,祝宇.本地偏好、投资者情绪与股票收益率:来自网络论坛的经验证据[J].金融研究,2016(12):143-158.</p>
+      <p>[2]陈荣达,俞静婧,徐敏,党超,黄嘉豪.投资者本地偏好对股票市场信息效率影响研究[J].系统工程理论与实践,2022,42(04):879-896.</p>
+
+      <Divider/><Title level={5}>天气因素影响</Title>
+      <p>[1]陈康,江嘉骏,刘琦,李欣.空气质量、投资者情绪与股票收益率[J].管理科学,2018,31(06):145-160.</p>
+      <p>[2]刘维奇,刘新新.个人和机构投资者情绪与股票收益——基于上证A股市场的研究[J].管理科学学报,2014,17(03):70-87.</p>
+      <p>[3]仪垂林,王家琪.天气、季节性情绪混乱与股票收益——基于上证综合指数的研究[J].统计与决策,2005(06):79-82.</p>
+      
+      <Divider/><Title level={5}>LSTM</Title>
+      <p>[1]彭燕,刘宇红,张荣芬.基于LSTM的股票价格预测建模与分析[J].计算机工程与应用,2019,55(11):209-212.</p>
     </div>
   );
 }
@@ -370,6 +462,7 @@ function MySider(props) {
   const items = [
     {label: "行为金融学", key: "behaviourFinance" },
     {label: "本地偏好", key: "localPreferences" },
+    {label: "LSTM", key: "lstm" },
     {label: "数据来源", key: "dataSources" },
     {label: "验证", key: "verification" },
     {label: "相关论文", key: "correlativePaper" },
@@ -395,7 +488,7 @@ function MySider(props) {
           width: 200,
         }}
         items={items}
-        defaultSelectedKeys={["behaviourPsychology"]}
+        defaultSelectedKeys={["behaviourFinance"]}
         // selectedKey={props.selectedKey}
       />
     </Sider>
@@ -429,10 +522,11 @@ class TheoreticalSupport extends React.Component {
             <div style={{margin: 20, }}>
               {this.state.key==='behaviourFinance'?<BehaviourFinance/>:
               (this.state.key==='localPreferences'?<LocalPreferences/>:
+              (this.state.key==='lstm'?<LSTM/>:
               (this.state.key==='dataSources'?<DataSources/>:
               (this.state.key==='verification'?<Verification/>:
               (this.state.key==='correlativePaper'?<CorrelativePaper/>:
-              <Others/>))))}
+              <Others/>)))))}
             </div>
             
           </Content>
