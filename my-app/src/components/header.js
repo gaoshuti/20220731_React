@@ -14,7 +14,10 @@ import {
 const { Search } = Input;
 const { Header, Content, Sider } = Layout;
 
-const onSearch = (value) => console.log(value);
+const onSearch = (value, event) => {
+  console.log(value);
+  console.log(event);
+}
 
 function MyHeader(props) {
   const items = [

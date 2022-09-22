@@ -421,7 +421,7 @@ function SelectDemo(props) {
               <Input maxLength={6}
                 bordered={false}
                 defaultValue={props.stkcd}	
-
+                // pattern={'\d+'}
                 onPressEnter={onInputChange}
                 onChange={onInputChange}
               />
