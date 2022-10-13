@@ -36,6 +36,9 @@ import {
 import SizeContext from "antd/lib/config-provider/SizeContext";
 import { getKeyThenIncreaseKey } from "antd/lib/message";
 import EChartsReact from 'echarts-for-react';
+import DataSource from "../components/dataSource";
+import HistoryPercentile from "../components/historyPercentile";
+import HistoryData from "../components/historyData";
 
 const axios = require('axios');
 {/* <QuestionCircleOutlined /> */}
@@ -189,193 +192,6 @@ function MySider(props) {
       />
     </Sider>
   );
-}
-
-function HistoryData(props) {
-  if(props.data.length<2 ||  props.data[0].length===0){
-    console.log('history ret is null');
-    return(
-      <div><p>暂无数据</p></div>
-      
-    );
-  }
-  let days = props.data[1];
-  let rets = props.data[0];
-  console.log(days);
-  var data = [];
-  for(let i = 0; i<days.length; i++) {
-    let date = days[i].split('-');
-    let base = new Date(date[0], date[1], 0);
-    base.setDate(date[2]);
-    data.push([base, rets[i]]);
-  }
-  let options = {
-    tooltip: {
-      trigger: 'axis',
-      position: function(pt, params, dom, rect, size) {
-        // var tipWidth = pt[0]+size.contentSize[0];
-        // if(tipWidth>size.viewSize[0]) {
-        if(pt[0]>size.viewSize[0]/2) {
-          return [pt[0]-size.contentSize[0],'10%'];
-        }
-        return [pt[0], '10%'];
-      }
-    },
-    title: {
-      left: 'center',
-      text: '历史回归率'
-    },
-    toolbox: {
-      feature: {
-        // dataZoom: {
-        //   yAxisIndex: 'none'
-        // },
-        restore: {},
-        saveAsImage: {}
-      }
-    },
-    xAxis: {
-      type: 'time',
-      boundaryGap: false
-    },
-    yAxis: {
-      type: 'value',
-      boundaryGap: [0, '20%']
-    },
-    dataZoom: [
-      {
-        type: 'inside',
-        start: 80,
-        end: 100
-      },
-      {
-        start: 80,
-        end: 100
-      }
-    ],
-    series: [
-      {
-        name: 'ret',
-        type: 'line',
-        // smooth: true,
-        symbol: 'none',
-        // areaStyle: {},
-        data: data
-      }
-    ]
-  };
-
-  return (
-    <div className='scrollItem'>
-      <EChartsReact option={options}/>
-    </div>
-  );
-}
-function SubPage(props) {
-  var data1=props.result;
-  // const options=[
-  if(props.label==='rain')
-    var valueTitle = (
-      <div>值 
-        <Tooltip placement="right" title="值(气象等级)：0—无雨，1-小雨，2-中雨，3-大雨，4-暴雨" arrowPointAtCenter>
-          <QuestionCircleOutlined />
-        </Tooltip>
-      </div>);
-  else if(props.label==='snow')
-    var valueTitle = (
-      <div>值 
-        <Tooltip placement="right" title="值(气象等级)：0—无雪，1-小雪，2-中雪，3-大雪，4-暴雪" arrowPointAtCenter>
-          <QuestionCircleOutlined />
-        </Tooltip>
-      </div>);
-  else if(props.label==='cloud')
-    var valueTitle = (
-      <div>值 
-        <Tooltip placement="right" title="值(气象等级)：0—晴，1-少云，2-多云，3-阴天或雨雪天气，4-雨雪等级大于等于3" arrowPointAtCenter>
-          <QuestionCircleOutlined />
-        </Tooltip>
-      </div>);
-  
-  return (
-    <div>
-      {/* <Divider/> */}
-      {/* 查询（最小值/最大值）   <Cascader defaultValue={['0', '4']} options={options} onChange={onChange} /> */}
-    <Table dataSource={data1} size="small">
-      {/* <Spin spinning={loading}> */}
-      <Column title={valueTitle} dataIndex="value" key="value" />
-      <Column title="数量" dataIndex="num" key="num" />
-      <ColumnGroup title="回报率">
-        <ColumnGroup title="数量">
-          <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
-          <Column title="<0" dataIndex="belowNum" key="belowNum" />
-        </ColumnGroup>
-        <ColumnGroup title="比例">
-          <Column title=">0" dataIndex="above" key="above" />
-          <Column title="<0" dataIndex="below" key="below" />
-        </ColumnGroup>
-      </ColumnGroup>
-      {/* </Spin> */}
-    </Table>
-    </div>
-  )  
-}
-function DataSource(props) {
-  var data=props.data
-  const columns = [
-    {
-      title: '城市名称',
-      dataIndex: 'city',
-      key: 'city',
-    },
-    {
-      title: '股票数量',
-      dataIndex: 'num',
-      key: 'num',
-    },
-    // {
-    //   title: '操作',
-    //   dataIndex: 'action',
-    //   key: 'action',
-    // },
-  ]
-  
-  return(
-    <div>
-      {/* <Title level={3}>数据源</Title> */}
-      <p>该地区包含如下数据：</p>
-      {/* <Table dataSource={data1} size="small">
-        <Column title="城市" dataIndex="city" key="city" />
-        <Column title="数量" dataIndex="num" key="num" />
-        <ColumnGroup title="回报率">
-          <ColumnGroup title="数量">
-            <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
-            <Column title="<0" dataIndex="belowNum" key="belowNum" />
-          </ColumnGroup>
-          <ColumnGroup title="比例">
-            <Column title=">0" dataIndex="above" key="above" />
-            <Column title="<0" dataIndex="below" key="below" />
-          </ColumnGroup>
-        </ColumnGroup>
-      </Table> */}
-      <Table
-        columns={columns}
-        expandable={{
-          expandRowByClick: true,
-          expandedRowRender: (record) => (
-            <Row style={{
-              margin: 0,
-            }}>
-              {record.stkcd.map((item) => {
-                return (<Col span={4} key={item}>{item}</Col>);
-              })}
-            </Row>
-          ),
-          rowExpandable: (record) => record.name !== 'Not Expandable',
-        }}
-        dataSource={data}
-      />
-    </div>
-  )
 }
 
 class Board extends React.Component {
@@ -547,13 +363,13 @@ class Board extends React.Component {
             <HistoryData data={this.state.result}/>
           </TabPane>
           <TabPane tab={this.state.labels[0]} key="rain">
-            <SubPage label={this.state.cixu[0]} result={this.state.result}/>
+            <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
           </TabPane>
           <TabPane tab={this.state.labels[1]} key="snow">
-            <SubPage label={this.state.cixu[1]} result={this.state.result}/>
+            <HistoryPercentile label={this.state.cixu[1]} result={this.state.result}/>
           </TabPane>
           <TabPane tab={this.state.labels[2]} key="cloud">
-            <SubPage label={this.state.cixu[2]} result={this.state.result}/>
+            <HistoryPercentile label={this.state.cixu[2]} result={this.state.result}/>
           </TabPane>
           <TabPane tab="数据源" key="data">
             <DataSource data={this.state.result}/>

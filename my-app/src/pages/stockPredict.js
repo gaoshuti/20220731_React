@@ -257,17 +257,37 @@ class StockPredict extends React.Component{
     enddate=d.getDate()<10?(enddate+'0'+d.getDate()):(enddate+d.getDate());
     console.log('enddate:', enddate);
     this.state={
-      stkcd: '000001',
-      rangePickerFlag: false,
+      stkcd: props.stkcd,
+      rangePickerFlag: true,
       begindate: '20010104',    //对应stkcd可选时间段的开始时间
       enddate: enddate,         //对应stkcd可选时间段的结束时间
       selectedBegin: '',        //用户选择的开始时间
       selectedEnd: '',          //用户选择的结束时间
-      buttonFlag: false,        //按钮是否禁用
+      buttonFlag: true,        //按钮是否禁用
       real: [],                 //实际股票价格
       predict: [],              //预测的股票价格
       dates: [],                //数据中的交易日日期
-    }
+    };
+    axios.get("http://localhost:3000/liststkdate/"+props.stkcd).then((res)=>{
+      var result=res.data;
+      console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
+      if(result['ret']===0)  {//成功
+        this.setState({
+          rangePickerFlag: false,
+          begindate: result['data']['begindate'],
+          enddate: result['data']['enddate'],
+          buttonFlag: false,
+        })
+
+      } else { //失败
+        console.log(result['msg'])
+        if (this.state.rangePickerFlag===false) {
+          this.setState({
+            rangePickerFlag: true,
+          });
+        }
+      }
+    });
   }
   async setStkcd(stkcd) {
     this.setButtonFlag(true);

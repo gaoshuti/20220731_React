@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from pandas import DataFrame
 
+import math
 from chinese_calendar import is_workday
 import json
 import akshare as ak
@@ -279,15 +280,10 @@ def listStkDate(request,stkcd):
     # enddate=str(enddate)+'0'+str(T.tm_mday) if T.tm_mday<10 else str(enddate)+str(T.tm_mday)
     
     T = datetime.datetime.now()
-    enddate = T.strftime('%Y-%m-%d')
-    # thisweek = str(int(T.tm_wday) + 1)
-    # if thisweek=='6':
-    #   T += datetime.timedelta(days=2)
-    # elif thisweek=='7':
-    #   T += datetime.timedelta(days=2) 
-    # # T = time.localtime(time.time())
-    # print(T)
-    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date='20000101', end_date=enddate, adjust="")
+    begindate = '20000104'
+    enddate = T.strftime('%Y%m%d')
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=begindate, end_date=enddate, adjust="")
+
     begindate = stock_zh_a_hist_df['日期'].values[0].replace('-','')
     enddate = stock_zh_a_hist_df['日期'].values[len(stock_zh_a_hist_df)-1].replace('-','')
     print(stkcd,begindate,enddate)
@@ -336,13 +332,14 @@ def weather(request,district_id): #获取实时天气与未来天气
   print(myDict)
   return JsonResponse({'ret': 0, 'data':myDict})
 
-def stock365(request,stkcd):
-  print('history 30:', stkcd)
+def stock365(request,stkcd): #历史一年的股价信息
+  print('history 365:', stkcd)
   myDict = {}
   stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
   myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
   myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
-  myDict['TTM'] = stock_individual_info_em_df['value'].values[3]#上市时间
+  ttm=str(stock_individual_info_em_df['value'].values[3])#上市时间
+  myDict['TTM'] = ttm[0:4]+'-'+ttm[4:6]+'-'+ttm[6:8]
   myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
   myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
   myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
@@ -352,27 +349,16 @@ def stock365(request,stkcd):
   T1 = T1-datetime.timedelta(days=1)
   T2 = T1-datetime.timedelta(days=365)
   stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
-  print(stock_zh_a_hist_df.iloc[0]) 
+  # print(stock_zh_a_hist_df.iloc[0]) 
   # stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
   for i in range(len(stock_zh_a_hist_df)):
     a=list(stock_zh_a_hist_df.iloc[i])
     a[5]=int(a[5])
     myDict['data'].append(a)
   return JsonResponse({'ret': 0, 'data':myDict})
-
-
-def stock(request,stkcd):
+def stock(request,stkcd): #当日的实时股价信息
   print('real stock:', stkcd)
   myDict = {}
-  stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
-  myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
-  myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
-  myDict['TTM'] = stock_individual_info_em_df['value'].values[3]#上市时间
-  myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
-  myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
-  myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
-  myDict['tradedIssue'] = stock_individual_info_em_df['value'].values[7]#流通股
-
   myDict['data'] = []
   T1 = datetime.datetime.now()
   # T2 = T1-datetime.timedelta(days=7)
@@ -380,6 +366,7 @@ def stock(request,stkcd):
   # print('时间：(%Y-%m-%d %H:%M:%S %f): ' , T1.strftime( '%Y-%m-%d %H:%M:%S %f' ) ) 
   # print('时间：(%Y-%m-%d %H:%M:%S %p): ' , T1.strftime( '%y-%m-%d %I:%M:%S %p' ))
   stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
+  # print(stock_zh_a_hist_min_em_df.iloc[0])
   for i in range(len(stock_zh_a_hist_min_em_df)):
     a=list(stock_zh_a_hist_min_em_df.iloc[i])
     a[5]=int(a[5])
@@ -426,7 +413,7 @@ def LSTMpredict(model,data):
     result.append(str(i[0]))
   print(result)
   return result
-def stkLstm(request):
+def stkLstm(request): #LSTM股价预测
   stkcd=request.POST.get('stkcd',default='1')
   begindate=request.POST.get('begindate',default='1')
   enddate=request.POST.get('enddate',default='1')
@@ -470,12 +457,24 @@ def stkLstm(request):
     while is_workday(T.date())==False:
       T+=datetime.timedelta(days=1)
     dates.append(str(T.date()))
-    myDict={'num':len(data)-20, 'date': dates[20:], 'predict':predict,'real':[str(x) for x in data[20:]]}
+    myDict={'stkcd':stkcd, 'num':len(data)-20, 'date': dates[20:], 'predict':predict,'real':[str(x) for x in data[20:]]}
     print(len(myDict['predict']),len(myDict['real']),len(myDict['date']))
     predictCorret = 0
+    mae = 0
+    rmse = 0
+    mape = 0
     for i in range(1,len(myDict['real'])):
+      mae += abs(float(myDict['real'][i])-float(myDict['predict'][i]))
+      rmse += (float(myDict['real'][i])-float(myDict['predict'][i]))**2
+      mape += abs((float(myDict['predict'][i])-float(myDict['real'][i]))/float(myDict['real'][i]))
       if (float(myDict['real'][i])-float(myDict['real'][i-1]))*(float(myDict['predict'][i])-float(myDict['predict'][i-1]))>=0:
         predictCorret+=1
+    mae = mae/len(myDict['real'])
+    rmse = math.sqrt(rmse/len(myDict['real']))
+    mape = mape/len(myDict['real'])*100
+    myDict['MAE'] = mae
+    myDict['RMSE'] = rmse
+    myDict['MAPE'] = mape
     myDict['predictCorrect'] = predictCorret
     return JsonResponse({'ret': 0, 'data':myDict})
   else:

@@ -1,47 +1,27 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom/client";
-import { createRoot } from "react-dom/client";
+import React from "react";
 import "../index.css";
 import {
   Button,
-  Cascader,
   Collapse,
   Checkbox,
   Col, 
-  DatePicker,
   Divider,
-  // Dropdown,
   Form,
-  Input,
-  InputNumber,
-  Layout,
-  Menu,
   Radio,
   Row,
   Select,
-  Space,
-  Spin,
-  Switch,
   Table,
-  Tag,
-  Tabs,
   TreeSelect,
-  Upload,
-  
   
   
 } from "antd";
-import { setCanvasCreator } from "echarts";
 import EChartsReact from 'echarts-for-react';
 
 
 const axios = require('axios');
-const CheckboxGroup = Checkbox.Group;
 
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 const { Panel } = Collapse;
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
 const { SHOW_PARENT } = TreeSelect;
 function FormDemo(props) {
   // const onFormLayoutChange=()=>{
@@ -712,9 +692,9 @@ function ScatterDemo(props) {
   );
 }
 function RegCoefficientDemo(props) {
-  var valueTitle = (
-    <div>各城市回归结果(共{props.result['cities'].length}个城市)
-    </div>);
+  // var valueTitle = (
+  //   <div>各城市回归结果(共{props.result['cities'].length}个城市)
+  //   </div>);
   var data1=[], myDict, city, aboveNum, belowNum;
   for(let i = 0; i < props.submitList.length; i++) {
     myDict={};

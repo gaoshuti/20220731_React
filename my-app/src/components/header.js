@@ -4,12 +4,9 @@ import {
   Layout,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import CityInfo from "../pages/cityInfo";
 
 const { Search } = Input;
 const { Header, Content, Sider } = Layout;
-
-
 const items = [
     { label: "主页", key: "home" }, // 菜单项务必填写 key
     {
@@ -23,7 +20,6 @@ const items = [
     },
     { label: "理论", key: "theory"},
   ];
-
 function MyHeader(props) {
   const navigate = useNavigate();
   const headerOnClick = (e) => {
@@ -47,9 +43,13 @@ function MyHeader(props) {
     var part2=new RegExp(/^[\u4e00-\u9fa5]+$/);
     if(patt1.test(value) && value.length===6) {//由数字构成，股票代码
       console.log('stkcd');
+      // props.setValue(value);
+      // navigate("/stock");
       navigate(`/stock/${value}`,{replace: true});
     }else if(part2.test(value)) {//由汉字构成，城市
       console.log('city');
+      // props.setValue(value);
+      // navigate("/city");
       navigate(`/city/${value}`,{replace: true});
   
     }else{

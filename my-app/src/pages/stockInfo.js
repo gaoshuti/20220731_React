@@ -1,46 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import "../index.css";
 import {
-  Button,
-  Cascader,
   Collapse,
-  Checkbox,
-  Col, 
-  DatePicker,
-  Divider,
-  // Dropdown,
-  Form,
-  Input,
-  InputNumber,
-  Layout,
-  Menu,
-  Radio,
-  Row,
-  Select,
-  Space,
-  Spin,
-  Switch,
-  Table,
-  Tag,
-  Tabs,
-  TreeSelect,
-  Upload,
   
 } from "antd";
-import EChartsReact from 'echarts-for-react';
 
-import { BrowserRouter  as Router, useParams, Route, NavLink, Navigate, Routes, Link, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import StockDemo from "../components/stockDemo";
-const axios = require('axios');
+import StockPredict from "./stockPredict";
 
+const { Panel } = Collapse;
 
 function StockInfo(props) {
   const params = useParams();
   const stkcd = params.stkcd;
+  // const stkcd = props.stkcd;
   console.log('stockInfo:',stkcd);
   return(
-    <div>
+    <div style={{marginLeft: 50, marginTop: 20}}>
       <StockDemo stkcd={stkcd} />
+      <Collapse ghost>
+        <Panel header="LSTM模型" key="1">
+          <StockPredict stkcd={stkcd}/>
+        </Panel>
+      </Collapse>
     </div>
   );
 }
