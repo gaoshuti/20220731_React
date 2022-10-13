@@ -1,57 +1,27 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom/client";
-import { createRoot } from "react-dom/client";
+import React from "react";
 import "../index.css";
 import {
-  // Button,
-  Col, 
-  // Dropdown,
   Menu,
-  Row,
-  Space,
-  Table,
-  Tag,
   Tabs,
-  Spin,
-  Input,
   Layout,
-  Cascader,
-  Collapse,
-  Checkbox,
-  Divider,
-  Tooltip,
-  Typography,
 } from "antd";
-import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   Map,
   Marker,
-  NavigationControl,
   InfoWindow,
   ScaleControl,
-  // Polyline,
-  // Polygon,
   ZoomControl,
 } from "react-bmapgl";
-import SizeContext from "antd/lib/config-provider/SizeContext";
-import { getKeyThenIncreaseKey } from "antd/lib/message";
-import EChartsReact from 'echarts-for-react';
 import DataSource from "../components/dataSource";
 import HistoryPercentile from "../components/historyPercentile";
 import HistoryData from "../components/historyData";
 
 const axios = require('axios');
-{/* <QuestionCircleOutlined /> */}
+
 // const {QuestionCircleOutlined} = icons;
 const { TabPane } = Tabs;
-const { Title } = Typography;
-const { Search } = Input;
-const { Header, Content, Sider } = Layout;
-const { Panel } = Collapse;
-const { Column, ColumnGroup } = Table;
-const CheckboxGroup = Checkbox.Group;
+const { Content, Sider } = Layout;
 
-const onSearch = (value) => console.log(value);
 const cityInProvince = [
   ["北京市","北京"],
   ["上海市","上海"],
@@ -204,7 +174,7 @@ class Board extends React.Component {
       cities: [],//所包含的城市
       target: '',//label+限制范围
       name: props.name,//infowindow对应的区域名
-
+      echartsFlag: true,//是否切换到带有Echarts图表的Tab
     };
     // this.getHistory(props.name,'rain',-1,-1);
     this.getHistoryRet(this.state.name);
@@ -305,7 +275,7 @@ class Board extends React.Component {
   //   return [name].concat(cities);
   // }
   async getHistoryRet(area) {
-    var data1=[],tempdata={},result;
+    var data1=[],result;
     console.log('get history ret',area);
     if(this.state.cities[0]===area && this.state.target==='history ret'){
       console.log('已有数据');
@@ -344,13 +314,21 @@ class Board extends React.Component {
       target: 'data source',
     });
   }
+  setEchartsFlag(flag) {
+    this.setState({
+      echartsFlag: flag,
+    });
+  }
   changeTab(activeKey) {
     if(activeKey==='data'){
       this.getDataSource(this.state.name);
+      this.setEchartsFlag(false);
     }else if(activeKey==='history'){
       this.getHistoryRet(this.state.name);
+      this.setEchartsFlag(true);
     }else{
       this.getHistory(this.state.name,activeKey,-1,-1);
+      this.setEchartsFlag(false);
     }
     
   }
@@ -360,7 +338,9 @@ class Board extends React.Component {
       <div className="card-container">
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
           <TabPane tab="历史数据" key="history">
-            <HistoryData data={this.state.result}/>
+            {this.state.echartsFlag===true?
+              <HistoryData data={this.state.result}/>:<></>
+            }
           </TabPane>
           <TabPane tab={this.state.labels[0]} key="rain">
             <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
@@ -429,7 +409,7 @@ class MyOverlay extends React.Component {
   constructor(props) {
     super(props);
     // var plys = [];
-    var plys = new Array();
+    var plys = [];
     var bdary = new window.BMapGL.Boundary();
     var area = [
       "北京市",
@@ -525,7 +505,7 @@ class MyMap extends React.Component {
     // f.writeLine("helloworld");
     // f.close();
     this.state = {
-      name: ["历史百分位", "换手率", "回归率"],
+      name: ["历史百分位", "换手率", "回报率"],
       cities: props.cities,
       provinces: props.provinces,
       areas: props.areas,

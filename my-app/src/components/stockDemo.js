@@ -571,9 +571,10 @@ class StockPrice extends React.Component {
 class StockDemo extends React.Component {
   constructor(props) {
     super(props);
+    // console.log('props.info:',props.info);
     let stkcd = props.stkcd;
     this.state = {
-      stkcd: stkcd,       //证券代码
+      stkcd: stkcd,       //股票代码
       stkcd2: stkcd,
       info: {             //股票相关信息
         'name':'',        //股票简称
@@ -584,12 +585,14 @@ class StockDemo extends React.Component {
         'stkIssue':0.0,   //总股本
         'tradedIssue':0.0,//流通股本
       },
+      // info: props.info,   //股票相关信息
       data: [],           //股票实时数据
       historyData: [],    //股票历史数据
       buttonFlag: false,  //控制按钮是否可用
     };
     console.log('submit:',stkcd);
-    axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
+    
+    axios.get("http://localhost:3000/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -601,7 +604,26 @@ class StockDemo extends React.Component {
             'tradedCap':result['data']['tradedCap'],     //流通市值
             'stkIssue':result['data']['stkIssue'],       //总股本
             'tradedIssue':result['data']['tradedIssue'], //流通股本
-          },
+          }
+        });
+      }else{
+        console.log(result['msg']);
+      };
+    });
+    
+    axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
+      var result=res.data;
+      if(result['ret']===0)  {//成功
+        this.setState({
+          // info: {
+          //   'name':result['data']['name'],               //股票简称
+          //   'industry':result['data']['industry'],       //行业
+          //   'TTM':result['data']['TTM'],                 //上市时间
+          //   'MarCap':result['data']['MarCap'],           //总市值
+          //   'tradedCap':result['data']['tradedCap'],     //流通市值
+          //   'stkIssue':result['data']['stkIssue'],       //总股本
+          //   'tradedIssue':result['data']['tradedIssue'], //流通股本
+          // },
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
         });
@@ -684,7 +706,7 @@ class StockDemo extends React.Component {
       stkcd: stkcd,
       stkcd2: stkcd
     });
-    axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
+    axios.get("http://localhost:3000/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -696,7 +718,16 @@ class StockDemo extends React.Component {
             'tradedCap':result['data']['tradedCap'],     //流通市值
             'stkIssue':result['data']['stkIssue'],       //总股本
             'tradedIssue':result['data']['tradedIssue'], //流通股本
-          },
+          }
+        });
+      }else{
+        console.log(result['msg']);
+      };
+    });
+    axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
+      var result=res.data;
+      if(result['ret']===0)  {//成功
+        this.setState({
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
         });
@@ -748,10 +779,16 @@ class StockDemo extends React.Component {
       buttonFlag:flag,
     });
   }
+  setInfo() {
+    this.setState({
+      info: this.state.info
+    });
+  }
   render() {
     // console.log('parent data',this.state.data[0]);
     if(this.state.stkcd2!==this.props.stkcd){
       this.setStkcd2(this.props.stkcd);
+      this.setInfo();
     }
     return(
       <div>

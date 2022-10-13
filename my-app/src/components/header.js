@@ -6,7 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const { Search } = Input;
-const { Header, Content, Sider } = Layout;
+const { Header } = Layout;
 const items = [
     { label: "主页", key: "home" }, // 菜单项务必填写 key
     {
@@ -53,7 +53,8 @@ function MyHeader(props) {
       navigate(`/city/${value}`,{replace: true});
   
     }else{
-      console.log('search error!')
+      console.log('search error!');
+      navigate('/error');
     }
   
   }

@@ -332,30 +332,44 @@ def weather(request,district_id): #获取实时天气与未来天气
   print(myDict)
   return JsonResponse({'ret': 0, 'data':myDict})
 
+def stockInfo(request,stkcd): #股票代码对应的简称、行业、上市时间、市值等信息
+  print('history info:', stkcd)
+  myDict = {}
+  try:
+    stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
+    myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
+    myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
+    ttm=str(stock_individual_info_em_df['value'].values[3])#上市时间
+    myDict['TTM'] = ttm[0:4]+'-'+ttm[4:6]+'-'+ttm[6:8]
+    myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
+    myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
+    myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
+    myDict['tradedIssue'] = stock_individual_info_em_df['value'].values[7]#流通股
+    return JsonResponse({'ret': 0, 'data':myDict})
+  except KeyError as e:
+    print(stkcd,' error')
+    return JsonResponse({'ret': 1, 'msg': stkcd+' error'})
 def stock365(request,stkcd): #历史一年的股价信息
   print('history 365:', stkcd)
   myDict = {}
-  stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
-  myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
-  myDict['industry'] = stock_individual_info_em_df['value'].values[2]#行业
-  ttm=str(stock_individual_info_em_df['value'].values[3])#上市时间
-  myDict['TTM'] = ttm[0:4]+'-'+ttm[4:6]+'-'+ttm[6:8]
-  myDict['MarCap'] = stock_individual_info_em_df['value'].values[0]#总市值
-  myDict['tradedCap'] = stock_individual_info_em_df['value'].values[1]#流通市值
-  myDict['stkIssue'] = stock_individual_info_em_df['value'].values[6]#总股本
-  myDict['tradedIssue'] = stock_individual_info_em_df['value'].values[7]#流通股
   myDict['data'] = []
   T1 = datetime.datetime.now()
   T1 = T1-datetime.timedelta(days=1)
   T2 = T1-datetime.timedelta(days=365)
-  stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
-  # print(stock_zh_a_hist_df.iloc[0]) 
-  # stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
-  for i in range(len(stock_zh_a_hist_df)):
-    a=list(stock_zh_a_hist_df.iloc[i])
-    a[5]=int(a[5])
-    myDict['data'].append(a)
-  return JsonResponse({'ret': 0, 'data':myDict})
+  try:
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
+    # print(stock_zh_a_hist_df.iloc[0]) 
+    # stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
+    for i in range(len(stock_zh_a_hist_df)):
+      a=list(stock_zh_a_hist_df.iloc[i])
+      a[5]=int(a[5])
+      myDict['data'].append(a)
+    return JsonResponse({'ret': 0, 'data':myDict})
+  except KeyError as e:
+    print(stkcd,' error')
+    return JsonResponse({'ret': 1, 'msg': stkcd+' error'})
+  except Exception as e:
+    print("except:",e)
 def stock(request,stkcd): #当日的实时股价信息
   print('real stock:', stkcd)
   myDict = {}

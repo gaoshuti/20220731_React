@@ -112,7 +112,7 @@ class Weather extends React.Component{
     super(props);
     this.state = {
       city: props.city,
-      city2: '',
+      city2: props.city,
       nowWeather: '', // 实时天气数据
       dayWeather: [], // 今天向后的三天天气数据
     };

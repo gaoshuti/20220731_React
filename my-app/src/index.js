@@ -9,13 +9,21 @@ import StockPredict from "./pages/stockPredict";
 import TheoreticalSupport from "./pages/theoreticalSupport";
 import CityInfo from "./pages/cityInfo";
 import StockInfo from "./pages/stockInfo";
-import { BrowserRouter  as Router, Route, NavLink, Navigate, Routes, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter  as Router, Route, Routes } from "react-router-dom";
 
 function NoMatch(props) {
   return(
     <div style={{margin:50}}>
       <h3>404 not found</h3>
       <p>无法找到该页面</p>
+    </div>
+  );
+}
+function SearchError(props) {
+  return (
+    <div style={{margin:50}}>
+      <h3>Error</h3>
+      <p>没有相关数据，请重新输入</p>
     </div>
   );
 }
@@ -48,6 +56,7 @@ class App extends React.Component {
               <Route path="/stock/:stkcd" element={<StockInfo/>}></Route>
               {/* <Route path="/city" element={<CityInfo city={this.state.value}/>}></Route>
               <Route path="/stock" element={<StockInfo stkcd={this.state.value}/>}></Route> */}
+              <Route path="/error" element={<SearchError />}></Route>
               <Route path="*" element={<NoMatch/>}></Route>
 
             </Routes>

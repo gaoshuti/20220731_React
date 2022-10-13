@@ -1,46 +1,20 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom/client";
-import { createRoot } from "react-dom/client";
+import React from "react";
 import "../index.css";
 import {
   Button,
-  Cascader,
-  Collapse,
-  Checkbox,
   Col, 
   DatePicker,
   Divider,
-  // Dropdown,
   Form,
   Input,
-  InputNumber,
-  Layout,
-  Menu,
-  Radio,
   Row,
-  Select,
-  Space,
-  Spin,
-  Switch,
-  Table,
-  Tag,
-  Tabs,
-  TreeSelect,
-  Upload,
-  
-  
   
 } from "antd";
 import EChartsReact from 'echarts-for-react';
 
 const axios = require('axios');
-const CheckboxGroup = Checkbox.Group;
 
-const { Column, ColumnGroup } = Table;
-const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
-const { TextArea } = Input;
-const { SHOW_PARENT } = TreeSelect;
 
 function SelectDemo(props) {
   // const onFormLayoutChange=()=>{
@@ -113,7 +87,7 @@ function SelectDemo(props) {
         onFinish={onFinish}
       >
         <Form.Item></Form.Item>
-        <Form.Item name='stkcd' label="证券代码"
+        <Form.Item name='stkcd' label="股票代码"
           rules={[
             {
               required: true,
@@ -270,7 +244,7 @@ class StockPredict extends React.Component{
     };
     axios.get("http://localhost:3000/liststkdate/"+props.stkcd).then((res)=>{
       var result=res.data;
-      console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
+      // console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
       if(result['ret']===0)  {//成功
         this.setState({
           rangePickerFlag: false,
@@ -351,6 +325,7 @@ class StockPredict extends React.Component{
     });
   }
   render() {
+    // console.log('begindate:',this.state.begindate);
     return(
       <div>
         <SelectDemo 
@@ -372,6 +347,7 @@ class StockPredict extends React.Component{
           predict={this.state.predict}
           dates={this.state.dates}
         />
+        {this.state.rangePickerFlag===true?<div style={{marginLeft:20}}><p>该股票暂无已训练好的模型。</p></div>:<></>}
       </div>
     );
   }

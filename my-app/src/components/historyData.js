@@ -34,7 +34,7 @@ function HistoryData(props) {
     },
     title: {
       left: 'center',
-      text: '历史回归率'
+      text: '历史组合回报率'
     },
     toolbox: {
       feature: {

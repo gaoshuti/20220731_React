@@ -776,9 +776,6 @@ function ResultDemo(props){
             result={props.result}
           />
         </Panel>
-        <Panel header="This is panel header 3" key="3">
-          <p>33333333333</p>
-        </Panel>
       </Collapse>
     </div>
   );

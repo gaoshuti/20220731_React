@@ -7,6 +7,7 @@ from map import sign_in_out
 urlpatterns = [
     # url('map/',map.listInfo),
     url(r'^weather/(?P<district_id>\d+)$',map.weather),#获取实时天气与未来天气
+    url(r'^stockInfo/(?P<stkcd>\d+)$',map.stockInfo),#股票代码对应的简称、行业、上市时间、市值等信息
     url(r'^stock/(?P<stkcd>\d+)$',map.stock),#获取实时股票信息
     url(r'^stock365/(?P<stkcd>\d+)$',map.stock365),#获取历史一年的股票价格
     url(r'^history/(?P<area>[\u4e00-\u9fa5]+)/(?P<label>\w+)/(?P<minvalue>-?\d+)/(?P<maxvalue>-?\d+)$',map.listInfo),
