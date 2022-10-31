@@ -11,24 +11,24 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 const { Column, ColumnGroup } = Table;
 
 function HistoryPercentile(props) {
-  var data1=props.result;
+  var data1=props.result, valueTitle;
   // const options=[
   if(props.label==='rain')
-    var valueTitle = (
+    valueTitle = (
       <div>值 
         <Tooltip placement="right" title="值(气象等级)：0—无雨，1-小雨，2-中雨，3-大雨，4-暴雨" arrowPointAtCenter>
           <QuestionCircleOutlined />
         </Tooltip>
       </div>);
   else if(props.label==='snow')
-    var valueTitle = (
+    valueTitle = (
       <div>值 
         <Tooltip placement="right" title="值(气象等级)：0—无雪，1-小雪，2-中雪，3-大雪，4-暴雪" arrowPointAtCenter>
           <QuestionCircleOutlined />
         </Tooltip>
       </div>);
   else if(props.label==='cloud')
-    var valueTitle = (
+    valueTitle = (
       <div>值 
         <Tooltip placement="right" title="值(气象等级)：0—晴，1-少云，2-多云，3-阴天或雨雪天气，4-雨雪等级大于等于3" arrowPointAtCenter>
           <QuestionCircleOutlined />
@@ -43,7 +43,7 @@ function HistoryPercentile(props) {
       {/* <Spin spinning={loading}> */}
       <Column title={valueTitle} dataIndex="value" key="value" />
       <Column title="数量" dataIndex="num" key="num" />
-      <ColumnGroup title="回报率">
+      <ColumnGroup title="收益率">
         <ColumnGroup title="数量">
           <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
           <Column title="<0" dataIndex="belowNum" key="belowNum" />

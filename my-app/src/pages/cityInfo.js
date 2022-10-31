@@ -33,7 +33,7 @@ function CityInfo(props) {
   const params = useParams();
   const city = params.city;
   const navigate = useNavigate();
-  // 历史组合回报率
+  // 历史组合收益率
   const [hrCity,sethrCity] = useState(0);
   const [hisRet,setHisRet] = useState(0);
   // 历史百分位
@@ -49,7 +49,7 @@ function CityInfo(props) {
   }
 
   console.log('cityInfo:',city);
-  const getHistoryRet = async (area) => {//获取历史组合回报率
+  const getHistoryRet = async (area) => {//获取历史组合收益率
     // console.log('get history ret',area, hrCity);
     if(hisRet!==0 && hrCity===area) return;
     var data1=[],result;
@@ -71,7 +71,7 @@ function CityInfo(props) {
       label = labels[i];
       await axios.get("http://localhost:3000/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
         result=res.data['data'];
-        cities=res.data['cities'];
+        // citiesInArea=res.data['cities'];
       });
       for (var key in result){
         var historyInfo={};
@@ -127,7 +127,7 @@ function CityInfo(props) {
         <Col span={1}></Col>
         <Col span={16}>
           <Collapse defaultActiveKey={['1']} ghost>
-            <Panel header="历史组合回报率" key="1">
+            <Panel header="历史组合收益率" key="1">
               {hisRet===0?<div><p>暂无数据</p></div>:<HistoryData data={hisRet}/>}
             </Panel>
             <Panel header="历史百分位" key="2">

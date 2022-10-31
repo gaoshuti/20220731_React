@@ -1,4 +1,4 @@
-//城市组合回报率的历史数据
+//城市组合收益率的历史数据
 import React from "react";
 import "../index.css";
 import EChartsReact from 'echarts-for-react';
@@ -34,7 +34,7 @@ function HistoryData(props) {
     },
     title: {
       left: 'center',
-      text: '历史组合回报率'
+      text: '历史组合收益率'
     },
     toolbox: {
       feature: {

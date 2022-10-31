@@ -35,8 +35,7 @@ class Home extends React.Component {
   render(){
     let bgColor = "#F0F0FF";
     return(
-      <div 
-      >
+      <div >
         <p></p>
         <Row>
           <Col span={this.state.spans[0]}>

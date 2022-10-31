@@ -20,7 +20,7 @@ const { Title } = Typography;
 const { Column } = Table;
 const { Panel } = Collapse;
 
-const Ctildet = () => {
+const Ctildet = () => {//头顶波浪线的C
   return(
     <><span style={{fontSize:18}}>&tilde;</span><span style={{fontSize:14, marginLeft:-8}}>C</span><sub>t</sub></>
   );
@@ -255,7 +255,7 @@ function DataSources(props) {
         为尽可能地最大化表现出天气对股票的影响，该42个城市选择每日流通市值最小的20支股票构成当日的数据。
       </p>
       <p>
-        其中股票数据分别来自CSMAR数据库（公司基本情况表、机构持股比例、日回报率、三因子、无风险利率），
+        其中股票数据分别来自CSMAR数据库（公司基本情况表、机构持股比例、日收益率、三因子、无风险利率），
         AkShare（实时股票价格、历史股票价格），
         天气数据来自于国家青藏高原科学数据中心的中国区域地面气象要素驱动数据集（1979-2018）以及百度地图提供的天气查询。
       </p>
@@ -553,7 +553,7 @@ function Verification(props) {
 
       <div><Title level={5}>验证各天气因素对换手率的影响正负</Title>
         <p>
-          利用OLS回归方法，以前一日的组合换手率与组合回报率为动量因子，以该动量因子、机构持股率、流通市值、以及当日回报率作为控制变量，
+          利用OLS回归方法，以前一日的组合换手率与组合收益率为动量因子，以该动量因子、机构持股率、流通市值、以及当日收益率作为控制变量，
           训练从而得知各天气因素对于各城市组合换手率回归的系数，根据其系数分布，从而判断是否存在显著影响以及影响正负。
         </p>
         <p>回归所得系数分布如下表所示（**为1%显著，*为5%显著）：</p>
@@ -572,11 +572,11 @@ function Verification(props) {
         <p>分析图表和回归结果，其中不矛盾且表现较突出的为降雨、云量、与前七日平均温度的温差，可以证实其对换手率具有影响。随云层覆盖率变高，或是雨量变大，或是温度的升高与降低，人的心情变得焦躁，表现为换手率变高。</p>
       </div><Divider/>
 
-      <div><Title level={5}>验证各天气因素对回报率的影响正负</Title>
+      <div><Title level={5}>验证各天气因素对收益率的影响正负</Title>
       
         <p>
-          利用OLS回归方法，以前一日的组合回报率为动量因子，以该动量因子、市场风险溢价因子、市值因子、以及账面市值比因子作为控制变量，
-          训练从而得知各天气因素对于各城市组合回报率回归的系数，根据其系数分布，从而判断是否存在显著影响以及影响正负。
+          利用OLS回归方法，以前一日的组合收益率为动量因子，以该动量因子、市场风险溢价因子、市值因子、以及账面市值比因子作为控制变量，
+          训练从而得知各天气因素对于各城市组合收益率回归的系数，根据其系数分布，从而判断是否存在显著影响以及影响正负。
         </p>
         <p>回归所得系数分布如下表所示（**为1%显著，*为5%显著）：</p>
         <Table dataSource={retCoefficient} size="small" pagination={false}>
@@ -698,7 +698,7 @@ class TheoreticalSupport extends React.Component {
             menuOnClick={this.menuOnClick.bind(this)}
             // selectedKey={[this.state.key]}
           />
-        <Layout >
+        <Layout style={{background:'#fff',}}>
           <Content>
             <div style={{margin: 20, }}>
               {this.state.key==='behaviourFinance'?<BehaviourFinance/>:

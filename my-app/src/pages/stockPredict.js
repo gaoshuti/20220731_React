@@ -2,6 +2,7 @@ import React from "react";
 import "../index.css";
 import {
   Button,
+  Card,
   Col, 
   DatePicker,
   Divider,
@@ -86,8 +87,8 @@ function SelectDemo(props) {
         // onValuesChange={onFormLayoutChange}
         onFinish={onFinish}
       >
-        <Form.Item></Form.Item>
-        <Form.Item name='stkcd' label="股票代码"
+        {/* <Form.Item></Form.Item> */}
+        <Form.Item name='stkcd' label="股票"
           rules={[
             {
               required: true,
@@ -99,7 +100,30 @@ function SelectDemo(props) {
             },
           ]}
         >
-          <Row>
+          <Input allowClear maxLength={6}
+            defaultValue={props.stkcd}	
+            onPressEnter={onInputChange}
+            onChange={onInputChange}
+          />
+        </Form.Item>
+        <Form.Item name='time' label="时间"
+          rules={[
+            {
+              required: true,
+              message: 'Please choose the period!',
+            },
+          ]}
+        >
+          <RangePicker 
+            disabled={props.rangePickerFlag}
+            disabledDate={disabledDate}
+            onChange={onRangePickerChange}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" disabled={props.buttonFlag}>提交</Button>
+        </Form.Item>
+          {/* <Row>
             <Col span={6}>
               <Input allowClear maxLength={6}
                 defaultValue={props.stkcd}	
@@ -131,8 +155,7 @@ function SelectDemo(props) {
                 <Button type="primary" htmlType="submit" disabled={props.buttonFlag}>提交</Button>
               </Form.Item>
             </Col>
-          </Row>
-        </Form.Item>
+          </Row> */}
       </Form>
     </>
   );
@@ -327,8 +350,15 @@ class StockPredict extends React.Component{
   render() {
     // console.log('begindate:',this.state.begindate);
     return(
-      <div>
-        <SelectDemo 
+      <div 
+        style={{
+          background: '#ececec',
+          height: '100vh',
+          padding: '30px',
+          
+        }}
+      >
+        {/* <SelectDemo 
           stkcd={this.state.stkcd}
           setStkcd={this.setStkcd.bind(this)}
           rangePickerFlag={this.state.rangePickerFlag}
@@ -347,7 +377,38 @@ class StockPredict extends React.Component{
           predict={this.state.predict}
           dates={this.state.dates}
         />
-        {this.state.rangePickerFlag===true?<div style={{marginLeft:20}}><p>该股票暂无已训练好的模型。</p></div>:<></>}
+        {this.state.rangePickerFlag===true?<div style={{marginLeft:20}}><p>该股票暂无已训练好的模型。</p></div>:<></>} */}
+        <br/>
+        <Row gutter={16}>
+          <Col span={8}>
+            <Card title="设置参数" bordered={false}>
+              <SelectDemo 
+                stkcd={this.state.stkcd}
+                setStkcd={this.setStkcd.bind(this)}
+                rangePickerFlag={this.state.rangePickerFlag}
+                begindate={this.state.begindate}
+                enddate={this.state.enddate}
+                selectedBegin={this.state.selectedBegin}
+                selectedEnd={this.state.selectedEnd}
+                setSelectedDate={this.setSelectedDate.bind(this)}
+                buttonFlag={this.state.buttonFlag}
+                setButtonFlag={this.setButtonFlag.bind(this)}
+                setResult={this.setResult.bind(this)}
+              />
+            </Card>
+          </Col>
+          <Col span={16}>
+            <Card title="结果" bordered={false}>
+              <PredictData
+                real={this.state.real}
+                predict={this.state.predict}
+                dates={this.state.dates}
+              />
+              {this.state.rangePickerFlag===true?<div style={{marginLeft:20}}><p>该股票暂无已训练好的模型。</p></div>:<></>}
+
+            </Card>
+          </Col>
+        </Row>
       </div>
     );
   }

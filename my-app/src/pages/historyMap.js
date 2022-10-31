@@ -8,6 +8,7 @@ import {
 import {
   Map,
   Marker,
+  Label,
   InfoWindow,
   ScaleControl,
   ZoomControl,
@@ -21,7 +22,9 @@ const axios = require('axios');
 // const {QuestionCircleOutlined} = icons;
 const { TabPane } = Tabs;
 const { Content, Sider } = Layout;
-
+const city2districtId={
+  '北京': 110100, '天津': 120100, '石家庄': 130100, '唐山': 130200, '保定': 130600, '太原': 140100, '呼和浩特': 150100, '包头': 150200, '沈阳': 210100, '大连': 210200, '鞍山': 210300, '长春': 220100, '吉林': 220200, '哈尔滨': 230100, '上海': 310100, '南京': 320100, '无锡': 320200, '徐州': 320300, '常州': 320400, '苏州': 320500, '南通': 320600, '连云港': 320700, '盐城': 320900, '扬州': 321000, '镇江': 321100, '泰州': 321200, '宿迁': 321300, '杭州': 330100, '宁波': 330200, '温州': 330300, '嘉兴': 330400, '湖州': 330500, '绍兴': 330600, '金华': 330700, '衢州': 330800, '台州': 331000, '合肥': 340100, '芜湖': 340200, '铜陵': 340700, '滁州': 341100, '福州': 350100, '厦门': 350200, '泉州': 350500, '漳州': 350600, '龙岩': 350800, '南昌': 360100, '赣州': 360700, '济南': 370100, '青岛': 370200, '淄博': 370300, '烟台': 370600, '潍坊': 370700, '济宁': 370800, '威海': 371000, '德州': 371400, '滨州': 371600, '郑州': 410100, '洛阳': 410300, '新乡': 410700, '焦作': 410800, '许昌': 411000, '南阳': 411300, '武汉': 420100, '宜昌': 420500, '襄阳': 420600, '荆门': 420800, '长沙': 430100, '株洲': 430200, '衡阳': 430400, '岳阳': 430600, '益阳': 430900, '广州': 440100, '深圳': 440300, '珠海': 440400, '汕头': 440500, '佛山': 440600, '江门': 440700, '肇庆': 441200, '惠州': 441300, '梅州': 441400, '东莞': 441900, '潮州': 445100, '揭阳': 445200, '南宁': 450100, '柳州': 450200, '桂林': 450300, '海口': 460100, '重庆': 500100, '成都': 510100, '德阳': 510600, '绵阳': 510700, '乐山': 511100, '贵阳': 520100, '昆明': 530100, '拉萨': 540100, '西安': 610100, '宝鸡': 610300, '兰州': 620100, '西宁': 630100, '银川': 640100, '乌鲁木齐': 650100
+}
 const cityInProvince = [
   ["北京市","北京"],
   ["上海市","上海"],
@@ -173,8 +176,10 @@ class Board extends React.Component {
       result: [],//infowindow展示信息
       cities: [],//所包含的城市
       target: '',//label+限制范围
-      name: props.name,//infowindow对应的区域名
-      echartsFlag: true,//是否切换到带有Echarts图表的Tab
+      name: props.name,//infowindow对应的区域名……
+      echartsFlag: true,//是否切换到带有Echarts图表的Tab，
+                        //解决tabs+echarts导致的‘Can’t get DOM width or height.……’问题
+      
     };
     // this.getHistory(props.name,'rain',-1,-1);
     this.getHistoryRet(this.state.name);
@@ -335,7 +340,7 @@ class Board extends React.Component {
   
   render() {
     return (
-      <div className="card-container">
+      <div className="card-container" style={{width:430}}>
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
           <TabPane tab="历史数据" key="history">
             {this.state.echartsFlag===true?
@@ -360,6 +365,7 @@ class Board extends React.Component {
   }
 }
 function MyMarker(props) {
+  console.log(props.selectWeather);
   let candidate = props.areas;
   if (props.zoom >= 7) {
     candidate = props.cities;
@@ -374,19 +380,41 @@ function MyMarker(props) {
       {candidate.map((item) => {
         // console.log(item.name,item.lng,item.lat);
         return (
-          // <div>
             <Marker
               key={item.name}
               name={item.name}
               position={{ lng: item.lng, lat: item.lat }}
               onClick={props.clickMarker}
               onMouseover={props.moveInMarker}
+              
               // fillColor={'#1abc9c'}
               // onMouseout={this.moveOutMarker.bind(this)}
               // icon={"loc_blue"}
               icon={"simple_blue"}
             />
-          // </div>
+           
+        );
+      })}
+      {candidate.map((item) => {
+        // console.log(item.name,item.lng,item.lat);
+        return (
+            <Label
+              key={item.name}
+              text={item.name}
+              style={{
+                color: "#fff",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                borderRadius: "10px",
+                padding: "0 10px",
+                fontSize: "14px",
+                lineHeight: "20px",
+                border :"0",
+                transform:'translateX(-50%)'
+
+              }}
+              position={{ lng: item.lng, lat: item.lat }}
+              offset={new window.BMapGL.Size(0, 10)}
+            />
         );
       })}
       <InfoWindow
@@ -394,10 +422,11 @@ function MyMarker(props) {
           lng: props.selectPosition.lng,
           lat: props.selectPosition.lat,
         }}
-        height={200}
-        width={430}
+        height={300}
+        width={450}
         offset={new window.BMapGL.Size(0, -10)}
-        title={props.selectPosition.name}
+        // title={props.selectPosition.name+' '+props.selectWeather}
+        title={props.selectPosition.name+' '+props.selectWeather}
         onClose={props.closeInfoWindow}
       >
         <Board name={props.selectPosition.name}/>
@@ -505,7 +534,7 @@ class MyMap extends React.Component {
     // f.writeLine("helloworld");
     // f.close();
     this.state = {
-      name: ["历史百分位", "换手率", "回报率"],
+      name: ["历史百分位", "换手率", "收益率"],
       cities: props.cities,
       provinces: props.provinces,
       areas: props.areas,
@@ -631,6 +660,7 @@ class MyMap extends React.Component {
       return [name];
     }
   }
+  
   render() {
     return (
       <Map
@@ -652,6 +682,7 @@ class MyMap extends React.Component {
           zoom={this.state.zoomLevel}
           moveInMarker={this.moveInMarker.bind(this)}
           selectPosition={this.props.selectPosition}
+          selectWeather={this.props.selectWeather}
           closeInfoWindow={this.closeInfoWindow.bind(this)}
         />
         {/* <NavigationControl /> */}
@@ -820,8 +851,8 @@ class History extends React.Component {
         { name: "西南地区", key: "西南地区", lng: "103.7608", lat: "29.6010" },
       ],
       openKeys: ["华北地区"],
-      selectLevel: 1,
       selectPosition: { name: "华北地区", lng: "116.395645", lat: "39.929986" },
+      selectWeather: '',
       lastPosition: "",
       collapsed: false,//是否折叠sider
     };
@@ -830,10 +861,32 @@ class History extends React.Component {
     this.setState({
       selectPosition: { name: name, lng: lng, lat: lat },
     });
+    this.getWeather(name);
   }
+  
   setLastPosition(name) {
     this.setState({
       lastPosition: name,
+    });
+  }
+  async getWeather(name) {
+    console.log(name);
+    let result;
+    if((name in city2districtId)===false) result = '';
+    else{
+      await axios.get("http://localhost:3000/weather/"+city2districtId[name]).then((res)=>{
+        let weatherInfo = res.data['data']['day'][0];
+        // console.log(res.data['data']['day']);
+        // console.log(weatherInfo['text']+' '+weatherInfo['low']+'­°C-'+weatherInfo['high']+'­°C');
+        result = weatherInfo['text']+' '+weatherInfo['low']+'­°C-'+weatherInfo['high']+'­°C';
+
+      },(err)=>{
+        console.log(err);
+        result = '';
+      });
+    }
+    this.setState({
+      selectWeather: result,
     });
   }
   menuOnClick(e) {
@@ -853,11 +906,12 @@ class History extends React.Component {
         // selectName: e.key,
         lastPosition: this.state.selectPosition.name,
         selectPosition: { name: e.key, lng: lng, lat: lat },
+        selectWeather: '',
       });
   }
   menuChange(e) {
     // console.log(e);
-    console.log(e[e.length - 1]);
+    console.log('menu change:',e[e.length - 1]);
     let lng, lat;
     for (let i = 0; i < this.state.areas.length; i++) {
       let item = this.state.areas[i];
@@ -874,15 +928,13 @@ class History extends React.Component {
         openKeys: [e[e.length - 1]],
         lastPosition: this.state.selectPosition.name,
         selectPosition: { name: e[e.length - 1], lng: lng, lat: lat },
+        selectWeather: '',
       });
     } else {
       this.setState({
         openKeys: e,
       });
     }
-  }
-  headerOnClick(e) {
-    console.log("click ", e, e.key);
   }
   setCollapsed(value) {
     this.setState({
@@ -891,7 +943,7 @@ class History extends React.Component {
   }
   render() {
     return (
-      <Layout className="content">
+      <Layout className="content" style={{height:'100vh'}}>
         <MySider
           width={200}
           onClick={this.menuOnClick.bind(this)}
@@ -907,6 +959,7 @@ class History extends React.Component {
               provinces={this.state.provinces}
               areas={this.state.areas}
               selectPosition={this.state.selectPosition}
+              selectWeather={this.state.selectWeather}
               lastPosition={this.state.lastPosition}
               setPosition={this.setPosition.bind(this)}
               setLastPosition={this.setLastPosition.bind(this)}

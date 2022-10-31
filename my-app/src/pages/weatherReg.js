@@ -468,10 +468,10 @@ function FormDemo(props) {
                 <Checkbox value="tur(-1)">前一日换手率</Checkbox>
               </Col>
               <Col span={6}>
-                <Checkbox value="ret(-1)">前一日回报率</Checkbox>
+                <Checkbox value="ret(-1)">前一日收益率</Checkbox>
               </Col>
               <Col span={6}>
-                <Checkbox value="ret">回报率</Checkbox>
+                <Checkbox value="ret">收益率</Checkbox>
               </Col>
               <Col span={6}>
                 <Checkbox value="ris">市场风险溢价因子</Checkbox>
@@ -530,7 +530,7 @@ class RegDemo extends React.Component {
       indeterminate: false,
       checkAll: false,//是否全选
       stkOptions: [
-        '前一日回报率',''
+        '前一日收益率',''
       ],
       area: [],//选择的区域
       setSubmit: props.setSubmit,//设置天气相关多选框的提交信息
@@ -607,7 +607,7 @@ function ScatterDemo(props) {
   if(props.label==='tur'){
     labelName='换手率';
   }else if(props.label==='ret'){
-    labelName='回报率';
+    labelName='收益率';
   }else{
     console.log('label error');
   }
