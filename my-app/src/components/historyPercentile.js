@@ -11,7 +11,7 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 const { Column, ColumnGroup } = Table;
 
 function HistoryPercentile(props) {
-  var data1=props.result, valueTitle;
+  var data1=props.result, valueTitle, proTitle;
   // const options=[
   if(props.label==='rain')
     valueTitle = (
@@ -34,7 +34,12 @@ function HistoryPercentile(props) {
           <QuestionCircleOutlined />
         </Tooltip>
       </div>);
-  
+  proTitle = (
+    <div>比例  
+      <Tooltip placement="right" title="比例(收益率正负数量比例)：取本地区所有数据的正负数量比例为1:1，依据该比例计算各天气因素下的比例" arrowPointAtCenter>
+        <QuestionCircleOutlined />
+      </Tooltip>
+    </div>);
   return (
     <div>
       {/* <Divider/> */}
@@ -48,7 +53,7 @@ function HistoryPercentile(props) {
           <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
           <Column title="<0" dataIndex="belowNum" key="belowNum" />
         </ColumnGroup>
-        <ColumnGroup title="比例">
+        <ColumnGroup title={proTitle}>
           <Column title=">0" dataIndex="above" key="above" />
           <Column title="<0" dataIndex="below" key="below" />
         </ColumnGroup>

@@ -35,7 +35,7 @@ function StockInfo(props) {
   
   return(
     <div style={{marginLeft: 50, marginTop: 20}}>
-      <StockDemo stkcd={stkcd}/>
+      <StockDemo stkcd={stkcd} kind={2}/>
       <Collapse ghost>
         <Panel header="LSTM模型" key="1">
           <StockPredict stkcd={stkcd}/>

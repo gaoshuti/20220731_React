@@ -616,12 +616,25 @@ function CorrelativePaper(props) {
       <p>[3]蒋子龙,王军,樊杰.1990—2019年中国上市公司总部分布变迁及影响因素[J].经济地理,2022,42(04):112-121.DOI:10.15957/j.cnki.jjdl.2022.04.013.</p>
       <p>[4]Loughran T ,  Schultz P . Weather, Stock Returns, and the Impact of Localized Trading Behavior[J]. Journal of Financial & Quantitative Analysis, 2004, 39(02):343.</p>
 
+      <Divider/><Title level={5}>投资者情绪</Title>
+      <p>[1]程琬芸,林杰.社交媒体的投资者涨跌情绪与证券市场指数[J].管理科学,2013,26(05):111-119.</p>
+      <p>[2]许启发,伯仲璞,蒋翠侠.基于分位数Granger因果的网络情绪与股市收益关系研究[J].管理科学,2017,30(03):147-160.</p>
+      <p>[3]LEE CHARLES M. C. SHLEIFER ANDREI THALER RICHARD H.. Investor Sentiment and the Closed‐End Fund Puzzle[J]. The Journal of Finance, 1991, 46(1) : 75-109.</p>
+      <p>[4]Wang Y H,  Keswani A,  Taylor S J. The relationships between sentiment, returns and volatility[J]. International Journal of Forecasting, 2006, 22(1), 109-123．</p>
+
       <Divider/><Title level={5}>天气因素影响</Title>
       <p>[1]陈康,江嘉骏,刘琦,李欣.空气质量、投资者情绪与股票收益率[J].管理科学,2018,31(06):145-160.</p>
       <p>[2]刘维奇,刘新新.个人和机构投资者情绪与股票收益——基于上证A股市场的研究[J].管理科学学报,2014,17(03):70-87.</p>
       <p>[3]仪垂林,王家琪.天气、季节性情绪混乱与股票收益——基于上证综合指数的研究[J].统计与决策,2005(06):79-82.</p>
-      <p>[4]Hirshleifer D ,  Shumway T G . Good Day Sunshine: Stock Returns and the Weather[J]. David Hirshleifer, 2004.</p>
-      <p>[5]Chang S C ,  Chen S S ,  Chou R K , et al. Weather and intraday patterns in stock returns and trading activity[J]. Journal of Banking & Finance, 2008.</p>
+      <p>[4]陆静.中国股票市场天气效应的实证研究[J].中国软科学,2011(06):65-78+192.</p>
+      <p>[5]李占风,段满福,李丹.天气对中国股票市场的影响[J].统计与信息论坛,2018,33(10):34-42.</p>
+      <p>[6]Edward M. Saunders,. Stock Prices and Wall Street Weather[J]. The American Economic Review, 1993, 83(5) : 1337-1345.</p>
+      <p>[7]David Hirshleifer and Tyler Shumway. Good Day Sunshine: Stock Returns and the Weather[J]. The Journal of Finance, 2003, 58(3) : 1009-1032.</p>
+      <p>[8]Chang S C ,  Chen S S ,  Chou R K , et al. Weather and intraday patterns in stock returns and trading activity[J]. Journal of Banking & Finance, 2008.</p>
+      <p>[9]Tim Loughran and Paul Schultz. Weather, Stock Returns, and the Impact of Localized Trading Behavior[J]. Journal of Financial and Quantitative Analysis, 2004, 39(2) : 343-364.</p>
+      <p>[10]Howarth E and Hoffman M S. A multidimensional approach to the relationship between mood and weather.[J]. British journal of psychology (London, England : 1953), 1984, 75 ( Pt 1) : 15-23.</p>
+      <p>[11]Melanie Cao and Jason Wei. Stock market returns: A note on temperature anomaly[J]. Journal of banking & finance, 2005, 29(6) : 1559-1573.</p>
+      <p>[12]Keef Stephen P. and Roush Melvin L.. The Weather and Stock Returns in New Zealand[J]. Quarterly Journal of Business and Economics, 2002, 41(1/2) : 61-79.</p>
 
       <Divider/><Title level={5}>股价预测</Title>
       <p>[1]彭燕,刘宇红,张荣芬.基于LSTM的股票价格预测建模与分析[J].计算机工程与应用,2019,55(11):209-212.</p>
@@ -654,7 +667,7 @@ function MySider(props) {
       style={{
         overflowY: 'auto',
         background: '#fff',
-        height: '100vh',
+        height: '100%',
         // position: 'fixed',
         // left: 0,
         // top: 60,

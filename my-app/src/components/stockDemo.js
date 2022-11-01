@@ -28,52 +28,54 @@ function SelectDemo(props) {
     props.setStkcd(e.target.value);
   };
   const onFinish = async (values) => {
-    navigate(`/stock/${values.stkcd}`,{replace: true});
-    // props.setButtonFlag(true);
-    // console.log('submit:',values.stkcd);
-    // let stkcd = values.stkcd;
-    // await axios.get("http://localhost:3000/stockInfo/"+stkcd).then((res0)=>{
-    //   var result0=res0.data;
-    //   if(result0['ret']===0)  {//成功
-    //     props.setInfo(result0['data']);
-    //     axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
-    //       var result=res.data;
-    //       if(result['ret']===0)  {//成功
-    //         console.log('stock365:',result['data'])
-    //         props.setResult(result);
-    //         axios.get("http://localhost:3000/stock/"+stkcd).then((res2)=>{
-    //           var result1=res2.data;
-    //           if(result['ret']===0)  {//成功
-    //             console.log('stock:',result1['data'])
-    //             props.setData(result1);
-    //             props.setButtonFlag(false);
-    //           } else { //失败
-    //             console.log(result['msg'])
-    //             props.setButtonFlag(false);
-    //           }
-    //         },err2=>{
-    //           console.log(err2);
-    //           props.setButtonFlag(false);
-    //         });
-    //       } else { //失败
-    //         console.log(result['msg'])
-    //         props.setButtonFlag(false);
-    //       }
-    //     },err=>{
-    //       console.log(err);
-    //       props.setButtonFlag(false);
-    //     });
+    if(props.kind===2) navigate(`/stock/${values.stkcd}`,{replace: true});
+    else{
+      props.setButtonFlag(true);
+      console.log('submit:',values.stkcd);
+      let stkcd = values.stkcd;
+      await axios.get("http://localhost:3000/stockInfo/"+stkcd).then((res0)=>{
+        var result0=res0.data;
+        if(result0['ret']===0)  {//成功
+          props.setInfo(result0['data']);
+          axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
+            var result=res.data;
+            if(result['ret']===0)  {//成功
+              console.log('stock365:',result['data'])
+              props.setResult(result);
+              axios.get("http://localhost:3000/stock/"+stkcd).then((res2)=>{
+                var result1=res2.data;
+                if(result['ret']===0)  {//成功
+                  console.log('stock:',result1['data'])
+                  props.setData(result1);
+                  props.setButtonFlag(false);
+                } else { //失败
+                  console.log(result['msg'])
+                  props.setButtonFlag(false);
+                }
+              },err2=>{
+                console.log(err2);
+                props.setButtonFlag(false);
+              });
+            } else { //失败
+              console.log(result['msg'])
+              props.setButtonFlag(false);
+            }
+          },err=>{
+            console.log(err);
+            props.setButtonFlag(false);
+          });
 
-    //   }else{
-    //     console.log(result0['msg']);
-    //     props.setButtonFlag(false);
-    //     // navigate("/error");
-    //     // return;
-    //   };
-    // },err=>{
-    //   console.log(err);
-    //   props.setButtonFlag(false);
-    // });
+        }else{
+          console.log(result0['msg']);
+          props.setButtonFlag(false);
+          // navigate("/error");
+          // return;
+        };
+      },err=>{
+        console.log(err);
+        props.setButtonFlag(false);
+      });
+    }
   };
   return (
     <>
@@ -212,7 +214,7 @@ function StockHistoryPrice(props) {
     grid: {
       left: '10%',
       right: '10%',
-      bottom: '15%'
+      bottom: '17%'
     },
     xAxis: {
       type: 'category',
@@ -261,14 +263,6 @@ function StockHistoryPrice(props) {
           },
           data: [
             {
-              name: 'Mark',
-              coord: ['2013/5/31', 2300],
-              value: 2300,
-              itemStyle: {
-                color: 'rgb(41,60,85)'
-              }
-            },
-            {
               name: 'highest value',
               type: 'max',
               valueDim: 'highest'
@@ -278,11 +272,6 @@ function StockHistoryPrice(props) {
               type: 'min',
               valueDim: 'lowest'
             },
-            {
-              name: 'average value on close',
-              type: 'average',
-              valueDim: 'close'
-            }
           ],
           tooltip: {
             formatter: function (param) {
@@ -337,34 +326,6 @@ function StockHistoryPrice(props) {
           ]
         }
       },
-      // { name: '成交量',
-      //   type: 'line',
-      //   data: data0.tradingNum,
-      // },
-      // { name: '成交额',
-      //   type: 'line',
-      //   // lineStyle:{ 
-      //   //   color:'red' //改变折线颜色
-      //   // }, 
-      //   // symbol: 'none',
-      //   data: data0.tradingValue
-      // },
-      // { name: '振幅',
-      //   type: 'line',
-      //   data: data0.amplitude,
-      // },
-      // { name: '涨跌幅',
-      //   type: 'line',
-      //   data: data0.changePercent,
-      // },
-      // { name: '涨跌额',
-      //   type: 'line',
-      //   data: data0.changeAmount,
-      // },
-      // { name: '换手率',
-      //   type: 'line',
-      //   data: data0.turnoverRate,
-      // },
     ]
   };
   return(
@@ -403,6 +364,7 @@ class StockPrice extends React.Component {
     clearInterval(this.timer);
   }
   getOption() {
+    let lastPrice = this.props.lastPrice;
     let data0 = this.props.splitData(this.props.data);
     let option = {
       title: {
@@ -420,7 +382,7 @@ class StockPrice extends React.Component {
             var param = params[i];
             var xName = param.name;//x轴的名称
             // var seriesName = param.seriesName;//图例名称
-            var value = param.value;//y轴值
+            // var value = param.value;//y轴值
             var color = param.color;//图例颜色
             if(i===0){
               htmlStr += xName + '<br/>';//x轴的名称
@@ -438,7 +400,7 @@ class StockPrice extends React.Component {
             htmlStr += point2 + 'close：' + otherInfo[1] + '<br/>';
             htmlStr += point2 + 'highest：' + otherInfo[2] + '<br/>';
             htmlStr += point2 + 'lowest：' + otherInfo[3] + '<br/>';
-            
+            htmlStr += point2 + 'change：' + ((otherInfo[1]/lastPrice)*100-100).toFixed(2) + '%<br/>';
             let color1 = '#888888'
             htmlStr += point1(color1) + '成交量：' + otherInfo[4] + '<br/>';
             htmlStr += point1(color1) + '成交额：' + otherInfo[5] + '<br/>';
@@ -451,7 +413,7 @@ class StockPrice extends React.Component {
       grid: {
         left: '10%',
         right: '10%',
-        bottom: '15%'
+        bottom: '17%'
       },
       xAxis: {
         type: 'category',
@@ -462,12 +424,24 @@ class StockPrice extends React.Component {
         min: 'dataMin',
         max: 'dataMax'
       },
-      yAxis: {
-        scale: true,
-        splitArea: {
-          show: true
-        }
-      },
+      yAxis: [
+        {
+          boundaryGap: [0.2,0.1],
+          scale: true,
+          splitArea: {
+            show: true
+          }
+        },
+        // {
+        //   min: 0,
+        //   max: 100,
+        //   type: 'value',
+        //   axisLabel: {
+        //     formatter: '{value}%',
+        //     // align: 'center'
+        //   }
+        // }
+      ],
       dataZoom: [
         {
           type: 'inside',
@@ -482,17 +456,29 @@ class StockPrice extends React.Component {
           end: 100
         }
       ],
+      visualMap: {
+        show: false,
+        pieces: [
+          {
+            gt: 0,
+            lte: this.props.lastPrice,
+            color: downColor
+          },
+          {
+            gt: this.props.lastPrice,
+            color: upColor
+          },
+        ],
+        outOfRange: {
+          color: '#999'
+        }
+      },
       series: [
         {
           name: '价格',
           type: 'line',
           data: data0.values,
-          // itemStyle: {
-          //   color: upColor,
-          //   color0: downColor,
-          //   borderColor: upBorderColor,
-          //   borderColor0: downBorderColor
-          // },
+          symbol: 'none',
           // markPoint: {
           //   label: {
           //     formatter: function (param) {
@@ -501,20 +487,13 @@ class StockPrice extends React.Component {
           //   },
           //   data: [
           //     {
-          //       name: 'highest value',
+          //       name: 'max',
           //       type: 'max',
-          //       valueDim: 'highest'
           //     },
           //     {
-          //       name: 'lowest value',
+          //       name: 'min',
           //       type: 'min',
-          //       valueDim: 'lowest'
           //     },
-          //     {
-          //       name: 'average value on close',
-          //       type: 'average',
-          //       valueDim: 'close'
-          //     }
           //   ],
           //   tooltip: {
           //     formatter: function (param) {
@@ -529,11 +508,11 @@ class StockPrice extends React.Component {
               color: '#333'
             },
             label: {
-              position:"start" 
+              position:"end" 
             },
             data: [
               { 
-                yAxis: data0.values[0] ,
+                yAxis: this.props.lastPrice ,
               }
             ]
           }
@@ -737,11 +716,11 @@ class StockDemo extends React.Component {
       console.log(err);
     });
   }
-  // setInfo(info) {
-  //   this.setState({
-  //     info: info
-  //   });
-  // }
+  setInfo(info) {
+    this.setState({
+      info: info
+    });
+  }
   setResult(result) {
     // console.log('result["data"]["data"]:',result['data']['data']);
     this.setState({
@@ -756,11 +735,11 @@ class StockDemo extends React.Component {
       //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价 
     });
   }
-  // setButtonFlag(flag) {
-  //   this.setState({
-  //     buttonFlag:flag,
-  //   });
-  // }
+  setButtonFlag(flag) {
+    this.setState({
+      buttonFlag:flag,
+    });
+  }
   // setInfo() {
   //   this.setState({
   //     info: this.state.info
@@ -778,11 +757,12 @@ class StockDemo extends React.Component {
         <SelectDemo 
           stkcd={this.state.stkcd}
           setStkcd={this.setStkcd.bind(this)}
-          // buttonFlag={this.state.buttonFlag}
-          // setButtonFlag={this.setButtonFlag.bind(this)}
-          // setInfo={this.setInfo.bind(this)}
-          // setResult={this.setResult.bind(this)}
-          // setData={this.setData.bind(this)}
+          kind={this.props.kind}
+          buttonFlag={this.state.buttonFlag}
+          setButtonFlag={this.setButtonFlag.bind(this)}
+          setInfo={this.setInfo.bind(this)}
+          setResult={this.setResult.bind(this)}
+          setData={this.setData.bind(this)}
         />
         <Divider></Divider>
         {this.state.info['name']===''?<div><p>暂无数据</p></div>:
@@ -796,6 +776,7 @@ class StockDemo extends React.Component {
               setData={this.setData.bind(this)}
               setResult={this.setResult.bind(this)}
               splitData={this.splitData.bind(this)}
+              lastPrice={this.state.historyData[this.state.historyData.length-1][2]}
             />
             }
             <Divider/>

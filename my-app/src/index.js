@@ -45,7 +45,7 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <MyHeader className="header"/>
-          <header className="App-header">
+          <div className="content">
             <Routes>
               <Route path="/" element={<Home />}></Route>
               <Route path="/historymap" element={<History />}></Route>
@@ -60,7 +60,7 @@ class App extends React.Component {
               <Route path="*" element={<NoMatch/>}></Route>
 
             </Routes>
-          </header>
+          </div>
         </div>
       </Router>
     );

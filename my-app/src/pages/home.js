@@ -50,7 +50,7 @@ class Home extends React.Component {
             ></Button>
           </Col>
           <Col span={this.state.spans[1]}>
-            <StockDemo stkcd="000001"/>
+            <StockDemo stkcd="000001" kind={1}/>
           </Col>
         </Row>
       </div>

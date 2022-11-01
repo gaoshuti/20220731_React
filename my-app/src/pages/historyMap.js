@@ -342,6 +342,7 @@ class Board extends React.Component {
     return (
       <div className="card-container" style={{width:430}}>
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
+          
           <TabPane tab="历史数据" key="history">
             {this.state.echartsFlag===true?
               <HistoryData data={this.state.result}/>:<></>
@@ -943,7 +944,7 @@ class History extends React.Component {
   }
   render() {
     return (
-      <Layout className="content" style={{height:'100vh'}}>
+      <Layout className="historymap">
         <MySider
           width={200}
           onClick={this.menuOnClick.bind(this)}

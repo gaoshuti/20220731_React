@@ -101,7 +101,7 @@ function SelectDemo(props) {
           ]}
         >
           <Input allowClear maxLength={6}
-            defaultValue={props.stkcd}	
+            initialvalue={props.stkcd}	
             onPressEnter={onInputChange}
             onChange={onInputChange}
           />
@@ -350,13 +350,13 @@ class StockPredict extends React.Component{
   render() {
     // console.log('begindate:',this.state.begindate);
     return(
-      <div 
-        style={{
-          background: '#ececec',
-          height: '100vh',
-          padding: '30px',
+      <div className="predictdemo"
+        // style={{
+        //   background: '#ececec',
+        //   height: calc(100% - 50),
+        //   padding: '30px',
           
-        }}
+        // }}
       >
         {/* <SelectDemo 
           stkcd={this.state.stkcd}
@@ -381,7 +381,7 @@ class StockPredict extends React.Component{
         <br/>
         <Row gutter={16}>
           <Col span={8}>
-            <Card title="设置参数" bordered={false}>
+            <Card title="设置参数" bordered={true}>
               <SelectDemo 
                 stkcd={this.state.stkcd}
                 setStkcd={this.setStkcd.bind(this)}
@@ -398,7 +398,7 @@ class StockPredict extends React.Component{
             </Card>
           </Col>
           <Col span={16}>
-            <Card title="结果" bordered={false}>
+            <Card title="结果" bordered={true}>
               <PredictData
                 real={this.state.real}
                 predict={this.state.predict}

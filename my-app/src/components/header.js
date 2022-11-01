@@ -59,7 +59,7 @@ function MyHeader(props) {
   
   }
   return (
-    <Header>
+    <Header >
       <div className="logo" />
       <div className="search">
         <Search

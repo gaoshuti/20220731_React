@@ -1,6 +1,29 @@
 @import '~antd/dist/antd.css';
 
-body{margin:0;}
+html,body{
+  margin:0;
+  height:100%;
+}
+/* .container{
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  display: flex;
+  background: #fff
+} */
+.header{
+  width: 100%;
+  height: 60px;
+  /* margin-bottom: -60px; */
+  /* position: relative */
+}
+.content{
+  width: 100%;
+  height: calc(100% - 120px);
+  /* padding-top: 60px; */
+  /* flex-grow: 1; */
+  /* background: #fff; */
+}
 .logo {
   float: left;
   width: 120px;
@@ -14,21 +37,7 @@ body{margin:0;}
   height: 31px;
   margin: 16px 24px 16px 0;
 }
-.container{
-  width: 100vw;
-  height: 100vh;
-  flex-direction: column;
-  display: flex;
-  background: #fff
-}
-.header{
-  height: 60px;
-}
-.content{
-  /* height: 100vh; */
-  flex-grow: 1;
-  /* background: #fff; */
-}
+
 .site-layout-background {
   /* margin: 0; */
   background: #fff;
@@ -49,7 +58,14 @@ body{margin:0;}
   text-align: center !important;
   padding: 10px 10px !important;
 }
-
+.predictdemo{
+  background: #ececec;
+  height: calc(100vh - 65px);
+  padding: 30px;
+}
+.historymap{
+  height: calc(100vh - 65px);
+}
 
 
 
