@@ -14,15 +14,10 @@ html,body{
 .header{
   width: 100%;
   height: 60px;
-  /* margin-bottom: -60px; */
-  /* position: relative */
 }
 .content{
   width: 100%;
   height: calc(100% - 120px);
-  /* padding-top: 60px; */
-  /* flex-grow: 1; */
-  /* background: #fff; */
 }
 .logo {
   float: left;
@@ -37,6 +32,13 @@ html,body{
   height: 31px;
   margin: 16px 24px 16px 0;
 }
+
+/* infowindoww样式 */
+/* .BMap_pop img {
+	display: none;
+} */
+
+
 
 .site-layout-background {
   /* margin: 0; */

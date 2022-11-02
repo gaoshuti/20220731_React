@@ -426,7 +426,7 @@ class StockPrice extends React.Component {
       },
       yAxis: [
         {
-          boundaryGap: [0.2,0.1],
+          boundaryGap: [0.2,0.2],
           scale: true,
           splitArea: {
             show: true
