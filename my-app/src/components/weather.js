@@ -416,7 +416,7 @@ class Weather extends React.Component{
                     <p>{item['date'].slice(5)}</p>
                     <p>{item['week']}</p>
                     <p>{weatherIcon(item['text'],20)}{item['text']}</p>
-                    <p>{item['low']}­°C-{item['high']}­°C</p>
+                    <p>{item['low']}­°C～{item['high']}­°C</p>
                     <p>{item['wind_dir']} {item['wind_class']}</p>
                   </Col>
                 );

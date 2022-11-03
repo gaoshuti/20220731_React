@@ -6,9 +6,9 @@ class map(models.Model):# 数据
   id = models.AutoField(primary_key=True,default='')
   city=models.CharField(max_length=255)
   date=models.CharField(max_length=255)
+  weather=models.CharField(max_length=255,null=True,blank=True)
   class Meta:
     unique_together = ('city', 'date',)
-
   max=models.FloatField(null=True,blank=True)
   min=models.FloatField( null=True,blank=True)
   wind=models.FloatField(null=True,blank=True)
@@ -19,7 +19,7 @@ class map(models.Model):# 数据
   srad=models.FloatField(null=True,blank=True)
   tempDiff1=models.FloatField(null=True,blank=True )
   tempDiff7=models.FloatField( null=True,blank=True)
-  propertion=models.FloatField( null=True,blank=True)
+  proportion=models.FloatField( null=True,blank=True)
   MarCap=models.FloatField( null=True,blank=True)
   ret=models.FloatField( null=True,blank=True)
   tur=models.FloatField( null=True,blank=True)

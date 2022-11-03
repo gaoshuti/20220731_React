@@ -20,6 +20,8 @@ urlpatterns = [
     # url(r'^weatherdistribution/(?P<city>[\u4e00-\u9fa5]+)/(?P<x>\w+)/(?P<y>\w+)$',map.listWeatherDistribution),
     # url(r'^weatherregression/(?P<city>[\u4e00-\u9fa5]+)$',map.listWeatherRegression),
     url(r'^weatherregression$',map.listWeatherRegression),
+
+    url(r'^gettip$',map.getTip),#根据当前城市、天气，给出建议
     url('signin', sign_in_out.signin),
     url('signout', sign_in_out.signout),
 ]

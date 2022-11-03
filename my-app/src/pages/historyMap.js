@@ -316,6 +316,13 @@ function MySider(props) {
     </Sider>
   );
 }
+function Tips(props) {
+  return(
+    <div>
+      <p>今日天气：{props.selectWeather}</p>
+    </div>
+  );
+}
 class Board extends React.Component {
   constructor(props) {
     super(props);
@@ -440,6 +447,11 @@ class Board extends React.Component {
     });
     data1.push(result['ret']);
     data1.push(result['date']);
+    data1.push(result['weather']);
+    data1.push(result['max']);
+    data1.push(result['min']);
+    data1.push(result['API']);
+    data1.push(result['AQI']);
     this.setState({
       result: data1,
       target: 'history ret',
@@ -467,6 +479,17 @@ class Board extends React.Component {
       target: 'data source',
     });
   }
+  //=============================
+  //=============================
+  //=============================
+  async getTip(area) {
+    var data1=[],tempdata={},result,cities;
+    console.log('get history',area);
+    if(this.state.cities[0]===area && this.state.target==='tip'){
+      console.log('已有数据')
+      return;
+    } 
+  }
   setEchartsFlag(flag) {
     this.setState({
       echartsFlag: flag,
@@ -479,7 +502,13 @@ class Board extends React.Component {
     }else if(activeKey==='history'){
       this.getHistoryRet(this.state.name);
       this.setEchartsFlag(true);
-    }else{
+    }else if(activeKey==='tip'){
+      this.setState({
+        target: 'tip',
+      });
+      this.setEchartsFlag(false);
+    }
+    else{
       this.getHistory(this.state.name,activeKey,-1,-1);
       this.setEchartsFlag(false);
     }
@@ -507,6 +536,9 @@ class Board extends React.Component {
           </TabPane>
           <TabPane tab="数据源" key="data">
             <DataSource data={this.state.result}/>
+          </TabPane>
+          <TabPane tab="建议" key="tip">
+            <Tips data={this.state.result} selectWeather={this.props.selectWeather}/>
           </TabPane>
         </Tabs>
       </div>
@@ -583,7 +615,7 @@ function MyMarker(props) {
         onClose={props.closeInfoWindow}
       >
        
-        <Board name={props.selectPosition.name}/>
+        <Board name={props.selectPosition.name} selectWeather={props.selectWeather}/>
       </InfoWindow>
     </div>
   );

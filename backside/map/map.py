@@ -62,7 +62,7 @@ def handleParam(qs,name,minvalue,maxvalue):
     record = qs.filter(sun__in=[minvalue,maxvalue])  
   return record
 
-def getCities(name):
+def getCities(name):#给出该地区所包含的城市列表
   cityInProvince = [
     ["北京市","北京"],
     ["上海市","上海"],
@@ -136,7 +136,7 @@ def getCities(name):
         cities=cities+cityInProvince[i][1:]
         break
   return [name]+cities
-def getDataSource(request,area):
+def getDataSource(request,area):#给出该地区所包含的stkcd列表
   print('get stkcd in city')
   # qs2 = mapQuery.objects.values()
   qs2 = mapQuery.objects.values().filter(area=area)
@@ -258,16 +258,21 @@ def listInfo(request,area,label,minvalue,maxvalue):
     print(myDict)
 
   return JsonResponse({'ret': 0, 'cities':'#'.join(cities) ,'data':myDict})
-def listRet(request,city):
+def listRet(request,city):#历史组合收益率
   print('list ret')
   qs=map.objects.values()
   record = qs.filter(city=city)
-  myDict={'date':[],'ret':[]}
+  myDict={'date':[],'ret':[],'weather':[],'max':[],'min':[],'API':[],'AQI':[]}
   for i in range(len(record)):
     if record[i]['ret']==-100:
       continue
     myDict['date'].append(record[i]['date'])
     myDict['ret'].append(record[i]['ret'])
+    myDict['weather'].append(record[i]['weather'])
+    myDict['max'].append(record[i]['max'])
+    myDict['min'].append(record[i]['min'])
+    myDict['API'].append(record[i]['API'])
+    myDict['AQI'].append(record[i]['AQI'])
   return JsonResponse({'ret': 0, 'data':myDict})
 
 def listStkDate(request,stkcd):
@@ -534,7 +539,7 @@ def listWeatherDistribution(request,city,x,y):
   dataDf = DataFrame(myDict)
   dataDf = dataDf[dataDf!=-100].dropna()
   return JsonResponse({'ret': 0, 'data':{x:list(dataDf[x]),y:list(dataDf[y])}})
-def handleTemp(x):
+def handleTemp(x):#开氏度->摄氏度
   return x-273.15
 def listWeatherRegression(request):
   print('list weather regression')
@@ -651,6 +656,122 @@ def listWeatherRegression(request):
   T2=time.time()
   print('用时：',T2-T1)
   return JsonResponse({'ret': 0, 'data':myDict})
+
+def handleWeather(weather):#将具体天气转化为[rain,snow,cloud]
+  state=[0,0,0]#雨、雪、云
+  weather=weather.replace('~','')
+  if '暴雪' in weather:
+    state[0]=4
+    state[2]=4
+  elif '大雪' in weather:
+    state[0]=3
+    state[2]=4
+  elif '中雪' in weather:
+    state[0]=2
+    state[2]=4
+  elif '雪' in weather:
+    state[0]=1
+    state[2]=3
+
+  if '暴雨' in weather:
+    state[1]=4
+    state[2]=4
+  elif '大雨' in weather:
+    state[1]=3
+    state[3]=4
+  elif '中雨' in weather:
+    state[1]=2
+    state[2]=4
+  elif '雨' in weather:
+    state[1]=1
+    state[2]=3
+
+  if state[2]==0:
+    if '阴' in weather:
+      state[2]=3 
+    elif '多云' in weather:
+      state[2]=2
+    elif '少云' in weather:
+      state[2]=1
+  return state
+def getTip(request):#根据当前城市、天气，给出建议
+  city=request.POST.get('city',default='1')
+  weather=request.POST.get('weather',default='1')
+  print('get tip:',city,weather)
+  myDict={}
+  weatherInfo=weather.split(' ')
+  state=handleWeather(weatherInfo[0])
+  myDict['state']=state
+  print(state)
+  labels=['rain','snow','cloud']
+  mQs=map.objects.values()
+  maQs = mapQuery.objects.values()
+  for i in range(len(labels)):
+    label=labels[i]
+    myDict[label]={}
+    conditions={
+      'area':city,
+      'label':label
+    }
+    qs2 =maQs.filter(**conditions)
+    if(len(qs2)!=0):
+      myDict[label]={
+        'num': qs2[0]['num'+str(state[i])], 
+        'above': qs2[0]['aboveNum'+str(state[i])],
+        'below': qs2[0]['belowNum'+str(state[i])],
+        'rate': round(qs2[0]['belowNum']/qs2[0]['aboveNum'],2)
+      }
+      myDict[label]['abovePro']=1.00
+      myDict[label]['belowPro']=round(myDict[label]['below']/(myDict[label]['above']*myDict[label]['rate']),2)
+
+    else:
+      qs2=mQs.filter(city=city)
+      above=0
+      below=0
+      myDict2={}
+      for i in range(len(qs2)):
+        if qs2[i]['ret']<0:
+          below+=1
+        else:
+          above+=1
+      myDict2['all']={'num':above+below,'above':above,'below':below}
+      length=100
+      for i in range(5):
+        myDict2[i] = {'num':0,'above':0,'below':0}
+      k=0
+      while k<5:
+        record = handleParam(qs2,label,k,k)
+        length = len(record)
+        if length==0:
+          k+=1
+          continue
+        for i in range(length):
+          info=record[i]
+          myDict2[k]['num']+=1
+          if info['ret']<0:
+            myDict2[k]['below']+=1
+          else:
+            myDict2[k]['above']+=1
+        k+=1
+      record = mapQuery.objects.create(area=city, label=label, cities=city+'#'+city,
+        num=myDict2['all']['num'], aboveNum=myDict2['all']['above'], belowNum=myDict2['all']['below'],
+        num0=myDict2[0]['num'], aboveNum0=myDict2[0]['above'], belowNum0=myDict2[0]['below'],
+        num1=myDict2[1]['num'], aboveNum1=myDict2[1]['above'], belowNum1=myDict2[1]['below'],
+        num2=myDict2[2]['num'], aboveNum2=myDict2[2]['above'], belowNum2=myDict2[2]['below'],
+        num3=myDict2[3]['num'], aboveNum3=myDict2[3]['above'], belowNum3=myDict2[3]['below'],
+        num4=myDict2[4]['num'], aboveNum4=myDict2[4]['above'], belowNum4=myDict2[4]['below'],)
+      myDict[label]=myDict2[state[i]]
+      myDict[label]['rate']=round(myDict2['all']['below']/myDict2['all']['above'],2)
+      myDict[label]['abovePro']=1.00
+      myDict[label]['belowPro']=round(myDict[label]['below']/(myDict[label]['above']*myDict[label]['rate']),2)
+    
+  return JsonResponse({'ret': 0, 'data':myDict})
+
+
+
+
+
+
 
 
   # 根据session判断用户是否登录

@@ -58,6 +58,11 @@ function CityInfo(props) {
     });
     data1.push(result['ret']);
     data1.push(result['date']);
+    data1.push(result['weather']);
+    data1.push(result['max']);
+    data1.push(result['min']);
+    data1.push(result['API']);
+    data1.push(result['AQI']);
     setHisRet(data1);
     sethrCity(area);
   }
