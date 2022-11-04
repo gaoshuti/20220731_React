@@ -694,20 +694,15 @@ def handleWeather(weather):#将具体天气转化为[rain,snow,cloud]
     elif '少云' in weather:
       state[2]=1
   return state
-def getTip(request):#根据当前城市、天气，给出建议
-  city=request.POST.get('city',default='1')
-  weather=request.POST.get('weather',default='1')
-  print('get tip:',city,weather)
+def getTipData(city,state):#根据当前城市、天气状态，给出历史百分位、系数（还没加
   myDict={}
-  weatherInfo=weather.split(' ')
-  state=handleWeather(weatherInfo[0])
   myDict['state']=state
   print(state)
   labels=['rain','snow','cloud']
   mQs=map.objects.values()
   maQs = mapQuery.objects.values()
-  for i in range(len(labels)):
-    label=labels[i]
+  for j in range(len(labels)):
+    label=labels[j]
     myDict[label]={}
     conditions={
       'area':city,
@@ -716,9 +711,9 @@ def getTip(request):#根据当前城市、天气，给出建议
     qs2 =maQs.filter(**conditions)
     if(len(qs2)!=0):
       myDict[label]={
-        'num': qs2[0]['num'+str(state[i])], 
-        'above': qs2[0]['aboveNum'+str(state[i])],
-        'below': qs2[0]['belowNum'+str(state[i])],
+        'num': qs2[0]['num'+str(state[j])], 
+        'above': qs2[0]['aboveNum'+str(state[j])],
+        'below': qs2[0]['belowNum'+str(state[j])],
         'rate': round(qs2[0]['belowNum']/qs2[0]['aboveNum'],2)
       }
       myDict[label]['abovePro']=1.00
@@ -760,11 +755,43 @@ def getTip(request):#根据当前城市、天气，给出建议
         num2=myDict2[2]['num'], aboveNum2=myDict2[2]['above'], belowNum2=myDict2[2]['below'],
         num3=myDict2[3]['num'], aboveNum3=myDict2[3]['above'], belowNum3=myDict2[3]['below'],
         num4=myDict2[4]['num'], aboveNum4=myDict2[4]['above'], belowNum4=myDict2[4]['below'],)
-      myDict[label]=myDict2[state[i]]
+      myDict[label]=myDict2[state[j]]
       myDict[label]['rate']=round(myDict2['all']['below']/myDict2['all']['above'],2)
       myDict[label]['abovePro']=1.00
       myDict[label]['belowPro']=round(myDict[label]['below']/(myDict[label]['above']*myDict[label]['rate']),2)
-    
+  return myDict
+
+def getTip(request):#根据当前城市、天气，给出建议
+  city=request.POST.get('city',default='1')
+  weather=request.POST.get('weather',default='1')
+  print('get tip:',city,weather)
+  myDict={'state':[],'rain':[],'snow':[],'cloud':[],'tip':""}
+  if len(weather)==0:
+    return JsonResponse({'ret': 0, 'data':myDict})
+  weatherInfo=weather.split(' ')
+  state=handleWeather(weatherInfo[0])
+  myDict=getTipData(city,state)
+  labels=['rain','snow','cloud']
+  above=0
+  below=0
+  if sum(state)==0:
+    for label in labels:
+      above+=(myDict[label]['num'])
+      below+=(myDict[label]['num']*myDict[label]['belowPro'])
+  else:
+    for i in range(len(state)):
+      if state[i]!=0:
+        label=labels[i]
+        above+=(myDict[label]['num'])
+        below+=(myDict[label]['num']*myDict[label]['belowPro'])
+  print(above,below,round(below/above,2))
+  if above>below:
+    tip="在该天气下，收益率为正的概率较高，不建议加仓。"
+  elif above<below:
+    tip="在该天气下，收益率为正的概率较低，建议加仓。"
+  else:
+    tip="因数据量不足，难以判断。"
+  myDict['tip']=tip
   return JsonResponse({'ret': 0, 'data':myDict})
 
 

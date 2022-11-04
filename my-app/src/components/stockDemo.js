@@ -126,6 +126,16 @@ function SelectDemo(props) {
 };
 
 function StockInfo(props) {
+  const numForm=(x)=>{
+    let x2 = (''+x).split('.'),result;
+    if(x2.length===2) result='.'+x2[1];
+    else result='';
+    for(let i = x2[0].length;i>2;i-=3){
+      result = x2[0].slice(i-3,i)+result;
+      result = ','+result;
+    }
+    return result.slice(1,result.length);
+  }
   return(
     <div>
       <Row>
@@ -141,18 +151,18 @@ function StockInfo(props) {
       </Row>
       <Row>
         <Col span={12}>
-          <p>总 市 值 ：{props.info['MarCap']}</p>
+          <p>总 市 值 ：{numForm(props.info['MarCap'])}</p>
         </Col>
         <Col span={12}>
-          <p>总 股 本 ：{props.info['stkIssue']}</p>
+          <p>总 股 本 ：{numForm(props.info['stkIssue'])}</p>
         </Col>
       </Row>
       <Row>
         <Col span={12}>
-          <p>流通市值：{props.info['tradedCap']}</p>
+          <p>流通市值：{numForm(props.info['tradedCap'])}</p>
         </Col>
         <Col span={12}>
-          <p>流通股本：{props.info['tradedIssue']}</p>
+          <p>流通股本：{numForm(props.info['tradedIssue'])}</p>
         </Col>
       </Row>
     </div>
@@ -364,7 +374,9 @@ class StockPrice extends React.Component {
     clearInterval(this.timer);
   }
   getOption() {
-    let lastPrice = this.props.lastPrice;
+    let lastPrice;
+    if(this.props.historyData.length===0) lastPrice=0;
+    else lastPrice = this.props.historyData[this.props.historyData.length-1][2];
     let data0 = this.props.splitData(this.props.data);
     let option = {
       title: {
@@ -461,11 +473,11 @@ class StockPrice extends React.Component {
         pieces: [
           {
             gt: 0,
-            lte: this.props.lastPrice,
+            lte: lastPrice,
             color: downColor
           },
           {
-            gt: this.props.lastPrice,
+            gt: lastPrice,
             color: upColor
           },
         ],
@@ -512,7 +524,7 @@ class StockPrice extends React.Component {
             },
             data: [
               { 
-                yAxis: this.props.lastPrice ,
+                yAxis: lastPrice ,
               }
             ]
           }
@@ -580,15 +592,6 @@ class StockDemo extends React.Component {
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
-          // info: {
-          //   'name':result['data']['name'],               //股票简称
-          //   'industry':result['data']['industry'],       //行业
-          //   'TTM':result['data']['TTM'],                 //上市时间
-          //   'MarCap':result['data']['MarCap'],           //总市值
-          //   'tradedCap':result['data']['tradedCap'],     //流通市值
-          //   'stkIssue':result['data']['stkIssue'],       //总股本
-          //   'tradedIssue':result['data']['tradedIssue'], //流通股本
-          // },
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
         });
@@ -769,27 +772,31 @@ class StockDemo extends React.Component {
           <div>
             <StockInfo info={this.state.info}/>
             <Divider/>
-            {this.state.data.length===0?<div><p>暂未开市</p></div>:
-            <StockPrice
-              stkcd={this.state.stkcd}
-              data={this.state.data}
-              setData={this.setData.bind(this)}
-              setResult={this.setResult.bind(this)}
-              splitData={this.splitData.bind(this)}
-              lastPrice={this.state.historyData[this.state.historyData.length-1][2]}
-            />
+            {this.state.data.length===0?
+              <div><p>暂未开市</p></div>:
+              (this.state.historyData.length===0?
+                <div><p>暂无数据</p></div>:
+                <StockPrice
+                  stkcd={this.state.stkcd}
+                  data={this.state.data}
+                  setData={this.setData.bind(this)}
+                  setResult={this.setResult.bind(this)}
+                  splitData={this.splitData.bind(this)}
+                  historyData={this.state.historyData}
+                  // lastPrice={this.state.historyData[this.state.historyData.length-1][2]}
+                />
+              )
+            
             }
             <Divider/>
+            {this.state.historyData.length===0?<div><p>暂无数据</p></div>:
             <StockHistoryPrice
               historyData={this.state.historyData}
               splitData={this.splitData.bind(this)}
-            />
+            />}
             
           </div>
         }
-        <div>
-          <p></p>
-        </div>
       </div>
     );
   }

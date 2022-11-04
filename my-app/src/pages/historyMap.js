@@ -2,6 +2,7 @@ import React from "react";
 import "../index.css";
 import {
   Menu,
+  Table,
   Tabs,
   Layout,
 } from "antd";
@@ -24,6 +25,7 @@ const axios = require('axios');
 // const {QuestionCircleOutlined} = icons;
 const { TabPane } = Tabs;
 const { Content, Sider } = Layout;
+const { Column, ColumnGroup } = Table;
 const city2districtId={
   '北京': 110100, '天津': 120100, '石家庄': 130100, '唐山': 130200, '保定': 130600, '太原': 140100, '呼和浩特': 150100, '包头': 150200, '沈阳': 210100, '大连': 210200, '鞍山': 210300, '长春': 220100, '吉林': 220200, '哈尔滨': 230100, '上海': 310100, '南京': 320100, '无锡': 320200, '徐州': 320300, '常州': 320400, '苏州': 320500, '南通': 320600, '连云港': 320700, '盐城': 320900, '扬州': 321000, '镇江': 321100, '泰州': 321200, '宿迁': 321300, '杭州': 330100, '宁波': 330200, '温州': 330300, '嘉兴': 330400, '湖州': 330500, '绍兴': 330600, '金华': 330700, '衢州': 330800, '台州': 331000, '合肥': 340100, '芜湖': 340200, '铜陵': 340700, '滁州': 341100, '福州': 350100, '厦门': 350200, '泉州': 350500, '漳州': 350600, '龙岩': 350800, '南昌': 360100, '赣州': 360700, '济南': 370100, '青岛': 370200, '淄博': 370300, '烟台': 370600, '潍坊': 370700, '济宁': 370800, '威海': 371000, '德州': 371400, '滨州': 371600, '郑州': 410100, '洛阳': 410300, '新乡': 410700, '焦作': 410800, '许昌': 411000, '南阳': 411300, '武汉': 420100, '宜昌': 420500, '襄阳': 420600, '荆门': 420800, '长沙': 430100, '株洲': 430200, '衡阳': 430400, '岳阳': 430600, '益阳': 430900, '广州': 440100, '深圳': 440300, '珠海': 440400, '汕头': 440500, '佛山': 440600, '江门': 440700, '肇庆': 441200, '惠州': 441300, '梅州': 441400, '东莞': 441900, '潮州': 445100, '揭阳': 445200, '南宁': 450100, '柳州': 450200, '桂林': 450300, '海口': 460100, '重庆': 500100, '成都': 510100, '德阳': 510600, '绵阳': 510700, '乐山': 511100, '贵阳': 520100, '昆明': 530100, '拉萨': 540100, '西安': 610100, '宝鸡': 610300, '兰州': 620100, '西宁': 630100, '银川': 640100, '乌鲁木齐': 650100
 }
@@ -317,9 +319,46 @@ function MySider(props) {
   );
 }
 function Tips(props) {
+  if(props.data.length!==5 ||  props.data[0].length!==3){
+    return(
+      <div><p>暂无数据</p></div>
+    );
+  }
+  let state = props.data[0], tip = props.data[4], data1=[], hisPerDict;
+  let labels=['rain','snow','cloud'];
+  for(let i=0; i<labels.length; i++){
+    let label=labels[i];
+    hisPerDict={
+      'param':label,
+      'value':state[i],
+      'num':props.data[i+1]['num'],
+      'aboveNum':props.data[i+1]['above'],
+      'belowNum':props.data[i+1]['below'],
+      'abovePro':props.data[i+1]['abovePro'],
+      'belowPro':props.data[i+1]['belowPro'],
+    };
+    data1.push(hisPerDict);
+  }
   return(
     <div>
       <p>今日天气：{props.selectWeather}</p>
+      <p>对应变量：[ rain: {state[0]}, snow: {state[1]}, cloud: {state[2]} ]</p>
+      <p>对应历史百分位：</p>
+      <Table dataSource={data1} size="small" pagination={false}>
+        <Column title="" dataIndex="param" key="param" />
+        <Column title="值" dataIndex="value" key="value" />
+        <Column title="数量" dataIndex="num" key="num" />
+        <ColumnGroup title="数量">
+          <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
+          <Column title="<0" dataIndex="belowNum" key="belowNum" />
+        </ColumnGroup>
+        <ColumnGroup title="比例">
+          <Column title=">0" dataIndex="abovePro" key="abovePro" />
+          <Column title="<0" dataIndex="belowPro" key="belowPro" />
+        </ColumnGroup>
+      </Table>
+      <p>建议：{tip}</p>
+      <p>仅供参考，理性判断。</p>
     </div>
   );
 }
@@ -335,19 +374,19 @@ class Board extends React.Component {
       name: props.name,//infowindow对应的区域名……
       echartsFlag: true,//是否切换到带有Echarts图表的Tab，
                         //解决tabs+echarts导致的‘Can’t get DOM width or height.……’问题
-      
     };
-    // this.getHistory(props.name,'rain',-1,-1);
-    this.getHistoryRet(this.state.name);
+    if(this.props.level===3)this.getHistoryRet(this.state.name);
+    else this.getHistory(props.name,'rain',-1,-1);
+    
   }
   async getHistory(area,label,minValue=-1,maxValue=-1) {
     var data1=[],tempdata={},result,cities;
     console.log('get history',area);
     if(this.state.cities[0]===area && this.state.target===label+'/'+minValue+'/'+maxValue){
-      console.log('已有数据')
+      // console.log('已有数据')
       return;
     } 
-    console.log('无数据')
+    // console.log('无数据')
     // for(let i=1;i<cities.length;i++){
     //   let city=cities[i];
     await axios.get("http://localhost:3000/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
@@ -438,10 +477,10 @@ class Board extends React.Component {
     var data1=[],result;
     console.log('get history ret',area);
     if(this.state.cities[0]===area && this.state.target==='history ret'){
-      console.log('已有数据');
+      // console.log('已有数据');
       return;
     } 
-    console.log('无数据');
+    // console.log('无数据');
     await axios.get("http://localhost:3000/historyret/"+area).then((res)=>{
       result=res.data['data'];
     });
@@ -461,10 +500,10 @@ class Board extends React.Component {
     var data1=[],result;
     console.log('get data source',area);
     if(this.state.cities[0]===area && this.state.target==='data source'){
-      console.log('已有数据');
+      // console.log('已有数据');
       return;
     } 
-    console.log('无数据');
+    // console.log('无数据');
     await axios.get("http://localhost:3000/datasource/"+area).then((res)=>{
       result=res.data['data'];
     });
@@ -479,16 +518,44 @@ class Board extends React.Component {
       target: 'data source',
     });
   }
-  //=============================
-  //=============================
-  //=============================
   async getTip(area) {
-    var data1=[],tempdata={},result,cities;
-    console.log('get history',area);
+    var data1=[],result;
+    console.log('get tip',area);
     if(this.state.cities[0]===area && this.state.target==='tip'){
-      console.log('已有数据')
+      // console.log('已有数据');
       return;
     } 
+    // console.log('无数据');
+    const formData = new FormData();
+    formData.append('city',area);
+    formData.append('weather',this.props.selectWeather);
+    await axios({
+      headers: {
+        'Content-Type':'application/json'
+      },
+      method: 'post',
+      url:`http://localhost:3000/gettip`,
+      data: formData,
+    }).then(res => {
+      if(res && res.status === 200){
+        // 响应成功的回调
+        result=res.data['data'];
+      }else{
+        // 响应失败
+        console.log(res.msg);
+      }
+    },err=>{
+      console.log(err);
+    });
+    data1.push(result['state']);
+    data1.push(result['rain']);
+    data1.push(result['snow']);
+    data1.push(result['cloud']);
+    data1.push(result['tip']);
+    this.setState({
+      result: data1,
+      target: 'tip',
+    });
   }
   setEchartsFlag(flag) {
     this.setState({
@@ -503,12 +570,9 @@ class Board extends React.Component {
       this.getHistoryRet(this.state.name);
       this.setEchartsFlag(true);
     }else if(activeKey==='tip'){
-      this.setState({
-        target: 'tip',
-      });
+      this.getTip(this.state.name);
       this.setEchartsFlag(false);
-    }
-    else{
+    }else{
       this.getHistory(this.state.name,activeKey,-1,-1);
       this.setEchartsFlag(false);
     }
@@ -519,12 +583,17 @@ class Board extends React.Component {
     return (
       <div className="card-container" style={{width:430}}>
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
-          
+          {(this.props.level===1 || this.props.level===2)?
+          <>
+          </>
+          :
           <TabPane tab="历史数据" key="history">
             {this.state.echartsFlag===true?
               <HistoryData data={this.state.result}/>:<></>
             }
           </TabPane>
+          }
+          
           <TabPane tab={this.state.labels[0]} key="rain">
             <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
           </TabPane>
@@ -537,28 +606,33 @@ class Board extends React.Component {
           <TabPane tab="数据源" key="data">
             <DataSource data={this.state.result}/>
           </TabPane>
+          {(this.props.level===1 || this.props.level===2)?
+          <>
+          </>
+          :
           <TabPane tab="建议" key="tip">
             <Tips data={this.state.result} selectWeather={this.props.selectWeather}/>
           </TabPane>
+          }
+          
         </Tabs>
       </div>
     );
   }
 }
 function MyMarker(props) {
-  let candidate = areas;
+  let candidate = areas,level=1;//点击图标的等级 是否有历史收益率和建议
   if (props.zoom >= 7) {
     candidate = cities;
+    level=3;
   } else if (props.zoom >= 6) {
     candidate = provinces;
+    level=2;
   } else {
     candidate = areas;
+    level=1
   }
-  const lockPic = () => {
-    return(
-      <LockOutlined />
-    );
-  }
+  
   return (
     <div>
       {/* {(zoom >= 7? cities:(zoom >= 6? provinces:areas)) */}
@@ -615,7 +689,11 @@ function MyMarker(props) {
         onClose={props.closeInfoWindow}
       >
        
-        <Board name={props.selectPosition.name} selectWeather={props.selectWeather}/>
+        <Board 
+          name={props.selectPosition.name} 
+          selectWeather={props.selectWeather}
+          level={level}
+        />
       </InfoWindow>
     </div>
   );
@@ -668,7 +746,7 @@ class MyOverlay extends React.Component {
       // bdary.get(props.area[k], function (rs) {
       bdary.get(area[k], function (rs) {
         var count = rs.boundaries.length;
-        console.log(area[k], count);
+        // console.log(area[k], count);
 
         //建立多边形覆盖物
         for (var i = 0; i < count; i++) {
@@ -787,7 +865,7 @@ class MyMap extends React.Component {
   //   });
   // }
   closeInfoWindow() {
-    console.log("close");
+    // console.log("close");
     if (this.state.isLocked) {
       this.setState({
         isLocked: false,
@@ -797,21 +875,16 @@ class MyMap extends React.Component {
 
 
   zoomChange(e) {
-    // console.log(this);
-    // console.log(e.target.getZoom());
-    console.log('zoom change=========')
     this.setState({
         zoomLevel: this.props.mapZoom,
       });
     if ((Math.floor(this.state.zoomLevel)===Math.floor(e.target.getZoom())) || (Math.floor(this.state.zoomLevel)===7 && Math.floor(e.target.getZoom())===8)){
       return;
     }
-    // if (Math.floor(this.state.zoomLevel)===7 && Math.floor(e.target.getZoom())===8) return;
-    console.log('zoomlevel:',Math.floor(this.state.zoomLevel));
-    console.log('mapzoom:',this.props.mapZoom);
-    console.log('getzoom():',Math.floor(e.target.getZoom()),e.target.getZoom());
-    // console.log(Math.floor(this.state.zoomLevel),Math.floor(e.target.getZoom()),e.target.getZoom())
-    
+    // console.log('zoomlevel:',Math.floor(this.state.zoomLevel));
+    // console.log('mapzoom:',this.props.mapZoom);
+    // console.log('getzoom():',Math.floor(e.target.getZoom()),e.target.getZoom());
+
     this.props.setMapZoom(e.target.getZoom());
     this.setState({
       zoomLevel: e.target.getZoom(),
@@ -919,7 +992,7 @@ class History extends React.Component {
     });
   }
   async getWeather(name) {
-    console.log(name);
+    // console.log(name);
     let result;
     if((name in city2districtId)===false) result = '';
     else{
@@ -949,7 +1022,7 @@ class History extends React.Component {
         break;
       }
     }
-    console.log(lng, lat);
+    // console.log(lng, lat);
     if (this.state.selectPosition.name!==e.key)
       this.setState({
         // selectName: e.key,
@@ -972,7 +1045,7 @@ class History extends React.Component {
       }
     }
     if (e.length >= 1) {
-      console.log(lng, lat);
+      // console.log(lng, lat);
       this.setState({
         // selectName: e.key,
         openKeys: [e[e.length - 1]],

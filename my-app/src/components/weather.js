@@ -103,7 +103,7 @@ const weatherIcon=(text, width)=>{
       alt=""
     />
   );
-}
+};
 const filter = (inputValue, path) => path.some((option) => option.label.indexOf(inputValue) > -1);
 
 
@@ -381,7 +381,10 @@ class Weather extends React.Component{
     }
     return(
       <div
-        style={{textAlign:'center', backgroundColor:this.props.bgColor}}
+        style={{
+          textAlign:'center', 
+          backgroundColor:this.props.bgColor,
+        }}
       >
         <Cascader
           options={options}
