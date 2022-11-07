@@ -8,7 +8,6 @@ function HistoryData(props) {
     console.log('history ret is null');
     return(
       <div><p>暂无数据</p></div>
-      
     );
   }
   let days = props.data[1];

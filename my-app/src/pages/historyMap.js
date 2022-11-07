@@ -4,6 +4,7 @@ import {
   Menu,
   Table,
   Tabs,
+  Tooltip,
   Layout,
 } from "antd";
 import {
@@ -375,7 +376,7 @@ class Board extends React.Component {
       echartsFlag: true,//是否切换到带有Echarts图表的Tab，
                         //解决tabs+echarts导致的‘Can’t get DOM width or height.……’问题
     };
-    if(this.props.level===3)this.getHistoryRet(this.state.name);
+    if(this.props.level===0)this.getHistoryRet(this.state.name);
     else this.getHistory(props.name,'rain',-1,-1);
     
   }
@@ -580,10 +581,11 @@ class Board extends React.Component {
   }
   
   render() {
+    //this.props.level--点击图标的等级 是否有历史收益率和建议
     return (
       <div className="card-container" style={{width:430}}>
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
-          {(this.props.level===1 || this.props.level===2)?
+          {(this.props.level===1)?
           <>
           </>
           :
@@ -606,7 +608,7 @@ class Board extends React.Component {
           <TabPane tab="数据源" key="data">
             <DataSource data={this.state.result}/>
           </TabPane>
-          {(this.props.level===1 || this.props.level===2)?
+          {(this.props.level===1)?
           <>
           </>
           :
@@ -614,28 +616,28 @@ class Board extends React.Component {
             <Tips data={this.state.result} selectWeather={this.props.selectWeather}/>
           </TabPane>
           }
-          
         </Tabs>
       </div>
     );
   }
 }
 function MyMarker(props) {
-  let candidate = areas,level=1;//点击图标的等级 是否有历史收益率和建议
+  let candidate = areas;
   if (props.zoom >= 7) {
     candidate = cities;
-    level=3;
   } else if (props.zoom >= 6) {
     candidate = provinces;
-    level=2;
   } else {
     candidate = areas;
-    level=1
   }
-  
+  // let valueTitle = (
+  //   <div>{props.selectPosition.name+' '+props.selectWeather}
+  //     <Tooltip placement="right" title="值(气象等级)：0—无雨，1-小雨，2-中雨，3-大雨，4-暴雨" arrowPointAtCenter>
+  //       <LockOutlined/>
+  //     </Tooltip>
+  //   </div>);
   return (
     <div>
-      {/* {(zoom >= 7? cities:(zoom >= 6? provinces:areas)) */}
       {candidate.map((item) => {
         // console.log(item.name,item.lng,item.lat);
         return (
@@ -657,23 +659,23 @@ function MyMarker(props) {
       {candidate.map((item) => {
         // console.log(item.name,item.lng,item.lat);
         return (
-            <Label
-              key={item.name}
-              text={item.name}
-              style={{
-                color: "#fff",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                borderRadius: "10px",
-                padding: "0 10px",
-                fontSize: "14px",
-                lineHeight: "20px",
-                border :"0",
-                transform:'translateX(-50%)'
+          <Label
+            key={item.name}
+            text={item.name}
+            style={{
+              color: "#fff",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              borderRadius: "10px",
+              padding: "0 10px",
+              fontSize: "14px",
+              lineHeight: "20px",
+              border :"0",
+              transform:'translateX(-50%)'
 
-              }}
-              position={{ lng: item.lng, lat: item.lat }}
-              offset={new window.BMapGL.Size(0, 10)}
-            />
+            }}
+            position={{ lng: item.lng, lat: item.lat }}
+            offset={new window.BMapGL.Size(0, 10)}
+          />
         );
       })}
       <InfoWindow
@@ -684,7 +686,6 @@ function MyMarker(props) {
         height={300}
         width={450}
         offset={new window.BMapGL.Size(0, -10)}
-        // title={props.selectPosition.name+' '+props.selectWeather}
         title={props.selectPosition.name+' '+props.selectWeather}
         onClose={props.closeInfoWindow}
       >
@@ -692,7 +693,7 @@ function MyMarker(props) {
         <Board 
           name={props.selectPosition.name} 
           selectWeather={props.selectWeather}
-          level={level}
+          level={props.selectWeather===''?1:0}
         />
       </InfoWindow>
     </div>

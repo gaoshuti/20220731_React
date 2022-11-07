@@ -130,8 +130,9 @@ function StockInfo(props) {
     let x2 = (''+x).split('.'),result;
     if(x2.length===2) result='.'+x2[1];
     else result='';
-    for(let i = x2[0].length;i>2;i-=3){
-      result = x2[0].slice(i-3,i)+result;
+    for(let i = x2[0].length;i>=1;i-=3){
+      let k = i-3<0?0:i-3;
+      result = x2[0].slice(k,i)+result;
       result = ','+result;
     }
     return result.slice(1,result.length);

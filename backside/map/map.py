@@ -554,7 +554,7 @@ def listWeatherRegression(request):
   myDict={}
   # 控制变量内容
   if label=='tur':
-    variableList=['propertion','MarCap','tur(-1)','ret(-1)','ret']
+    variableList=['proportion','MarCap','tur(-1)','ret(-1)','ret']
   elif label=='ret':
     variableList=['ret(-1)', 'ris','smb','hml']
   else:
