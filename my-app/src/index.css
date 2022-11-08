@@ -34,11 +34,9 @@ html,body{
 }
 
 /* infowindoww样式 */
-/* .BMap_pop img {
-	display: none;
-} */
-
-
+.BMap_pop img {
+	display: none !important;
+}
 
 .site-layout-background {
   /* margin: 0; */

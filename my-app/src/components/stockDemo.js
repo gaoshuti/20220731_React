@@ -40,12 +40,12 @@ function SelectDemo(props) {
           axios.get("http://localhost:3000/stock365/"+stkcd).then((res)=>{
             var result=res.data;
             if(result['ret']===0)  {//成功
-              console.log('stock365:',result['data'])
+              // console.log('stock365:',result['data'])
               props.setResult(result);
               axios.get("http://localhost:3000/stock/"+stkcd).then((res2)=>{
                 var result1=res2.data;
                 if(result['ret']===0)  {//成功
-                  console.log('stock:',result1['data'])
+                  // console.log('stock:',result1['data'])
                   props.setData(result1);
                   props.setButtonFlag(false);
                 } else { //失败
@@ -142,12 +142,21 @@ function StockInfo(props) {
       <Row>
         <Col span={12}>
           <h3>{props.info['name']}</h3>
+          {/* <p>{props.info['name2']}</p> */}
         </Col>
         <Col span={4}>
           <p>{props.info['industry']}</p>
         </Col>
         <Col span={8}>
           <p>上市时间：{props.info['TTM']}</p>
+        </Col>
+      </Row>
+      <Row>
+        <Col span={12}>
+          <p>注 册 地 ：{props.info['place1']}</p>
+        </Col>
+        <Col span={12}>
+          <p> 办 公 地 ：{props.info['place2']}</p>
         </Col>
       </Row>
       <Row>
@@ -575,6 +584,9 @@ class StockDemo extends React.Component {
       if(result['ret']===0)  {//成功
         this.setState({
           info: {
+            'place1':result['data']['place1'],           //注册地
+            'place2':result['data']['place2'],           //办公地
+            'name2':result['data']['name2'],             //全称
             'name':result['data']['name'],               //股票简称
             'industry':result['data']['industry'],       //行业
             'TTM':result['data']['TTM'],                 //上市时间
@@ -680,6 +692,9 @@ class StockDemo extends React.Component {
       if(result['ret']===0)  {//成功
         this.setState({
           info: {
+            'place1':result['data']['place1'],           //注册地
+            'place2':result['data']['place2'],           //办公地
+            'name2':result['data']['name2'],             //全称
             'name':result['data']['name'],               //股票简称
             'industry':result['data']['industry'],       //行业
             'TTM':result['data']['TTM'],                 //上市时间

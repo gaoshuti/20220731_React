@@ -105,4 +105,9 @@ class regQuery(models.Model):
   score=models.FloatField()
   num=models.IntegerField()
 
-
+class stkPlace(models.Model): # 股票对应的全称、注册地、办公地
+  stkcd=models.CharField(primary_key=True,max_length=255)
+  name1=models.CharField(max_length=255) #简称
+  name2=models.CharField(max_length=255) #全称
+  place1=models.CharField(max_length=255) #注册地
+  place2=models.CharField(max_length=255) #办公地

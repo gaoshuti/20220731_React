@@ -28,6 +28,7 @@ function DataSource(props) {
       <p>该地区包含如下数据：</p>
       <Table
         columns={columns}
+        pagination={false}
         expandable={{
           expandRowByClick: true,
           expandedRowRender: (record) => (

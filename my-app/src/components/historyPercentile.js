@@ -44,7 +44,7 @@ function HistoryPercentile(props) {
     <div>
       {/* <Divider/> */}
       {/* 查询（最小值/最大值）   <Cascader defaultValue={['0', '4']} options={options} onChange={onChange} /> */}
-    <Table dataSource={data1} size="small">
+    <Table dataSource={data1} size="small" pagination={false}>
       {/* <Spin spinning={loading}> */}
       <Column title={valueTitle} dataIndex="value" key="value" />
       <Column title="数量" dataIndex="num" key="num" />

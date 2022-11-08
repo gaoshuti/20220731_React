@@ -23,7 +23,7 @@ const items = [
 function MyHeader(props) {
   const navigate = useNavigate();
   const headerOnClick = (e) => {
-    console.log("click ", e, e.key);
+    console.log("click ", e.key);
     if(e.key==='home') {
       navigate("/");
     }else if(e.key==='function-1') {

@@ -1,6 +1,6 @@
 from webbrowser import get
 from django.http import JsonResponse
-from map.models import map,mapQuery,stkcdInCity,regQuery,predictModelPath
+from map.models import map,mapQuery,stkcdInCity,regQuery,predictModelPath,stkPlace
 from map.stkLSTM import CgcpLSTM
 from map.weatherRegression import regressionInfo
 from keras.models import load_model
@@ -159,7 +159,7 @@ def getDataSource(request,area):#给出该地区所包含的stkcd列表
     if len(myDict)==0:
       return JsonResponse({'ret': 1, 'msg': '请检查该地区是否含有数据'})
   return JsonResponse({'ret': 0,'data':myDict})
-def listInfo(request,area,label,minvalue,maxvalue):
+def listInfo(request,area,label,minvalue,maxvalue):#给出该地区的历史百分位
   print(area,label,minvalue,maxvalue)
   myDict={}
   conditions={
@@ -340,6 +340,17 @@ def weather(request,district_id): #获取实时天气与未来天气
 def stockInfo(request,stkcd): #股票代码对应的简称、行业、上市时间、市值等信息
   print('history info:', stkcd)
   myDict = {}
+  qs=stkPlace.objects.values()
+  qs=qs.filter(stkcd=stkcd)
+  if len(qs)!=0:
+    myDict['name2']=qs[0]['name2']
+    myDict['place1']=qs[0]['place1']
+    myDict['place2']=qs[0]['place2']
+  else:
+    myDict['name2']='-'
+    myDict['place1']='-'
+    myDict['place2']='-'
+
   try:
     stock_individual_info_em_df = ak.stock_individual_info_em(symbol=stkcd)
     myDict['name'] = stock_individual_info_em_df['value'].values[5]#股票简称
