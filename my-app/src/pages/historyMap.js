@@ -2,32 +2,28 @@ import React from "react";
 import "../index.css";
 import {
   Menu,
-  Table,
-  Tabs,
-  Tooltip,
+  // Table,
+  // Tabs,
+  // Tooltip,
   Layout,
 } from "antd";
 import {
   Map,
   Marker,
   Label,
-  InfoWindow,
+  // InfoWindow,
   ScaleControl,
   ZoomControl,
 } from "react-bmapgl";
-import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
-import DataSource from "../components/dataSource";
-import HistoryPercentile from "../components/historyPercentile";
-import HistoryData from "../components/historyData";
 import MyInfoWindow from "../components/myInfoWindow";
 
 
 const axios = require('axios');
 
 // const {QuestionCircleOutlined} = icons;
-const { TabPane } = Tabs;
+// const { TabPane } = Tabs;
 const { Content, Sider } = Layout;
-const { Column, ColumnGroup } = Table;
+// const { Column, ColumnGroup } = Table;
 const city2districtId={
   '北京': 110100, '天津': 120100, '石家庄': 130100, '唐山': 130200, '保定': 130600, '太原': 140100, '呼和浩特': 150100, '包头': 150200, '沈阳': 210100, '大连': 210200, '鞍山': 210300, '长春': 220100, '吉林': 220200, '哈尔滨': 230100, '上海': 310100, '南京': 320100, '无锡': 320200, '徐州': 320300, '常州': 320400, '苏州': 320500, '南通': 320600, '连云港': 320700, '盐城': 320900, '扬州': 321000, '镇江': 321100, '泰州': 321200, '宿迁': 321300, '杭州': 330100, '宁波': 330200, '温州': 330300, '嘉兴': 330400, '湖州': 330500, '绍兴': 330600, '金华': 330700, '衢州': 330800, '台州': 331000, '合肥': 340100, '芜湖': 340200, '铜陵': 340700, '滁州': 341100, '福州': 350100, '厦门': 350200, '泉州': 350500, '漳州': 350600, '龙岩': 350800, '南昌': 360100, '赣州': 360700, '济南': 370100, '青岛': 370200, '淄博': 370300, '烟台': 370600, '潍坊': 370700, '济宁': 370800, '威海': 371000, '德州': 371400, '滨州': 371600, '郑州': 410100, '洛阳': 410300, '新乡': 410700, '焦作': 410800, '许昌': 411000, '南阳': 411300, '武汉': 420100, '宜昌': 420500, '襄阳': 420600, '荆门': 420800, '长沙': 430100, '株洲': 430200, '衡阳': 430400, '岳阳': 430600, '益阳': 430900, '广州': 440100, '深圳': 440300, '珠海': 440400, '汕头': 440500, '佛山': 440600, '江门': 440700, '肇庆': 441200, '惠州': 441300, '梅州': 441400, '东莞': 441900, '潮州': 445100, '揭阳': 445200, '南宁': 450100, '柳州': 450200, '桂林': 450300, '海口': 460100, '重庆': 500100, '成都': 510100, '德阳': 510600, '绵阳': 510700, '乐山': 511100, '贵阳': 520100, '昆明': 530100, '拉萨': 540100, '西安': 610100, '宝鸡': 610300, '兰州': 620100, '西宁': 630100, '银川': 640100, '乌鲁木齐': 650100
 }
@@ -320,308 +316,6 @@ function MySider(props) {
     </Sider>
   );
 }
-// function Tips(props) {
-//   if(props.data.length!==5 ||  props.data[0].length!==3){
-//     return(
-//       <div><p>暂无数据</p></div>
-//     );
-//   }
-//   let state = props.data[0], tip = props.data[4], data1=[], hisPerDict;
-//   let labels=['rain','snow','cloud'];
-//   for(let i=0; i<labels.length; i++){
-//     let label=labels[i];
-//     hisPerDict={
-//       'param':label,
-//       'value':state[i],
-//       'num':props.data[i+1]['num'],
-//       'aboveNum':props.data[i+1]['above'],
-//       'belowNum':props.data[i+1]['below'],
-//       'abovePro':props.data[i+1]['abovePro'],
-//       'belowPro':props.data[i+1]['belowPro'],
-//     };
-//     data1.push(hisPerDict);
-//   }
-//   return(
-//     <div>
-//       <p>今日天气：{props.selectWeather}</p>
-//       <p>对应变量：[ rain: {state[0]}, snow: {state[1]}, cloud: {state[2]} ]</p>
-//       <p>对应历史百分位：</p>
-//       <Table dataSource={data1} size="small" pagination={false}>
-//         <Column title="" dataIndex="param" key="param" />
-//         <Column title="值" dataIndex="value" key="value" />
-//         <Column title="数量" dataIndex="num" key="num" />
-//         <ColumnGroup title="数量">
-//           <Column title=">0" dataIndex="aboveNum" key="aboveNum" />
-//           <Column title="<0" dataIndex="belowNum" key="belowNum" />
-//         </ColumnGroup>
-//         <ColumnGroup title="比例">
-//           <Column title=">0" dataIndex="abovePro" key="abovePro" />
-//           <Column title="<0" dataIndex="belowPro" key="belowPro" />
-//         </ColumnGroup>
-//       </Table>
-//       <p>建议：{tip}</p>
-//       <p>仅供参考，理性判断。</p>
-//     </div>
-//   );
-// }
-// class Board extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       labels: ["雨", "雪", "云"],
-//       cixu: ['rain', 'snow', 'cloud'],
-//       result: [],//infowindow展示信息
-//       cities: [],//所包含的城市
-//       target: '',//label+限制范围
-//       name: props.name,//infowindow对应的区域名……
-//       echartsFlag: true,//是否切换到带有Echarts图表的Tab，
-//                         //解决tabs+echarts导致的‘Can’t get DOM width or height.……’问题
-//     };
-//     if(this.props.level===0)this.getHistoryRet(this.state.name);
-//     else this.getHistory(props.name,'rain',-1,-1);
-    
-//   }
-//   async getHistory(area,label,minValue=-1,maxValue=-1) {
-//     var data1=[],tempdata={},result,cities;
-//     console.log('get history',area);
-//     if(this.state.cities[0]===area && this.state.target===label+'/'+minValue+'/'+maxValue){
-//       // console.log('已有数据')
-//       return;
-//     } 
-//     // console.log('无数据')
-//     // for(let i=1;i<cities.length;i++){
-//     //   let city=cities[i];
-//     await axios.get("http://localhost:3000/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
-//       result=res.data['data'];
-//       cities=res.data['cities'];
-//     });
-//     for (var key in result){
-//       var historyInfo={};
-//       historyInfo.value=key;
-//       historyInfo.num=Number(result[key]['num']);
-//       historyInfo.aboveNum=Number(result[key]['above'].toFixed(2));
-//       historyInfo.belowNum=Number(result[key]['below'].toFixed(2));
-      
-//       tempdata[key]=historyInfo;
-//     }
-//     // }
-//     var rate =  tempdata['all']['belowNum']/tempdata['all']['aboveNum']
-//     for(let key in tempdata){
-//       if(tempdata[key]['num']===0) continue;
-//       if(tempdata[key]['aboveNum']===0){
-//         tempdata[key]['above']=(0).toFixed(2);
-//         tempdata[key]['below']=(1).toFixed(2);
-//       }else{
-//         tempdata[key]['above']=(1).toFixed(2);
-//         tempdata[key]['below']=(tempdata[key]['belowNum']/tempdata[key]['aboveNum']/rate).toFixed(2);
-//       }
-//       data1.push(tempdata[key])
-//     }
-//     this.setState({
-//       result: data1,
-//       cities: cities,
-//       target: label+'/'+minValue+'/'+maxValue,
-//     });
-//   }
-//   // getCities() {
-//   //   console.log('get cities')
-//   //   if (this.state.name===cities[0]){
-//   //     console.log('cities got before');
-//   //     return cities;
-//   //   }
-//   //   let name = this.state.name,provinces=[],cities=[];
-//   //   if (name === "") return [];
-//   //   if (name.endsWith("地区")){
-//   //     if (name === "东北地区") provinces=["黑龙江省", "吉林省", "辽宁省"];
-//   //     else if (name === "华北地区")
-//   //       provinces= ["北京市", "天津市", "河北省", "山西省", "内蒙古"];
-//   //     else if (name === "华中地区") provinces= ["河南省", "湖北省", "湖南省"];
-//   //     else if (name === "华东地区")
-//   //       provinces= [
-//   //         "山东省",
-//   //         "江苏省",
-//   //         "安徽省",
-//   //         "上海市",
-//   //         "浙江省",
-//   //         "江西省",
-//   //         "福建省",
-//   //         "台湾",
-//   //       ];
-//   //     else if (name === "华南地区")
-//   //       provinces= ["广东省", "广西省", "海南省", "香港", "澳门"];
-//   //     else if (name === "西北地区")
-//   //       provinces= ["陕西省", "甘肃省", "宁夏", "青海省", "新疆"];
-//   //     else if (name === "西南地区")
-//   //       provinces= ["四川省", "贵州省", "云南省", "重庆市", "西藏"];
-//   //     else provinces=[];
-//   //   }
-//   //   else{
-//   //     for(let i = 0; i<cityInProvince.length; i++) {
-//   //       if(name===cityInProvince[i][0]){
-//   //         provinces=[name];
-//   //         return [name].concat(cityInProvince[i].slice(1));
-//   //       }
-//   //     }
-//   //     return [name,name];
-//   //   }
-//   //   for (let k = 0; k<provinces.length; k++){
-//   //     let province=provinces[k];
-//   //     for(let i = 0; i<cityInProvince.length; i++) {
-//   //       if(province===cityInProvince[i][0]){
-//   //         cities=cities.concat(cityInProvince[i].slice(1));
-//   //         break;
-//   //       }
-//   //     }
-//   //   }
-//   //   return [name].concat(cities);
-//   // }
-//   async getHistoryRet(area) {
-//     var data1=[],result;
-//     console.log('get history ret',area);
-//     if(this.state.cities[0]===area && this.state.target==='history ret'){
-//       // console.log('已有数据');
-//       return;
-//     } 
-//     // console.log('无数据');
-//     await axios.get("http://localhost:3000/historyret/"+area).then((res)=>{
-//       result=res.data['data'];
-//     });
-//     data1.push(result['ret']);
-//     data1.push(result['date']);
-//     data1.push(result['weather']);
-//     data1.push(result['max']);
-//     data1.push(result['min']);
-//     data1.push(result['API']);
-//     data1.push(result['AQI']);
-//     this.setState({
-//       result: data1,
-//       target: 'history ret',
-//     });
-//   }
-//   async getDataSource(area) {
-//     var data1=[],result;
-//     console.log('get data source',area);
-//     if(this.state.cities[0]===area && this.state.target==='data source'){
-//       // console.log('已有数据');
-//       return;
-//     } 
-//     // console.log('无数据');
-//     await axios.get("http://localhost:3000/datasource/"+area).then((res)=>{
-//       result=res.data['data'];
-//     });
-//     var i=0;
-//     for (var key in result){
-//       var stkcdList = result[key].split('#');
-//       var myDict = {key:String(++i),city:key,num:stkcdList.length,stkcd:stkcdList};
-//       data1.push(myDict);
-//     }
-//     this.setState({
-//       result: data1,
-//       target: 'data source',
-//     });
-//   }
-//   async getTip(area) {
-//     var data1=[],result;
-//     console.log('get tip',area);
-//     if(this.state.cities[0]===area && this.state.target==='tip'){
-//       // console.log('已有数据');
-//       return;
-//     } 
-//     // console.log('无数据');
-//     const formData = new FormData();
-//     formData.append('city',area);
-//     formData.append('weather',this.props.selectWeather);
-//     await axios({
-//       headers: {
-//         'Content-Type':'application/json'
-//       },
-//       method: 'post',
-//       url:`http://localhost:3000/gettip`,
-//       data: formData,
-//     }).then(res => {
-//       if(res && res.status === 200){
-//         // 响应成功的回调
-//         result=res.data['data'];
-//       }else{
-//         // 响应失败
-//         console.log(res.msg);
-//       }
-//     },err=>{
-//       console.log(err);
-//     });
-//     data1.push(result['state']);
-//     data1.push(result['rain']);
-//     data1.push(result['snow']);
-//     data1.push(result['cloud']);
-//     data1.push(result['tip']);
-//     this.setState({
-//       result: data1,
-//       target: 'tip',
-//     });
-//   }
-//   setEchartsFlag(flag) {
-//     this.setState({
-//       echartsFlag: flag,
-//     });
-//   }
-//   changeTab(activeKey) {
-//     if(activeKey==='data'){
-//       this.getDataSource(this.state.name);
-//       this.setEchartsFlag(false);
-//     }else if(activeKey==='history'){
-//       this.getHistoryRet(this.state.name);
-//       this.setEchartsFlag(true);
-//     }else if(activeKey==='tip'){
-//       this.getTip(this.state.name);
-//       this.setEchartsFlag(false);
-//     }else{
-//       this.getHistory(this.state.name,activeKey,-1,-1);
-//       this.setEchartsFlag(false);
-//     }
-    
-//   }
-  
-//   render() {
-//     //this.props.level--点击图标的等级 是否有历史收益率和建议
-//     return (
-//       <div className="card-container" style={{width:430}}>
-//         <Tabs type="card" onChange={this.changeTab.bind(this)}>
-//           {(this.props.level===1)?
-//           <>
-//           </>
-//           :
-//           <TabPane tab="历史数据" key="history">
-//             {this.state.echartsFlag===true?
-//               <HistoryData data={this.state.result}/>:<></>
-//             }
-//           </TabPane>
-//           }
-          
-//           <TabPane tab={this.state.labels[0]} key="rain">
-//             <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
-//           </TabPane>
-//           <TabPane tab={this.state.labels[1]} key="snow">
-//             <HistoryPercentile label={this.state.cixu[1]} result={this.state.result}/>
-//           </TabPane>
-//           <TabPane tab={this.state.labels[2]} key="cloud">
-//             <HistoryPercentile label={this.state.cixu[2]} result={this.state.result}/>
-//           </TabPane>
-//           <TabPane tab="数据源" key="data">
-//             <DataSource data={this.state.result}/>
-//           </TabPane>
-//           {(this.props.level===1)?
-//           <>
-//           </>
-//           :
-//           <TabPane tab="建议" key="tip">
-//             <Tips data={this.state.result} selectWeather={this.props.selectWeather}/>
-//           </TabPane>
-//           }
-//         </Tabs>
-//       </div>
-//     );
-//   }
-// }
 function MyMarker(props) {
   let candidate = areas;
   if (props.zoom >= 7) {
@@ -700,6 +394,9 @@ function MyMarker(props) {
       <MyInfoWindow
         selectPosition={props.selectPosition}
         selectWeather={props.selectWeather}
+        isOpen={props.isOpen}
+        isLocked={props.isLocked}
+        closeInfoWindow={props.closeInfoWindow}
       />
     </div>
   );
@@ -803,10 +500,10 @@ class MyMap extends React.Component {
       name: ["历史百分位", "换手率", "收益率"],
       result: [],
       // selectPosition: props.selectPosition,
-      lastPosition: "",
+      // lastPosition: "",
       setPosition: props.setPosition,
-      setLastPosition: props.setLastPosition,
-      isLocked: false,
+      // setLastPosition: props.setLastPosition,
+      isLocked: false,//infowindow是否锁定
       zoomLevel: 5,
     };
   }
@@ -832,12 +529,13 @@ class MyMap extends React.Component {
         isLocked: true,
       });
     if(this.props.selectPosition.name!==name){
-      this.state.setLastPosition(this.props.selectPosition.name);
+      // this.state.setLastPosition(this.props.selectPosition.name);
       this.state.setPosition(name, e.target.latLng.lng, e.target.latLng.lat);
     }
     
   }
   moveInMarker(e) {
+    if(this.state.isLocked) return; 
     let name;
     let lng = e.target.latLng.lng.toFixed(4);
     let lat = e.target.latLng.lat.toFixed(4);
@@ -856,30 +554,23 @@ class MyMap extends React.Component {
     if (!name) {
       console.log(lng, lat);
     }
-    if (!this.state.isLocked) {
-      console.log("move in",name);
-      if(this.props.selectPosition.name!==name){
-        this.state.setLastPosition(this.props.selectPosition.name);
-        this.state.setPosition(name, e.target.latLng.lng, e.target.latLng.lat);
-      }
+    console.log("move in",name);
+    if(this.props.selectPosition.name!==name || this.props.isOpen===false){
+      // this.state.setLastPosition(this.props.selectPosition.name);
+      this.state.setPosition(name, e.target.latLng.lng, e.target.latLng.lat);
+      this.props.setIsOpen(true);
     }
   }
-  // moveOutMarker() {
-  //   console.log("move out");
-  //   this.setState({
-  //     selectCity: ""
-  //   });
-  // }
   closeInfoWindow() {
     // console.log("close");
     if (this.state.isLocked) {
       this.setState({
         isLocked: false,
       });
+    }else{
+      this.props.setIsOpen(false);
     }
   }
-
-
   zoomChange(e) {
     this.setState({
         zoomLevel: this.props.mapZoom,
@@ -937,7 +628,7 @@ class MyMap extends React.Component {
       <Map
         // ref={ref => {this.map = ref.map}}
         style={{ height: '100%' }}
-        center={{ lng: 104, lat: 37 }}
+        center={{ lng: 112, lat: 44 }}
         zoom={this.props.mapZoom}
         minZoom={5}
         maxZoom={8}
@@ -946,15 +637,14 @@ class MyMap extends React.Component {
         enableScrollWheelZoom
       >
         <MyMarker
-          // cities={cities}
-          // provinces={provinces}
-          // areas={areas}
           clickMarker={this.clickMarker.bind(this)}
           zoom={this.state.zoomLevel}
           moveInMarker={this.moveInMarker.bind(this)}
           selectPosition={this.props.selectPosition}
           selectWeather={this.props.selectWeather}
           closeInfoWindow={this.closeInfoWindow.bind(this)}
+          isOpen={this.props.isOpen}
+          isLocked={this.state.isLocked}
         />
         {/* <NavigationControl /> */}
         <ScaleControl />
@@ -976,9 +666,10 @@ class History extends React.Component {
       openKeys: ["华北地区"],
       selectPosition: { name: "华北地区", lng: "116.395645", lat: "39.929986" },
       selectWeather: '',
-      lastPosition: "",
+      // lastPosition: "",
       collapsed: false,//是否折叠sider
       mapZoom: 5,//地图缩放等级
+      isOpen: false,//infowindow是否打开
     };
   }
   setMapZoom(i) {
@@ -992,11 +683,16 @@ class History extends React.Component {
     });
     this.getWeather(name);
   }
-  setLastPosition(name) {
+  setIsOpen(flag) {
     this.setState({
-      lastPosition: name,
+      isOpen: flag,
     });
   }
+  // setLastPosition(name) {
+  //   this.setState({
+  //     lastPosition: name,
+  //   });
+  // }
   async getWeather(name) {
     // console.log(name);
     let result;
@@ -1032,10 +728,11 @@ class History extends React.Component {
     if (this.state.selectPosition.name!==e.key)
       this.setState({
         // selectName: e.key,
-        lastPosition: this.state.selectPosition.name,
+        // lastPosition: this.state.selectPosition.name,
         selectPosition: { name: e.key, lng: lng, lat: lat },
         selectWeather: '',
-        mapZoom: 6.5
+        mapZoom: 6.5,
+        isOpen: true,
       });
   }
   menuChange(e) {
@@ -1055,10 +752,11 @@ class History extends React.Component {
       this.setState({
         // selectName: e.key,
         openKeys: [e[e.length - 1]],
-        lastPosition: this.state.selectPosition.name,
+        // lastPosition: this.state.selectPosition.name,
         selectPosition: { name: e[e.length - 1], lng: lng, lat: lat },
         selectWeather: '',
         mapZoom: 5,
+        isOpen: true,
       });
     } else {
       this.setState({
@@ -1087,11 +785,13 @@ class History extends React.Component {
             <MyMap
               selectPosition={this.state.selectPosition}
               selectWeather={this.state.selectWeather}
-              lastPosition={this.state.lastPosition}
+              // lastPosition={this.state.lastPosition}
               setPosition={this.setPosition.bind(this)}
-              setLastPosition={this.setLastPosition.bind(this)}
+              // setLastPosition={this.setLastPosition.bind(this)}
               mapZoom={this.state.mapZoom}
               setMapZoom={this.setMapZoom.bind(this)}
+              isOpen={this.state.isOpen}
+              setIsOpen={this.setIsOpen.bind(this)}
             />
           </Content>
         </Layout>

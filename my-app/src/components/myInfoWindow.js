@@ -3,21 +3,12 @@ import "../index.css";
 import {
   Button,
   Col, 
-  Menu,
   Row,
   Table,
   Tabs,
-  Tooltip,
-  Layout,
   Divider,
 } from "antd";
 import {
-  Map,
-  Marker,
-  Label,
-  InfoWindow,
-  ScaleControl,
-  ZoomControl,
   CustomOverlay
 } from "react-bmapgl";
 import DataSource from "../components/dataSource";
@@ -27,7 +18,6 @@ import { LockOutlined, UnlockOutlined, CloseOutlined } from '@ant-design/icons';
 
 const axios = require('axios');
 const { TabPane } = Tabs;
-const { Content, Sider } = Layout;
 const { Column, ColumnGroup } = Table;
 
 function Tips(props) {
@@ -302,7 +292,7 @@ class Board extends React.Component {
           :
           <TabPane tab="历史数据" key="history">
             {this.state.echartsFlag===true?
-              <div style={{height:270,overflow:'auto'}}>
+              <div className="hmtabdiv">
                 <HistoryData data={this.state.result}/>
               </div>
               :<></>
@@ -311,22 +301,22 @@ class Board extends React.Component {
           }
           
           <TabPane tab={this.state.labels[0]} key="rain">
-            <div style={{height:270,overflow:'auto'}}>
+            <div className="hmtabdiv">
               <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
             </div>
             </TabPane>
           <TabPane tab={this.state.labels[1]} key="snow">
-            <div style={{height:270,overflow:'auto'}}>
+            <div className="hmtabdiv">
               <HistoryPercentile label={this.state.cixu[1]} result={this.state.result}/>
             </div>
           </TabPane>
           <TabPane tab={this.state.labels[2]} key="cloud">
-            <div style={{height:270,overflow:'auto'}}>
+            <div className="hmtabdiv">
               <HistoryPercentile label={this.state.cixu[2]} result={this.state.result}/>
             </div>
           </TabPane>
           <TabPane tab="数据源" key="data">
-            <div style={{height:270,overflow:'auto'}}>
+            <div className="hmtabdiv">
               <DataSource data={this.state.result}/>
             </div>
           </TabPane>
@@ -347,28 +337,35 @@ class Board extends React.Component {
 }
 
 class MyInfoWindow extends React.Component{
+  getPic() {
+    if(this.props.isLocked===true) return(<LockOutlined/>);
+    else return(<CloseOutlined />);
+  }
   render() {
     return(
       <div>
+        {this.props.isOpen===false?<></>:
         <CustomOverlay 
           position={{
             lng: this.props.selectPosition.lng,
             lat: this.props.selectPosition.lat,
           }}
-          offset={new window.BMapGL.Size(0, -30)}
-          // autoViewport={true}
+          offset={new window.BMapGL.Size(0, -20)}
         >
-          <div style={{width:450,height:350,background:'#FFFFFF'}}>
+          <div style={{width:450,height:350,background:'#FFFFFF',borderRadius:20}}>
             <Row>
               <Col span={12}>
-              <h3 style={{margin:10}}>{this.props.selectPosition.name}</h3>
+              <h3 style={{margin:10}}>
+                {this.props.selectPosition.name}&nbsp;&nbsp;
+                <span style={{fontSize:14}}>{this.props.selectWeather}</span>
+              </h3>
               </Col>
               <Col span={12}>
                 <Button 
                   style={{float:'right',margin:5}}
                   type="link" 
-                  icon={<CloseOutlined />}
-                  // onClick={this.spreadClick.bind(this)}
+                  icon={this.getPic()}
+                  onClick={this.props.closeInfoWindow}
                 ></Button>
                 {/* <CloseOutlined style={{float:'right',margin:15}}/> */}
               </Col>
@@ -381,6 +378,8 @@ class MyInfoWindow extends React.Component{
             />
           </div>
         </CustomOverlay>
+        }
+        
       </div>
     );
   }

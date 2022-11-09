@@ -8,9 +8,6 @@ import {
   Row,
 } from "antd";
 const axios = require('axios');
-const city2districtId={
-  '北京': 110100, '天津': 120100, '石家庄': 130100, '唐山': 130200, '保定': 130600, '太原': 140100, '呼和浩特': 150100, '包头': 150200, '沈阳': 210100, '大连': 210200, '鞍山': 210300, '长春': 220100, '吉林': 220200, '哈尔滨': 230100, '上海': 310100, '南京': 320100, '无锡': 320200, '徐州': 320300, '常州': 320400, '苏州': 320500, '南通': 320600, '连云港': 320700, '盐城': 320900, '扬州': 321000, '镇江': 321100, '泰州': 321200, '宿迁': 321300, '杭州': 330100, '宁波': 330200, '温州': 330300, '嘉兴': 330400, '湖州': 330500, '绍兴': 330600, '金华': 330700, '衢州': 330800, '台州': 331000, '合肥': 340100, '芜湖': 340200, '铜陵': 340700, '滁州': 341100, '福州': 350100, '厦门': 350200, '泉州': 350500, '漳州': 350600, '龙岩': 350800, '南昌': 360100, '赣州': 360700, '济南': 370100, '青岛': 370200, '淄博': 370300, '烟台': 370600, '潍坊': 370700, '济宁': 370800, '威海': 371000, '德州': 371400, '滨州': 371600, '郑州': 410100, '洛阳': 410300, '新乡': 410700, '焦作': 410800, '许昌': 411000, '南阳': 411300, '武汉': 420100, '宜昌': 420500, '襄阳': 420600, '荆门': 420800, '长沙': 430100, '株洲': 430200, '衡阳': 430400, '岳阳': 430600, '益阳': 430900, '广州': 440100, '深圳': 440300, '珠海': 440400, '汕头': 440500, '佛山': 440600, '江门': 440700, '肇庆': 441200, '惠州': 441300, '梅州': 441400, '东莞': 441900, '潮州': 445100, '揭阳': 445200, '南宁': 450100, '柳州': 450200, '桂林': 450300, '海口': 460100, '重庆': 500100, '成都': 510100, '德阳': 510600, '绵阳': 510700, '乐山': 511100, '贵阳': 520100, '昆明': 530100, '拉萨': 540100, '西安': 610100, '宝鸡': 610300, '兰州': 620100, '西宁': 630100, '银川': 640100, '乌鲁木齐': 650100
-}
 const weatherStrs = {
   //晴
   sun: "data:image/png;base64,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",
@@ -40,7 +37,7 @@ const weatherStrs = {
   rainsnow: "data:image/png;base64,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",
 };
 const getLevel = (text) => {
-  if(text==="小" || text==="阵") return 1;
+  if(text==="小" || text==="阵"||text==='夹') return 1;
   else if(text==="中") return 2;
   else if(text==="大" || text==="暴") return 3;
   else{
@@ -116,7 +113,7 @@ class Weather extends React.Component{
       nowWeather: '', // 实时天气数据
       dayWeather: [], // 今天向后的三天天气数据
     };
-    axios.get("http://localhost:3000/weather/"+city2districtId[props.city]).then((res)=>{
+    axios.get("http://localhost:3000/weather/"+props.city).then((res)=>{
       this.setState({
         nowWeather: res.data['data']['now'],
         dayWeather: res.data['data']['day'],
@@ -128,7 +125,7 @@ class Weather extends React.Component{
   
   onChange(value) {
     // console.log('change');
-    axios.get("http://localhost:3000/weather/"+city2districtId[value[1]]).then((res)=>{
+    axios.get("http://localhost:3000/weather/"+value[1]).then((res)=>{
       this.setState({
         city: value[1],
         nowWeather: res.data['data']['now'],
@@ -145,236 +142,729 @@ class Weather extends React.Component{
     });
   }
   render(){
+    // const options=[
+    //   { label: "安徽省", value: "安徽省", key: "安徽省",
+    //     children: [
+    //       {label: "滁州", value: "滁州", key: "滁州"},
+    //       {label: "合肥", value: "合肥", key: "合肥"},
+    //       {label: "铜陵", value: "铜陵", key: "铜陵"},
+    //       {label: "芜湖", value: "芜湖", key: "芜湖"},
+    //     ]
+    //   },
+    //   { label: "北京市", value: "北京市", key: "北京市",
+    //     children: [
+    //       {label: "北京", value: "北京", key: "北京"},
+    //     ]
+    //   },
+    //   { label: "重庆市", value: "重庆市", key: "重庆市",
+    //     children: [
+    //       {label: "重庆", value: "重庆", key: "重庆"},
+    //     ]
+    //   },
+    //   { label: "福建省", value: "福建省", key: "福建省",
+    //     children: [
+    //       {label: "福州", value: "福州", key: "福州"},
+    //       {label: "龙岩", value: "龙岩", key: "龙岩"},
+    //       {label: "泉州", value: "泉州", key: "泉州"},
+    //       {label: "厦门", value: "厦门", key: "厦门"},
+    //       {label: "漳州", value: "漳州", key: "漳州"},
+    //     ]
+    //   },
+    //   { label: "甘肃省", value: "甘肃省", key: "甘肃省",
+    //     children: [
+    //       {label: "兰州", value: "兰州", key: "兰州"},
+    //     ]
+    //   },
+    //   { label: "广东省", value: "广东省", key: "广东省",
+    //     children: [
+    //       {label: "广州", value: "广州", key: "广州"},
+    //       {label: "潮州", value: "潮州", key: "潮州"},
+    //       {label: "东莞", value: "东莞", key: "东莞"},
+    //       {label: "佛山", value: "佛山", key: "佛山"},
+    //       {label: "惠州", value: "惠州", key: "惠州"},
+    //       {label: "江门", value: "江门", key: "江门"},
+    //       {label: "揭阳", value: "揭阳", key: "揭阳"},
+    //       {label: "梅州", value: "梅州", key: "梅州"},
+    //       {label: "汕头", value: "汕头", key: "汕头"},
+    //       {label: "深圳", value: "深圳", key: "深圳"},
+    //       {label: "肇庆", value: "肇庆", key: "肇庆"},
+    //       {label: "珠海", value: "珠海", key: "珠海"},
+    //     ]
+    //   },
+    //   { label: "广西省", value: "广西省", key: "广西省",
+    //     children: [
+    //       {label: "南宁", value: "南宁", key: "南宁"},
+    //       {label: "桂林", value: "桂林", key: "桂林"},
+    //       {label: "柳州", value: "柳州", key: "柳州"},
+    //     ]
+    //   },
+    //   { label: "贵州省", value: "贵州省", key: "贵州省",
+    //     children: [
+    //       {label: "贵阳", value: "贵阳", key: "贵阳"},
+    //     ]
+    //   },
+    //   { label: "海南省", value: "海南省", key: "海南省",
+    //     children: [
+    //       {label: "海口", value: "海口", key: "海口"},
+    //     ]
+    //   },
+    //   { label: "河北省", value: "河北省", key: "河北省",
+    //     children: [
+    //       {label: "石家庄", value: "石家庄", key: "石家庄"},
+    //       {label: "保定", value: "保定", key: "保定"},
+    //       {label: "唐山", value: "唐山", key: "唐山"},
+    //     ]
+    //   },
+    //   { label: "河南省", value: "河南省", key: "河南省",
+    //     children: [
+    //       {label: "郑州", value: "郑州", key: "郑州"},
+    //       {label: "焦作", value: "焦作", key: "焦作"},
+    //       {label: "洛阳", value: "洛阳", key: "洛阳"},
+    //       {label: "南阳", value: "南阳", key: "南阳"},
+    //       {label: "新乡", value: "新乡", key: "新乡"},
+    //       {label: "许昌", value: "许昌", key: "许昌"},
+    //     ]
+    //   },
+    //   { label: "黑龙江省", value: "黑龙江省", key: "黑龙江省",
+    //     children: [
+    //       {label: "哈尔滨", value: "哈尔滨", key: "哈尔滨"}
+    //     ]
+    //   },
+    //   { label: "湖北省", value: "湖北省", key: "湖北省",
+    //     children: [
+    //       {label: "武汉", value: "武汉", key: "武汉"},
+    //       {label: "荆门", value: "荆门", key: "荆门"},
+    //       {label: "襄阳", value: "襄阳", key: "襄阳"},
+    //       {label: "宜昌", value: "宜昌", key: "宜昌"},
+    //     ]
+    //   },
+    //   { label: "湖南省", value: "湖南省", key: "湖南省",
+    //     children: [
+    //       {label: "长沙", value: "长沙", key: "长沙"},
+    //       {label: "衡阳", value: "衡阳", key: "衡阳"},
+    //       {label: "益阳", value: "益阳", key: "益阳"},
+    //       {label: "岳阳", value: "岳阳", key: "岳阳"},
+    //       {label: "株洲", value: "株洲", key: "株洲"},
+    //     ]
+    //   }, 
+    //   { label: "吉林省", value: "吉林省", key: "吉林省",
+    //     children: [
+    //       {label: "长春", value: "长春", key: "长春"},
+    //       {label: "吉林", value: "吉林", key: "吉林"}
+    //     ]
+    //   },
+    //   { label: "江苏省", value: "江苏省", key: "江苏省",
+    //     children: [
+    //       {label: "南京", value: "南京", key: "南京"},
+    //       {label: "常州", value: "常州", key: "常州"},
+    //       {label: "连云港", value: "连云港", key: "连云港"},
+    //       {label: "南通", value: "南通", key: "南通"},
+    //       {label: "苏州", value: "苏州", key: "苏州"},
+    //       {label: "宿迁", value: "宿迁", key: "宿迁"},
+    //       {label: "泰州", value: "泰州", key: "泰州"},
+    //       {label: "无锡", value: "无锡", key: "无锡"},
+    //       {label: "徐州", value: "徐州", key: "徐州"},
+    //       {label: "盐城", value: "盐城", key: "盐城"},
+    //       {label: "扬州", value: "扬州", key: "扬州"},
+    //       {label: "镇江", value: "镇江", key: "镇江"},
+    //     ]
+    //   },
+    //   { label: "江西省", value: "江西省", key: "江西省",
+    //     children: [
+    //       {label: "南昌", value: "南昌", key: "南昌"},
+    //       {label: "赣州", value: "赣州", key: "赣州"},
+    //     ]
+    //   },
+    //   { label: "辽宁省", value: "辽宁省", key: "辽宁省",
+    //     children: [
+    //       {label: "沈阳", value: "沈阳", key: "沈阳"},
+    //       {label: "鞍山", value: "鞍山", key: "鞍山"},
+    //       {label: "大连", value: "大连", key: "大连"}
+    //     ]
+    //   }, 
+    //   { label: "内蒙古", value: "内蒙古", key: "内蒙古",
+    //     children: [
+    //       {label: "呼和浩特", value: "呼和浩特", key: "呼和浩特"},
+    //       {label: "包头", value: "包头", key: "包头"}
+    //     ]
+    //   },
+    //   { label: "宁夏", value: "宁夏", key: "宁夏",
+    //     children: [
+    //       {label: "银川", value: "银川", key: "银川"},
+    //     ]
+    //   },
+    //   { label: "青海省", value: "青海省", key: "青海省",
+    //     children: [
+    //       {label: "西宁", value: "西宁", key: "西宁"},
+    //     ]
+    //   },
+    //   { label: "山东省", value: "山东省", key: "山东省",
+    //     children: [
+    //       {label: "济南", value: "济南", key: "济南"},
+    //       {label: "滨州", value: "滨州", key: "滨州"},
+    //       {label: "德州", value: "德州", key: "德州"},
+    //       {label: "济宁", value: "济宁", key: "济宁"},
+    //       {label: "青岛", value: "青岛", key: "青岛"},
+    //       {label: "威海", value: "威海", key: "威海"},
+    //       {label: "潍坊", value: "潍坊", key: "潍坊"},
+    //       {label: "烟台", value: "烟台", key: "烟台"},
+    //       {label: "淄博", value: "淄博", key: "淄博"},
+    //     ]
+    //   },
+    //   { label: "山西省", value: "山西省", key: "山西省",
+    //     children: [
+    //       {label: "太原", value: "太原", key: "太原"},
+    //     ]
+    //   },
+    //   { label: "陕西省", value: "陕西省", key: "陕西省",
+    //     children: [
+    //       {label: "西安", value: "西安", key: "西安"},
+    //       {label: "宝鸡", value: "宝鸡", key: "宝鸡"},
+    //     ]
+    //   },
+    //   { label: "上海市", value: "上海市", key: "上海市",
+    //     children: [
+    //       {label: "上海", value: "上海", key: "上海"},
+    //     ]
+    //   },
+    //   { label: "四川省", value: "四川省", key: "四川省",
+    //     children: [
+    //       {label: "成都", value: "成都", key: "成都"},
+    //       {label: "德阳", value: "德阳", key: "德阳"},
+    //       {label: "乐山", value: "乐山", key: "乐山"},
+    //       {label: "绵阳", value: "绵阳", key: "绵阳"},
+    //     ]
+    //   },
+    //   { label: "天津市", value: "天津市", key: "天津市",
+    //     children: [
+    //       {label: "天津", value: "天津", key: "天津"},
+    //     ]
+    //   },
+    //   { label: "西藏", value: "西藏", key: "西藏",
+    //     children: [
+    //       {label: "拉萨", value: "拉萨", key: "拉萨"},
+    //     ]
+    //   },
+    //   { label: "新疆", value: "新疆", key: "新疆",
+    //     children: [
+    //       {label: "乌鲁木齐", value: "乌鲁木齐", key: "乌鲁木齐"},
+    //     ]
+    //   },
+    //   { label: "云南省", value: "云南省", key: "云南省",
+    //     children: [
+    //       {label: "昆明", value: "昆明", key: "昆明"},
+    //     ]
+    //   },
+    //   { label: "浙江省", value: "浙江省", key: "浙江省",
+    //     children: [
+    //       {label: "杭州", value: "杭州", key: "杭州"},
+    //       {label: "嘉兴", value: "嘉兴", key: "嘉兴"},
+    //       {label: "湖州", value: "湖州", key: "湖州"},
+    //       {label: "金华", value: "金华", key: "金华"},
+    //       {label: "宁波", value: "宁波", key: "宁波"},
+    //       {label: "衢州", value: "衢州", key: "衢州"},
+    //       {label: "绍兴", value: "绍兴", key: "绍兴"},
+    //       {label: "台州", value: "台州", key: "台州"},
+    //       {label: "温州", value: "温州", key: "温州"},
+    //     ]
+    //   },
+    //   // { label: "台湾", value: "台湾", key: "台湾", disabled:true },
+    //   // { label: "香港", value: "香港", key: "香港", disabled:true },
+    //   // { label: "澳门", value: "澳门", key: "澳门", disabled:true },
+    // ];
     const options=[
-      { label: "安徽省", value: "安徽省", key: "安徽省",
+      {label: '北京市', value: '北京市', key: '北京市', 
         children: [
-          {label: "滁州", value: "滁州", key: "滁州"},
-          {label: "合肥", value: "合肥", key: "合肥"},
-          {label: "铜陵", value: "铜陵", key: "铜陵"},
-          {label: "芜湖", value: "芜湖", key: "芜湖"},
-        ]
-      },
-      { label: "北京市", value: "北京市", key: "北京市",
+          {label: '北京市', value: '北京市', key: '北京市'}
+        ]}, 
+      {label: '天津市', value: '天津市', key: '天津市', 
         children: [
-          {label: "北京", value: "北京", key: "北京"},
-        ]
-      },
-      { label: "重庆市", value: "重庆市", key: "重庆市",
+          {label: '天津市', value: '天津市', key: '天津市'}
+        ]}, 
+      {label: '河北省', value: '河北省', key: '河北省', 
         children: [
-          {label: "重庆", value: "重庆", key: "重庆"},
-        ]
-      },
-      { label: "福建省", value: "福建省", key: "福建省",
+          {label: '石家庄市', value: '石家庄市', key: '石家庄市'}, 
+          {label: '唐山市', value: '唐山市', key: '唐山市'}, 
+          {label: '秦皇岛市', value: '秦皇岛市', key: '秦皇岛市'}, 
+          {label: '邯郸市', value: '邯郸市', key: '邯郸市'}, 
+          {label: '邢台市', value: '邢台市', key: '邢台市'}, 
+          {label: '保定市', value: '保定市', key: '保定市'}, 
+          {label: '张家口市', value: '张家口市', key: '张家口市'}, 
+          {label: '承德市', value: '承德市', key: '承德市'}, 
+          {label: '沧州市', value: '沧州市', key: '沧州市'}, 
+          {label: '廊坊市', value: '廊坊市', key: '廊坊市'}, 
+          {label: '衡水市', value: '衡水市', key: '衡水市'}
+        ]}, 
+      {label: '山西省', value: '山西省', key: '山西省', 
         children: [
-          {label: "福州", value: "福州", key: "福州"},
-          {label: "龙岩", value: "龙岩", key: "龙岩"},
-          {label: "泉州", value: "泉州", key: "泉州"},
-          {label: "厦门", value: "厦门", key: "厦门"},
-          {label: "漳州", value: "漳州", key: "漳州"},
-        ]
-      },
-      { label: "甘肃省", value: "甘肃省", key: "甘肃省",
+          {label: '太原市', value: '太原市', key: '太原市'}, 
+          {label: '大同市', value: '大同市', key: '大同市'}, 
+          {label: '阳泉市', value: '阳泉市', key: '阳泉市'}, 
+          {label: '长治市', value: '长治市', key: '长治市'}, 
+          {label: '晋城市', value: '晋城市', key: '晋城市'}, 
+          {label: '朔州市', value: '朔州市', key: '朔州市'}, 
+          {label: '晋中市', value: '晋中市', key: '晋中市'}, 
+          {label: '运城市', value: '运城市', key: '运城市'}, 
+          {label: '忻州市', value: '忻州市', key: '忻州市'}, 
+          {label: '临汾市', value: '临汾市', key: '临汾市'}, 
+          {label: '吕梁市', value: '吕梁市', key: '吕梁市'}
+        ]}, 
+      {label: '内蒙古自治区', value: '内蒙古自治区', key: '内蒙古自治区', 
         children: [
-          {label: "兰州", value: "兰州", key: "兰州"},
-        ]
-      },
-      { label: "广东省", value: "广东省", key: "广东省",
+          {label: '呼和浩特市', value: '呼和浩特市', key: '呼和浩特市'}, 
+          {label: '包头市', value: '包头市', key: '包头市'}, 
+          {label: '乌海市', value: '乌海市', key: '乌海市'}, 
+          {label: '赤峰市', value: '赤峰市', key: '赤峰市'}, 
+          {label: '通辽市', value: '通辽市', key: '通辽市'}, 
+          {label: '鄂尔多斯市', value: '鄂尔多斯市', key: '鄂尔多斯市'}, 
+          {label: '呼伦贝尔市', value: '呼伦贝尔市', key: '呼伦贝尔市'}, 
+          {label: '巴彦淖尔市', value: '巴彦淖尔市', key: '巴彦淖尔市'}, 
+          {label: '乌兰察布市', value: '乌兰察布市', key: '乌兰察布市'}, 
+          {label: '兴安盟', value: '兴安盟', key: '兴安盟'}, 
+          {label: '锡林郭勒盟', value: '锡林郭勒盟', key: '锡林郭勒盟'}, 
+          {label: '阿拉善盟', value: '阿拉善盟', key: '阿拉善盟'}
+        ]}, 
+      {label: '辽宁省', value: '辽宁省', key: '辽宁省', 
         children: [
-          {label: "广州", value: "广州", key: "广州"},
-          {label: "潮州", value: "潮州", key: "潮州"},
-          {label: "东莞", value: "东莞", key: "东莞"},
-          {label: "佛山", value: "佛山", key: "佛山"},
-          {label: "惠州", value: "惠州", key: "惠州"},
-          {label: "江门", value: "江门", key: "江门"},
-          {label: "揭阳", value: "揭阳", key: "揭阳"},
-          {label: "梅州", value: "梅州", key: "梅州"},
-          {label: "汕头", value: "汕头", key: "汕头"},
-          {label: "深圳", value: "深圳", key: "深圳"},
-          {label: "肇庆", value: "肇庆", key: "肇庆"},
-          {label: "珠海", value: "珠海", key: "珠海"},
-        ]
-      },
-      { label: "广西省", value: "广西省", key: "广西省",
+          {label: '沈阳市', value: '沈阳市', key: '沈阳市'}, 
+          {label: '大连市', value: '大连市', key: '大连市'}, 
+          {label: '鞍山市', value: '鞍山市', key: '鞍山市'}, 
+          {label: '抚顺市', value: '抚顺市', key: '抚顺市'}, 
+          {label: '本溪市', value: '本溪市', key: '本溪市'}, 
+          {label: '丹东市', value: '丹东市', key: '丹东市'}, 
+          {label: '锦州市', value: '锦州市', key: '锦州市'}, 
+          {label: '营口市', value: '营口市', key: '营口市'}, 
+          {label: '阜新市', value: '阜新市', key: '阜新市'}, 
+          {label: '辽阳市', value: '辽阳市', key: '辽阳市'}, 
+          {label: '盘锦市', value: '盘锦市', key: '盘锦市'}, 
+          {label: '铁岭市', value: '铁岭市', key: '铁岭市'}, 
+          {label: '朝阳市', value: '朝阳市', key: '朝阳市'}, 
+          {label: '葫芦岛市', value: '葫芦岛市', key: '葫芦岛市'}
+        ]}, 
+      {label: '吉林省', value: '吉林省', key: '吉林省', 
         children: [
-          {label: "南宁", value: "南宁", key: "南宁"},
-          {label: "桂林", value: "桂林", key: "桂林"},
-          {label: "柳州", value: "柳州", key: "柳州"},
-        ]
-      },
-      { label: "贵州省", value: "贵州省", key: "贵州省",
+          {label: '长春市', value: '长春市', key: '长春市'}, 
+          {label: '吉林市', value: '吉林市', key: '吉林市'}, 
+          {label: '四平市', value: '四平市', key: '四平市'}, 
+          {label: '辽源市', value: '辽源市', key: '辽源市'}, 
+          {label: '通化市', value: '通化市', key: '通化市'}, 
+          {label: '白山市', value: '白山市', key: '白山市'}, 
+          {label: '松原市', value: '松原市', key: '松原市'}, 
+          {label: '白城市', value: '白城市', key: '白城市'}, 
+          {label: '延边朝鲜族自治州', value: '延边朝鲜族自治州', key: '延边朝鲜族自治州'}
+        ]}, 
+      {label: '黑龙江省', value: '黑龙江省', key: '黑龙江省', 
         children: [
-          {label: "贵阳", value: "贵阳", key: "贵阳"},
-        ]
-      },
-      { label: "海南省", value: "海南省", key: "海南省",
+          {label: '哈尔滨市', value: '哈尔滨市', key: '哈尔滨市'}, 
+          {label: '齐齐哈尔市', value: '齐齐哈尔市', key: '齐齐哈尔市'}, 
+          {label: '鸡西市', value: '鸡西市', key: '鸡西市'}, 
+          {label: '鹤岗市', value: '鹤岗市', key: '鹤岗市'}, 
+          {label: '双鸭山市', value: '双鸭山市', key: '双鸭山市'}, 
+          {label: '大庆市', value: '大庆市', key: '大庆市'}, 
+          {label: '伊春市', value: '伊春市', key: '伊春市'}, 
+          {label: '佳木斯市', value: '佳木斯市', key: '佳木斯市'}, 
+          {label: '七台河市', value: '七台河市', key: '七台河市'}, 
+          {label: '牡丹江市', value: '牡丹江市', key: '牡丹江市'}, 
+          {label: '黑河市', value: '黑河市', key: '黑河市'}, 
+          {label: '绥化市', value: '绥化市', key: '绥化市'}, 
+          {label: '大兴安岭地区', value: '大兴安岭地区', key: '大兴安岭地区'}
+        ]}, 
+      {label: '上海市', value: '上海市', key: '上海市', 
         children: [
-          {label: "海口", value: "海口", key: "海口"},
-        ]
-      },
-      { label: "河北省", value: "河北省", key: "河北省",
+          {label: '上海市', value: '上海市', key: '上海市'}
+        ]}, 
+      {label: '江苏省', value: '江苏省', key: '江苏省', 
         children: [
-          {label: "石家庄", value: "石家庄", key: "石家庄"},
-          {label: "保定", value: "保定", key: "保定"},
-          {label: "唐山", value: "唐山", key: "唐山"},
-        ]
-      },
-      { label: "河南省", value: "河南省", key: "河南省",
+          {label: '南京市', value: '南京市', key: '南京市'}, 
+          {label: '无锡市', value: '无锡市', key: '无锡市'}, 
+          {label: '徐州市', value: '徐州市', key: '徐州市'}, 
+          {label: '常州市', value: '常州市', key: '常州市'}, 
+          {label: '苏州市', value: '苏州市', key: '苏州市'}, 
+          {label: '南通市', value: '南通市', key: '南通市'}, 
+          {label: '连云港市', value: '连云港市', key: '连云港市'}, 
+          {label: '淮安市', value: '淮安市', key: '淮安市'}, 
+          {label: '盐城市', value: '盐城市', key: '盐城市'}, 
+          {label: '扬州市', value: '扬州市', key: '扬州市'}, 
+          {label: '镇江市', value: '镇江市', key: '镇江市'}, 
+          {label: '泰州市', value: '泰州市', key: '泰州市'}, 
+          {label: '宿迁市', value: '宿迁市', key: '宿迁市'}
+        ]}, 
+      {label: '浙江省', value: '浙江省', key: '浙江省', 
         children: [
-          {label: "郑州", value: "郑州", key: "郑州"},
-          {label: "焦作", value: "焦作", key: "焦作"},
-          {label: "洛阳", value: "洛阳", key: "洛阳"},
-          {label: "南阳", value: "南阳", key: "南阳"},
-          {label: "新乡", value: "新乡", key: "新乡"},
-          {label: "许昌", value: "许昌", key: "许昌"},
-        ]
-      },
-      { label: "黑龙江省", value: "黑龙江省", key: "黑龙江省",
+          {label: '杭州市', value: '杭州市', key: '杭州市'}, 
+          {label: '宁波市', value: '宁波市', key: '宁波市'}, 
+          {label: '温州市', value: '温州市', key: '温州市'}, 
+          {label: '嘉兴市', value: '嘉兴市', key: '嘉兴市'}, 
+          {label: '湖州市', value: '湖州市', key: '湖州市'}, 
+          {label: '绍兴市', value: '绍兴市', key: '绍兴市'}, 
+          {label: '金华市', value: '金华市', key: '金华市'}, 
+          {label: '衢州市', value: '衢州市', key: '衢州市'}, 
+          {label: '舟山市', value: '舟山市', key: '舟山市'}, 
+          {label: '台州市', value: '台州市', key: '台州市'}, 
+          {label: '丽水市', value: '丽水市', key: '丽水市'}
+        ]}, 
+      {label: '安徽省', value: '安徽省', key: '安徽省', 
         children: [
-          {label: "哈尔滨", value: "哈尔滨", key: "哈尔滨"}
-        ]
-      },
-      { label: "湖北省", value: "湖北省", key: "湖北省",
+          {label: '合肥市', value: '合肥市', key: '合肥市'}, 
+          {label: '芜湖市', value: '芜湖市', key: '芜湖市'}, 
+          {label: '蚌埠市', value: '蚌埠市', key: '蚌埠市'}, 
+          {label: '淮南市', value: '淮南市', key: '淮南市'}, 
+          {label: '马鞍山市', value: '马鞍山市', key: '马鞍山市'}, 
+          {label: '淮北市', value: '淮北市', key: '淮北市'}, 
+          {label: '铜陵市', value: '铜陵市', key: '铜陵市'}, 
+          {label: '安庆市', value: '安庆市', key: '安庆市'}, 
+          {label: '黄山市', value: '黄山市', key: '黄山市'}, 
+          {label: '滁州市', value: '滁州市', key: '滁州市'}, 
+          {label: '阜阳市', value: '阜阳市', key: '阜阳市'}, 
+          {label: '宿州市', value: '宿州市', key: '宿州市'}, 
+          {label: '六安市', value: '六安市', key: '六安市'}, 
+          {label: '亳州市', value: '亳州市', key: '亳州市'}, 
+          {label: '池州市', value: '池州市', key: '池州市'}, 
+          {label: '宣城市', value: '宣城市', key: '宣城市'}
+        ]}, 
+      {label: '福建省', value: '福建省', key: '福建省', 
         children: [
-          {label: "武汉", value: "武汉", key: "武汉"},
-          {label: "荆门", value: "荆门", key: "荆门"},
-          {label: "襄阳", value: "襄阳", key: "襄阳"},
-          {label: "宜昌", value: "宜昌", key: "宜昌"},
-        ]
-      },
-      { label: "湖南省", value: "湖南省", key: "湖南省",
+          {label: '福州市', value: '福州市', key: '福州市'}, 
+          {label: '厦门市', value: '厦门市', key: '厦门市'}, 
+          {label: '莆田市', value: '莆田市', key: '莆田市'},
+          {label: '三明市', value: '三明市', key: '三明市'}, 
+          {label: '泉州市', value: '泉州市', key: '泉州市'}, 
+          {label: '漳州市', value: '漳州市', key: '漳州市'}, 
+          {label: '南平市', value: '南平市', key: '南平市'}, 
+          {label: '龙岩市', value: '龙岩市', key: '龙岩市'}, 
+          {label: '宁德市', value: '宁德市', key: '宁德市'}
+        ]}, 
+      {label: '江西省', value: '江西省', key: '江西省', 
         children: [
-          {label: "长沙", value: "长沙", key: "长沙"},
-          {label: "衡阳", value: "衡阳", key: "衡阳"},
-          {label: "益阳", value: "益阳", key: "益阳"},
-          {label: "岳阳", value: "岳阳", key: "岳阳"},
-          {label: "株洲", value: "株洲", key: "株洲"},
-        ]
-      }, 
-      { label: "吉林省", value: "吉林省", key: "吉林省",
+          {label: '南昌市', value: '南昌市', key: '南昌市'}, 
+          {label: '景德镇市', value: '景德镇市', key: '景德镇市'}, 
+          {label: '萍乡市', value: '萍乡市', key: '萍乡市'}, 
+          {label: '九江市', value: '九江市', key: '九江市'}, 
+          {label: '新余市', value: '新余市', key: '新余市'}, 
+          {label: '鹰潭市', value: '鹰潭市', key: '鹰潭市'}, 
+          {label: '赣州市', value: '赣州市', key: '赣州市'}, 
+          {label: '吉安市', value: '吉安市', key: '吉安市'}, 
+          {label: '宜春市', value: '宜春市', key: '宜春市'}, 
+          {label: '抚州市', value: '抚州市', key: '抚州市'}, 
+          {label: '上饶市', value: '上饶市', key: '上饶市'}
+        ]}, 
+      {label: '山东省', value: '山东省', key: '山东省', 
         children: [
-          {label: "长春", value: "长春", key: "长春"},
-          {label: "吉林", value: "吉林", key: "吉林"}
-        ]
-      },
-      { label: "江苏省", value: "江苏省", key: "江苏省",
+          {label: '济南市', value: '济南市', key: '济南市'}, 
+          {label: '青岛市', value: '青岛市', key: '青岛市'}, 
+          {label: '淄博市', value: '淄博市', key: '淄博市'}, 
+          {label: '枣庄市', value: '枣庄市', key: '枣庄市'}, 
+          {label: '东营市', value: '东营市', key: '东营市'}, 
+          {label: '烟台市', value: '烟台市', key: '烟台市'}, 
+          {label: '潍坊市', value: '潍坊市', key: '潍坊市'}, 
+          {label: '济宁市', value: '济宁市', key: '济宁市'}, 
+          {label: '泰安市', value: '泰安市', key: '泰安市'}, 
+          {label: '威海市', value: '威海市', key: '威海市'}, 
+          {label: '日照市', value: '日照市', key: '日照市'}, 
+          {label: '临沂市', value: '临沂市', key: '临沂市'}, 
+          {label: '德州市', value: '德州市', key: '德州市'}, 
+          {label: '聊城市', value: '聊城市', key: '聊城市'}, 
+          {label: '滨州市', value: '滨州市', key: '滨州市'}, 
+          {label: '菏泽市', value: '菏泽市', key: '菏泽市'}
+        ]}, 
+      {label: '河南省', value: '河南省', key: '河南省', 
         children: [
-          {label: "南京", value: "南京", key: "南京"},
-          {label: "常州", value: "常州", key: "常州"},
-          {label: "连云港", value: "连云港", key: "连云港"},
-          {label: "南通", value: "南通", key: "南通"},
-          {label: "苏州", value: "苏州", key: "苏州"},
-          {label: "宿迁", value: "宿迁", key: "宿迁"},
-          {label: "泰州", value: "泰州", key: "泰州"},
-          {label: "无锡", value: "无锡", key: "无锡"},
-          {label: "徐州", value: "徐州", key: "徐州"},
-          {label: "盐城", value: "盐城", key: "盐城"},
-          {label: "扬州", value: "扬州", key: "扬州"},
-          {label: "镇江", value: "镇江", key: "镇江"},
-        ]
-      },
-      { label: "江西省", value: "江西省", key: "江西省",
+          {label: '郑州市', value: '郑州市', key: '郑州市'}, 
+          {label: '开封市', value: '开封市', key: '开封市'}, 
+          {label: '洛阳市', value: '洛阳市', key: '洛阳市'}, 
+          {label: '平顶山市', value: '平顶山市', key: '平顶山市'}, 
+          {label: '安阳市', value: '安阳市', key: '安阳市'}, 
+          {label: '鹤壁市', value: '鹤壁市', key: '鹤壁市'}, 
+          {label: '新乡市', value: '新乡市', key: '新乡市'}, 
+          {label: '焦作市', value: '焦作市', key: '焦作市'}, 
+          {label: '濮阳市', value: '濮阳市', key: '濮阳市'}, 
+          {label: '许昌市', value: '许昌市', key: '许昌市'}, 
+          {label: '漯河市', value: '漯河市', key: '漯河市'}, 
+          {label: '三门峡市', value: '三门峡市', key: '三门峡市'}, 
+          {label: '南阳市', value: '南阳市', key: '南阳市'}, 
+          {label: '商丘市', value: '商丘市', key: '商丘市'}, 
+          {label: '信阳市', value: '信阳市', key: '信阳市'}, 
+          {label: '周口市', value: '周口市', key: '周口市'}, 
+          {label: '驻马店市', value: '驻马店市', key: '驻马店市'}, 
+          {label: '济源市', value: '济源市', key: '济源市'}
+        ]}, 
+      {label: '湖北省', value: '湖北省', key: '湖北省', 
         children: [
-          {label: "南昌", value: "南昌", key: "南昌"},
-          {label: "赣州", value: "赣州", key: "赣州"},
-        ]
-      },
-      { label: "辽宁省", value: "辽宁省", key: "辽宁省",
+          {label: '武汉市', value: '武汉市', key: '武汉市'}, 
+          {label: '黄石市', value: '黄石市', key: '黄石市'}, 
+          {label: '十堰市', value: '十堰市', key: '十堰市'}, 
+          {label: '宜昌市', value: '宜昌市', key: '宜昌市'}, 
+          {label: '襄阳市', value: '襄阳市', key: '襄阳市'}, 
+          {label: '鄂州市', value: '鄂州市', key: '鄂州市'}, 
+          {label: '荆门市', value: '荆门市', key: '荆门市'}, 
+          {label: '孝感市', value: '孝感市', key: '孝感市'}, 
+          {label: '荆州市', value: '荆州市', key: '荆州市'}, 
+          {label: '黄冈市', value: '黄冈市', key: '黄冈市'}, 
+          {label: '咸宁市', value: '咸宁市', key: '咸宁市'}, 
+          {label: '随州市', value: '随州市', key: '随州市'}, 
+          {label: '恩施土家族苗族自治州', value: '恩施土家族苗族自治州', key: '恩施土家族苗族自治州'}, 
+          {label: '仙桃市', value: '仙桃市', key: '仙桃市'}, 
+          {label: '潜江市', value: '潜江市', key: '潜江市'}, 
+          {label: '天门市', value: '天门市', key: '天门市'}, 
+          {label: '神农架林区', value: '神农架林区', key: '神农架林区'}
+        ]}, 
+      {label: '湖南省', value: '湖南省', key: '湖南省', 
         children: [
-          {label: "沈阳", value: "沈阳", key: "沈阳"},
-          {label: "鞍山", value: "鞍山", key: "鞍山"},
-          {label: "大连", value: "大连", key: "大连"}
-        ]
-      }, 
-      { label: "内蒙古", value: "内蒙古", key: "内蒙古",
+          {label: '长沙市', value: '长沙市', key: '长沙市'}, 
+          {label: '株洲市', value: '株洲市', key: '株洲市'}, 
+          {label: '湘潭市', value: '湘潭市', key: '湘潭市'}, 
+          {label: '衡阳市', value: '衡阳市', key: '衡阳市'}, 
+          {label: '邵阳市', value: '邵阳市', key: '邵阳市'}, 
+          {label: '岳阳市', value: '岳阳市', key: '岳阳市'}, 
+          {label: '常德市', value: '常德市', key: '常德市'}, 
+          {label: '张家界市', value: '张家界市', key: '张家界市'}, 
+          {label: '益阳市', value: '益阳市', key: '益阳市'}, 
+          {label: '郴州市', value: '郴州市', key: '郴州市'}, 
+          {label: '永州市', value: '永州市', key: '永州市'}, 
+          {label: '怀化市', value: '怀化市', key: '怀化市'}, 
+          {label: '娄底市', value: '娄底市', key: '娄底市'}, 
+          {label: '湘西土家族苗族自治州', value: '湘西土家族苗族自治州', key: '湘西土家族苗族自治州'}
+        ]}, 
+      {label: '广东省', value: '广东省', key: '广东省', 
         children: [
-          {label: "呼和浩特", value: "呼和浩特", key: "呼和浩特"},
-          {label: "包头", value: "包头", key: "包头"}
-        ]
-      },
-      { label: "宁夏", value: "宁夏", key: "宁夏",
+          {label: '广州市', value: '广州市', key: '广州市'}, 
+          {label: '韶关市', value: '韶关市', key: '韶关市'}, 
+          {label: '深圳市', value: '深圳市', key: '深圳市'}, 
+          {label: '珠海市', value: '珠海市', key: '珠海市'}, 
+          {label: '汕头市', value: '汕头市', key: '汕头市'}, 
+          {label: '佛山市', value: '佛山市', key: '佛山市'}, 
+          {label: '江门市', value: '江门市', key: '江门市'}, 
+          {label: '湛江市', value: '湛江市', key: '湛江市'}, 
+          {label: '茂名市', value: '茂名市', key: '茂名市'}, 
+          {label: '肇庆市', value: '肇庆市', key: '肇庆市'}, 
+          {label: '惠州市', value: '惠州市', key: '惠州市'}, 
+          {label: '梅州市', value: '梅州市', key: '梅州市'}, 
+          {label: '汕尾市', value: '汕尾市', key: '汕尾市'}, 
+          {label: '河源市', value: '河源市', key: '河源市'}, 
+          {label: '阳江市', value: '阳江市', key: '阳江市'}, 
+          {label: '清远市', value: '清远市', key: '清远市'}, 
+          {label: '东莞市', value: '东莞市', key: '东莞市'}, 
+          {label: '中山市', value: '中山市', key: '中山市'}, 
+          {label: '潮州市', value: '潮州市', key: '潮州市'}, 
+          {label: '揭阳市', value: '揭阳市', key: '揭阳市'}, 
+          {label: '云浮市', value: '云浮市', key: '云浮市'}
+        ]}, 
+      {label: '广西壮族自治区', value: '广西壮族自治区', key: '广西壮族自治区', 
         children: [
-          {label: "银川", value: "银川", key: "银川"},
-        ]
-      },
-      { label: "青海省", value: "青海省", key: "青海省",
+          {label: '南宁市', value: '南宁市', key: '南宁市'}, 
+          {label: '柳州市', value: '柳州市', key: '柳州市'}, 
+          {label: '桂林市', value: '桂林市', key: '桂林市'}, 
+          {label: '梧州市', value: '梧州市', key: '梧州市'}, 
+          {label: '北海市', value: '北海市', key: '北海市'}, 
+          {label: '防城港市', value: '防城港市', key: '防城港市'}, 
+          {label: '钦州市', value: '钦州市', key: '钦州市'}, 
+          {label: '贵港市', value: '贵港市', key: '贵港市'}, 
+          {label: '玉林市', value: '玉林市', key: '玉林市'}, 
+          {label: '百色市', value: '百色市', key: '百色市'}, 
+          {label: '贺州市', value: '贺州市', key: '贺州市'}, 
+          {label: '河池市', value: '河池市', key: '河池市'}, 
+          {label: '来宾市', value: '来宾市', key: '来宾市'}, 
+          {label: '崇左市', value: '崇左市', key: '崇左市'}
+        ]}, 
+      {label: '海南省', value: '海南省', key: '海南省', 
         children: [
-          {label: "西宁", value: "西宁", key: "西宁"},
-        ]
-      },
-      { label: "山东省", value: "山东省", key: "山东省",
+          {label: '海口市', value: '海口市', key: '海口市'}, 
+          {label: '三亚市', value: '三亚市', key: '三亚市'}, 
+          {label: '三沙市', value: '三沙市', key: '三沙市'}, 
+          {label: '儋州市', value: '儋州市', key: '儋州市'}, 
+          {label: '五指山市', value: '五指山市', key: '五指山市'}, 
+          {label: '琼海市', value: '琼海市', key: '琼海市'}, 
+          {label: '文昌市', value: '文昌市', key: '文昌市'}, 
+          {label: '万宁市', value: '万宁市', key: '万宁市'}, 
+          {label: '东方市', value: '东方市', key: '东方市'}, 
+          {label: '定安县', value: '定安县', key: '定安县'}, 
+          {label: '屯昌县', value: '屯昌县', key: '屯昌县'}, 
+          {label: '澄迈县', value: '澄迈县', key: '澄迈县'}, 
+          {label: '临高县', value: '临高县', key: '临高县'}, 
+          {label: '白沙黎族自治县', value: '白沙黎族自治县', key: '白沙黎族自治县'}, 
+          {label: '昌江黎族自治县', value: '昌江黎族自治县', key: '昌江黎族自治县'}, 
+          {label: '乐东黎族自治县', value: '乐东黎族自治县', key: '乐东黎族自治县'}, 
+          {label: '陵水黎族自治县', value: '陵水黎族自治县', key: '陵水黎族自治县'}, 
+          {label: '保亭黎族苗族自治县', value: '保亭黎族苗族自治县', key: '保亭黎族苗族自治县'}, 
+          {label: '琼中黎族苗族自治县', value: '琼中黎族苗族自治县', key: '琼中黎族苗族自治县'}
+        ]}, 
+      {label: '重庆市', value: '重庆市', key: '重庆市', 
         children: [
-          {label: "济南", value: "济南", key: "济南"},
-          {label: "滨州", value: "滨州", key: "滨州"},
-          {label: "德州", value: "德州", key: "德州"},
-          {label: "济宁", value: "济宁", key: "济宁"},
-          {label: "青岛", value: "青岛", key: "青岛"},
-          {label: "威海", value: "威海", key: "威海"},
-          {label: "潍坊", value: "潍坊", key: "潍坊"},
-          {label: "烟台", value: "烟台", key: "烟台"},
-          {label: "淄博", value: "淄博", key: "淄博"},
-        ]
-      },
-      { label: "山西省", value: "山西省", key: "山西省",
+          {label: '重庆市', value: '重庆市', key: '重庆市'}
+        ]}, 
+      {label: '四川省', value: '四川省', key: '四川省', 
         children: [
-          {label: "太原", value: "太原", key: "太原"},
-        ]
-      },
-      { label: "陕西省", value: "陕西省", key: "陕西省",
+          {label: '成都市', value: '成都市', key: '成都市'}, 
+          {label: '自贡市', value: '自贡市', key: '自贡市'}, 
+          {label: '攀枝花市', value: '攀枝花市', key: '攀枝花市'}, 
+          {label: '泸州市', value: '泸州市', key: '泸州市'}, 
+          {label: '德阳市', value: '德阳市', key: '德阳市'}, 
+          {label: '绵阳市', value: '绵阳市', key: '绵阳市'}, 
+          {label: '广元市', value: '广元市', key: '广元市'}, 
+          {label: '遂宁市', value: '遂宁市', key: '遂宁市'}, 
+          {label: '内江市', value: '内江市', key: '内江市'}, 
+          {label: '乐山市', value: '乐山市', key: '乐山市'}, 
+          {label: '南充市', value: '南充市', key: '南充市'}, 
+          {label: '眉山市', value: '眉山市', key: '眉山市'}, 
+          {label: '宜宾市', value: '宜宾市', key: '宜宾市'}, 
+          {label: '广安市', value: '广安市', key: '广安市'}, 
+          {label: '达州市', value: '达州市', key: '达州市'}, 
+          {label: '雅安市', value: '雅安市', key: '雅安市'}, 
+          {label: '巴中市', value: '巴中市', key: '巴中市'}, 
+          {label: '资阳市', value: '资阳市', key: '资阳市'}, 
+          {label: '阿坝藏族羌族自治州', value: '阿坝藏族羌族自治州', key: '阿坝藏族羌族自治州'}, 
+          {label: '甘孜藏族自治州', value: '甘孜藏族自治州', key: '甘孜藏族自治州'}, 
+          {label: '凉山彝族自治州', value: '凉山彝族自治州', key: '凉山彝族自治州'}
+        ]}, 
+      {label: '贵州省', value: '贵州省', key: '贵州省', 
         children: [
-          {label: "西安", value: "西安", key: "西安"},
-          {label: "宝鸡", value: "宝鸡", key: "宝鸡"},
-        ]
-      },
-      { label: "上海市", value: "上海市", key: "上海市",
+          {label: '贵阳市', value: '贵阳市', key: '贵阳市'}, 
+          {label: '六盘水市', value: '六盘水市', key: '六盘水市'}, 
+          {label: '遵义市', value: '遵义市', key: '遵义市'}, 
+          {label: '安顺市', value: '安顺市', key: '安顺市'}, 
+          {label: '毕节市', value: '毕节市', key: '毕节市'}, 
+          {label: '铜仁市', value: '铜仁市', key: '铜仁市'}, 
+          {label: '黔西南布依族苗族自治州', value: '黔西南布依族苗族自治州', key: '黔西南布依族苗族自治州'}, 
+          {label: '黔东南苗族侗族自治州', value: '黔东南苗族侗族自治州', key: '黔东南苗族侗族自治州'}, 
+          {label: '黔南布依族苗族自治州', value: '黔南布依族苗族自治州', key: '黔南布依族苗族自治州'}
+        ]}, 
+      {label: '云南省', value: '云南省', key: '云南省', 
         children: [
-          {label: "上海", value: "上海", key: "上海"},
-        ]
-      },
-      { label: "四川省", value: "四川省", key: "四川省",
+          {label: '昆明市', value: '昆明市', key: '昆明市'}, 
+          {label: '曲靖市', value: '曲靖市', key: '曲靖市'}, 
+          {label: '玉溪市', value: '玉溪市', key: '玉溪市'}, 
+          {label: '保山市', value: '保山市', key: '保山市'}, 
+          {label: '昭通市', value: '昭通市', key: '昭通市'}, 
+          {label: '丽江市', value: '丽江市', key: '丽江市'}, 
+          {label: '普洱市', value: '普洱市', key: '普洱市'}, 
+          {label: '临沧市', value: '临沧市', key: '临沧市'}, 
+          {label: '楚雄彝族自治州', value: '楚雄彝族自治州', key: '楚雄彝族自治州'}, 
+          {label: '红河哈尼族彝族自治州', value: '红河哈尼族彝族自治州', key: '红河哈尼族彝族自治州'}, 
+          {label: '文山壮族苗族自治州', value: '文山壮族苗族自治州', key: '文山壮族苗族自治州'}, 
+          {label: '西双版纳傣族自治州', value: '西双版纳傣族自治州', key: '西双版纳傣族自治州'}, 
+          {label: '大理白族自治州', value: '大理白族自治州', key: '大理白族自治州'}, 
+          {label: '德宏傣族景颇族自治州', value: '德宏傣族景颇族自治州', key: '德宏傣族景颇族自治州'}, 
+          {label: '怒江傈僳族自治州', value: '怒江傈僳族自治州', key: '怒江傈僳族自治州'}, 
+          {label: '迪庆藏族自治州', value: '迪庆藏族自治州', key: '迪庆藏族自治州'}
+        ]}, 
+      {label: '西藏自治区', value: '西藏自治区', key: '西藏自治区', 
         children: [
-          {label: "成都", value: "成都", key: "成都"},
-          {label: "德阳", value: "德阳", key: "德阳"},
-          {label: "乐山", value: "乐山", key: "乐山"},
-          {label: "绵阳", value: "绵阳", key: "绵阳"},
-        ]
-      },
-      { label: "天津市", value: "天津市", key: "天津市",
+          {label: '拉萨市', value: '拉萨市', key: '拉萨市'}, 
+          {label: '日喀则市', value: '日喀则市', key: '日喀则市'}, 
+          {label: '昌都市', value: '昌都市', key: '昌都市'}, 
+          {label: '林芝市', value: '林芝市', key: '林芝市'}, 
+          {label: '山南市', value: '山南市', key: '山南市'}, 
+          {label: '那曲市', value: '那曲市', key: '那曲市'}, 
+          {label: '阿里地区', value: '阿里地区', key: '阿里地区'}
+        ]}, 
+      {label: '陕西省', value: '陕西省', key: '陕西省', 
         children: [
-          {label: "天津", value: "天津", key: "天津"},
-        ]
-      },
-      { label: "西藏", value: "西藏", key: "西藏",
+          {label: '西安市', value: '西安市', key: '西安市'}, 
+          {label: '铜川市', value: '铜川市', key: '铜川市'}, 
+          {label: '宝鸡市', value: '宝鸡市', key: '宝鸡市'}, 
+          {label: '咸阳市', value: '咸阳市', key: '咸阳市'}, 
+          {label: '渭南市', value: '渭南市', key: '渭南市'}, 
+          {label: '延安市', value: '延安市', key: '延安市'}, 
+          {label: '汉中市', value: '汉中市', key: '汉中市'}, 
+          {label: '榆林市', value: '榆林市', key: '榆林市'}, 
+          {label: '安康市', value: '安康市', key: '安康市'}, 
+          {label: '商洛市', value: '商洛市', key: '商洛市'}
+        ]}, 
+      {label: '甘肃省', value: '甘肃省', key: '甘肃省', 
         children: [
-          {label: "拉萨", value: "拉萨", key: "拉萨"},
-        ]
-      },
-      { label: "新疆", value: "新疆", key: "新疆",
+          {label: '兰州市', value: '兰州市', key: '兰州市'}, 
+          {label: '嘉峪关市', value: '嘉峪关市', key: '嘉峪关市'}, 
+          {label: '金昌市', value: '金昌市', key: '金昌市'}, 
+          {label: '白银市', value: '白银市', key: '白银市'}, 
+          {label: '天水市', value: '天水市', key: '天水市'}, 
+          {label: '武威市', value: '武威市', key: '武威市'}, 
+          {label: '张掖市', value: '张掖市', key: '张掖市'}, 
+          {label: '平凉市', value: '平凉市', key: '平凉市'}, 
+          {label: '酒泉市', value: '酒泉市', key: '酒泉市'}, 
+          {label: '庆阳市', value: '庆阳市', key: '庆阳市'}, 
+          {label: '定西市', value: '定西市', key: '定西市'}, 
+          {label: '陇南市', value: '陇南市', key: '陇南市'}, 
+          {label: '临夏回族自治州', value: '临夏回族自治州', key: '临夏回族自治州'}, 
+          {label: '甘南藏族自治州', value: '甘南藏族自治州', key: '甘南藏族自治州'}
+        ]}, 
+      {label: '青海省', value: '青海省', key: '青海省', 
         children: [
-          {label: "乌鲁木齐", value: "乌鲁木齐", key: "乌鲁木齐"},
-        ]
-      },
-      { label: "云南省", value: "云南省", key: "云南省",
+          {label: '西宁市', value: '西宁市', key: '西宁市'}, 
+          {label: '海东市', value: '海东市', key: '海东市'}, 
+          {label: '海北藏族自治州', value: '海北藏族自治州', key: '海北藏族自治州'}, 
+          {label: '黄南藏族自治州', value: '黄南藏族自治州', key: '黄南藏族自治州'}, 
+          {label: '海南藏族自治州', value: '海南藏族自治州', key: '海南藏族自治州'}, 
+          {label: '果洛藏族自治州', value: '果洛藏族自治州', key: '果洛藏族自治州'}, 
+          {label: '玉树藏族自治州', value: '玉树藏族自治州', key: '玉树藏族自治州'}, 
+          {label: '海西蒙古族藏族自治州', value: '海西蒙古族藏族自治州', key: '海西蒙古族藏族自治州'}
+        ]},
+      {label: '宁夏回族自治区', value: '宁夏回族自治区', key: '宁夏回族自治区', 
         children: [
-          {label: "昆明", value: "昆明", key: "昆明"},
-        ]
-      },
-      { label: "浙江省", value: "浙江省", key: "浙江省",
+          {label: '银川市', value: '银川市', key: '银川市'}, 
+          {label: '石嘴山市', value: '石嘴山市', key: '石嘴山市'}, 
+          {label: '吴忠市', value: '吴忠市', key: '吴忠市'}, 
+          {label: '固原市', value: '固原市', key: '固原市'}, 
+          {label: '中卫市', value: '中卫市', key: '中卫市'}
+        ]}, 
+      {label: '新疆维吾尔自治区', value: '新疆维吾尔自治区', key: '新疆维吾尔自治区', 
         children: [
-          {label: "杭州", value: "杭州", key: "杭州"},
-          {label: "嘉兴", value: "嘉兴", key: "嘉兴"},
-          {label: "湖州", value: "湖州", key: "湖州"},
-          {label: "金华", value: "金华", key: "金华"},
-          {label: "宁波", value: "宁波", key: "宁波"},
-          {label: "衢州", value: "衢州", key: "衢州"},
-          {label: "绍兴", value: "绍兴", key: "绍兴"},
-          {label: "台州", value: "台州", key: "台州"},
-          {label: "温州", value: "温州", key: "温州"},
-        ]
-      },
-      // { label: "台湾", value: "台湾", key: "台湾", disabled:true },
-      // { label: "香港", value: "香港", key: "香港", disabled:true },
-      // { label: "澳门", value: "澳门", key: "澳门", disabled:true },
+          {label: '乌鲁木齐市', value: '乌鲁木齐市', key: '乌鲁木齐市'}, 
+          {label: '克拉玛依市', value: '克拉玛依市', key: '克拉玛依市'}, 
+          {label: '吐鲁番市', value: '吐鲁番市', key: '吐鲁番市'}, 
+          {label: '哈密市', value: '哈密市', key: '哈密市'}, 
+          {label: '昌吉回族自治州', value: '昌吉回族自治州', key: '昌吉回族自治州'}, 
+          {label: '博尔塔拉蒙古自治州', value: '博尔塔拉蒙古自治州', key: '博尔塔拉蒙古自治州'}, 
+          {label: '巴音郭楞蒙古自治州', value: '巴音郭楞蒙古自治州', key: '巴音郭楞蒙古自治州'}, 
+          {label: '阿克苏地区', value: '阿克苏地区', key: '阿克苏地区'}, 
+          {label: '克孜勒苏柯尔克孜自治州', value: '克孜勒苏柯尔克孜自治州', key: '克孜勒苏柯尔克孜自治州'}, 
+          {label: '喀什地区', value: '喀什地区', key: '喀什地区'}, 
+          {label: '和田地区', value: '和田地区', key: '和田地区'}, 
+          {label: '伊犁哈萨克自治州', value: '伊犁哈萨克自治州', key: '伊犁哈萨克自治州'}, 
+          {label: '塔城地区', value: '塔城地区', key: '塔城地区'}, 
+          {label: '阿勒泰地区', value: '阿勒泰地区', key: '阿勒泰地区'}, 
+          {label: '石河子市', value: '石河子市', key: '石河子市'}, 
+          {label: '阿拉尔市', value: '阿拉尔市', key: '阿拉尔市'}, 
+          {label: '图木舒克市', value: '图木舒克市', key: '图木舒克市'}, 
+          {label: '五家渠市', value: '五家渠市', key: '五家渠市'}, 
+          {label: '北屯市', value: '北屯市', key: '北屯市'}, 
+          {label: '铁门关市', value: '铁门关市', key: '铁门关市'}, 
+          {label: '双河市', value: '双河市', key: '双河市'}, 
+          {label: '可克达拉市', value: '可克达拉市', key: '可克达拉市'}, 
+          {label: '昆玉市', value: '昆玉市', key: '昆玉市'}
+        ]}, 
+      {label: '香港', value: '香港', key: '香港', 
+        children: [
+          {label: '香港', value: '香港', key: '香港'}
+        ]}, 
+      {label: '澳门', value: '澳门', key: '澳门', 
+        children: [
+          {label: '澳门', value: '澳门', key: '澳门'}
+        ]}, 
+      {label: '台湾省', value: '台湾省', key: '台湾省', 
+        children: [
+          {label: '台北市', value: '台北市', key: '台北市'}, 
+          {label: '高雄市', value: '高雄市', key: '高雄市'}, 
+          {label: '新北市', value: '新北市', key: '新北市'}, 
+          {label: '台中市', value: '台中市', key: '台中市'}, 
+          {label: '台南市', value: '台南市', key: '台南市'}, 
+          {label: '桃园市', value: '桃园市', key: '桃园市'}, 
+          {label: '基隆市', value: '基隆市', key: '基隆市'}, 
+          {label: '新竹市', value: '新竹市', key: '新竹市'}, 
+          {label: '嘉义市', value: '嘉义市', key: '嘉义市'}, 
+          {label: '新竹县', value: '新竹县', key: '新竹县'}, 
+          {label: '宜兰县', value: '宜兰县', key: '宜兰县'}, 
+          {label: '苗栗县', value: '苗栗县', key: '苗栗县'}, 
+          {label: '彰化县', value: '彰化县', key: '彰化县'}, 
+          {label: '云林县', value: '云林县', key: '云林县'}, 
+          {label: '南投县', value: '南投县', key: '南投县'}, 
+          {label: '嘉义县', value: '嘉义县', key: '嘉义县'}, 
+          {label: '屏东县', value: '屏东县', key: '屏东县'}, 
+          {label: '台东县', value: '台东县', key: '台东县'}, 
+          {label: '花莲县', value: '花莲县', key: '花莲县'}, 
+          {label: '澎湖县', value: '澎湖县', key: '澎湖县'}
+        ]}
     ];
+
     if(this.state.city2!==this.props.city) {
       this.onChange(['',this.props.city]);
       this.setCity2(this.props.city);

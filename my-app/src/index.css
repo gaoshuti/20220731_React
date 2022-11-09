@@ -34,8 +34,9 @@ html,body{
 }
 
 /* infowindoww样式 */
-.BMap_pop img {
-	display: none !important;
+.hmtabdiv{
+  height: 260px;
+  overflow: auto;
 }
 
 .site-layout-background {
