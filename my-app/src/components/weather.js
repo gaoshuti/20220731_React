@@ -41,7 +41,7 @@ const getLevel = (text) => {
   else if(text==="中") return 2;
   else if(text==="大" || text==="暴") return 3;
   else{
-    console.log(text);
+    // console.log(text);
     return 0;
   }
 };

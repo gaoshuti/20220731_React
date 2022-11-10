@@ -14,8 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 # from django.urls import re_path as path,include
-from django.conf.urls import url,include
-
+from django.conf.urls import include
+from django.urls import re_path
 from django.contrib import admin
 
 # from map.views import listorders
@@ -23,6 +23,6 @@ from django.contrib import admin
 urlpatterns = [
     # path(r'^admin/', admin.site.urls),
     # path('map/',include('map.urls')),
-    url(r'^admin/', admin.site.urls),
-    url('map/',include('map.urls')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path('map/',include('map.urls')),
 ]
