@@ -78,10 +78,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'weather',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'POST': '3306'
+        'USER': os.getenv('WEATHER_USER'),
+        'PASSWORD': os.getenv('WEATHER_PASSWORD'),
+        'HOST': os.getenv('WEATHER_HOST'),
+        'POST': os.getenv('WEATHER_POST')
     }
 }
 
