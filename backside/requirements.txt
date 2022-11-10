@@ -1,0 +1,7 @@
+Django==3.2
+PyMySQL==1.0.2
+akshare==1.6.13
+chinese_calendar==1.7.2
+numpy
+tensorflow
+pandas
