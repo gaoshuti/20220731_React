@@ -5,3 +5,6 @@ chinese_calendar==1.7.2
 numpy
 tensorflow
 pandas
+scikit-learn
+matplotlib
+statsmodels
