@@ -355,7 +355,7 @@ function FormDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`http://localhost:3000/weatherregression`,
+      url:`${process.env.REACT_APP_API}/weatherregression`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){

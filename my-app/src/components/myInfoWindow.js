@@ -91,7 +91,7 @@ class Board extends React.Component {
     // console.log('无数据')
     // for(let i=1;i<cities.length;i++){
     //   let city=cities[i];
-    await axios.get("http://localhost:3000/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
+    await axios.get(process.env.REACT_APP_API + "/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
       result=res.data['data'];
       cities=res.data['cities'];
     });
@@ -183,7 +183,7 @@ class Board extends React.Component {
       return;
     } 
     // console.log('无数据');
-    await axios.get("http://localhost:3000/historyret/"+area).then((res)=>{
+    await axios.get(process.env.REACT_APP_API + "/historyret/"+area).then((res)=>{
       result=res.data['data'];
     });
     data1.push(result['ret']);
@@ -206,7 +206,7 @@ class Board extends React.Component {
       return;
     } 
     // console.log('无数据');
-    await axios.get("http://localhost:3000/datasource/"+area).then((res)=>{
+    await axios.get(process.env.REACT_APP_API + "/datasource/"+area).then((res)=>{
       result=res.data['data'];
     });
     var i=0;
@@ -236,7 +236,7 @@ class Board extends React.Component {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`http://localhost:3000/gettip`,
+      url:`process.env.REACT_APP_API/gettip`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){

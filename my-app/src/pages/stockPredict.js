@@ -54,7 +54,7 @@ function SelectDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`http://localhost:3000/stockpredict`,
+      url:`${process.env.REACT_APP_API}/stockpredict`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){
@@ -265,7 +265,7 @@ class StockPredict extends React.Component{
       predict: [],              //预测的股票价格
       dates: [],                //数据中的交易日日期
     };
-    axios.get("http://localhost:3000/liststkdate/"+props.stkcd).then((res)=>{
+    axios.get(process.env.REACT_APP_API + "/liststkdate/"+props.stkcd).then((res)=>{
       var result=res.data;
       // console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
       if(result['ret']===0)  {//成功
@@ -289,7 +289,7 @@ class StockPredict extends React.Component{
   async setStkcd(stkcd) {
     this.setButtonFlag(true);
     if(stkcd.length===6) {
-      await axios.get("http://localhost:3000/liststkdate/"+stkcd).then((res)=>{
+      await axios.get(process.env.REACT_APP_API + "/liststkdate/"+stkcd).then((res)=>{
         var result=res.data;
         if(result['ret']===0)  {//成功
           this.setState({
