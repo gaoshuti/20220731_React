@@ -156,7 +156,16 @@ function StockInfo(props) {
           <p>注 册 地 ：{props.info['place1']}</p>
         </Col>
         <Col span={12}>
-          <p> 办 公 地 ：{props.info['place2']}</p>
+          <p> 办 公 地 ：
+            {props.kind===1?
+              <Button size="small" type="ghost" onClick={props.searchCity}>
+                {props.info['place2']}
+              </Button>
+              :
+              <>{props.info['place2']}</>
+            }
+            
+          </p>
         </Col>
       </Row>
       <Row>
@@ -558,7 +567,6 @@ class StockPrice extends React.Component {
 class StockDemo extends React.Component {
   constructor(props) {
     super(props);
-    // console.log('props.info:',props.info);
     let stkcd = props.stkcd;
     this.state = {
       stkcd: stkcd,       //股票代码
@@ -764,6 +772,7 @@ class StockDemo extends React.Component {
   //     info: this.state.info
   //   });
   // }
+  
   render() {
     // console.log('parent data',this.state.data[0]);
     if(this.state.stkcd2!==this.props.stkcd){
@@ -786,7 +795,12 @@ class StockDemo extends React.Component {
         <Divider></Divider>
         {this.state.info['name']===''?<div><p>暂无数据</p></div>:
           <div>
-            <StockInfo info={this.state.info}/>
+            <StockInfo 
+              info={this.state.info} 
+              searchCity={this.props.searchCity}
+              kind={this.props.kind}
+            
+            />
             <Divider/>
             {this.state.data.length===0?
               <div><p>暂未开市</p></div>:

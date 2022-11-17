@@ -125,6 +125,7 @@ class Weather extends React.Component{
   
   onChange(value) {
     // console.log('change');
+    this.props.setCity(value[1]);
     axios.get(process.env.REACT_APP_API + "/weather/"+value[1]).then((res)=>{
       this.setState({
         city: value[1],
