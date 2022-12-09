@@ -21,10 +21,10 @@ html,body{
 }
 .logo {
   float: left;
-  width: 120px;
-  height: 31px;
+  width: 216px;
+  height: 32px;
   margin: 16px 24px 16px 0;
-  background: rgba(255, 255, 255, 0.3);
+  background: url(/public/imgs/logo.png) 0/100% no-repeat;
 }
 .search{
   float: right;
@@ -117,9 +117,9 @@ html,body{
   background: #141414;
   border-color: #141414;
 }
-.anchorBL{ 
-	display:none; 
-} 
+.anchorBL{
+	display:none;
+}
 
 
 
@@ -173,4 +173,3 @@ html,body{
   .game-info {
     margin-left: 20px;
   } */
-  

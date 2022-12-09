@@ -4,7 +4,7 @@ import {
   Button,
   Collapse,
   Checkbox,
-  Col, 
+  Col,
   Divider,
   Form,
   Radio,
@@ -12,8 +12,8 @@ import {
   Select,
   Table,
   TreeSelect,
-  
-  
+
+
 } from "antd";
 import EChartsReact from 'echarts-for-react';
 
@@ -323,8 +323,8 @@ function FormDemo(props) {
         },
       ],
     },
-    
-  
+
+
   ];
   const onFinish = async (values) => {
     props.setButtonFlag(true);
@@ -340,7 +340,7 @@ function FormDemo(props) {
       console.log('weather else:',props.checkedList)
       formData.append('weather',props.checkedList.join('#'));
     }
-    
+
     if(props.area.length===0){
       console.log('area 0:',props.area)
       props.setArea(['上海']);
@@ -355,7 +355,7 @@ function FormDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`${process.env.REACT_APP_API}/weatherregression`,
+      url:'/weatherregression',
       data: formData,
     }).then(res => {
       if(res && res.status === 200){
@@ -377,7 +377,7 @@ function FormDemo(props) {
       console.log(err);
       props.setButtonFlag(false);
     });
-    
+
   };
   const changeTreeSelect = (value,label,extra) => {
     props.setArea(value);
@@ -486,7 +486,7 @@ function FormDemo(props) {
           </Checkbox.Group>
           <Divider />
         </Form.Item>
-        
+
         <Form.Item name="model" label="模型"
           rules={[
             {
@@ -504,7 +504,7 @@ function FormDemo(props) {
             treeData={treeOptions}
             showSearch={true}
             treeCheckable={true}
-            showCheckedStrategy={SHOW_PARENT} 
+            showCheckedStrategy={SHOW_PARENT}
             onChange={changeTreeSelect}
             value={props.area}
           />
@@ -522,7 +522,7 @@ class RegDemo extends React.Component {
     super(props);
     this.state = {
       plainOptions: [
-        'max', 'min', 'wind', 'pres', 'tempDiff7', 
+        'max', 'min', 'wind', 'pres', 'tempDiff7',
         'snow', 'rain', 'cloud', 'API', 'AQI'
       ],//天气相关多选框内容
       checkedList: [],//天气相关多选框选中内容
@@ -580,7 +580,7 @@ class RegDemo extends React.Component {
   render() {
     return (
       <div>
-        <FormDemo 
+        <FormDemo
           setChecked={this.setChecked.bind(this)}
           setControlChecked={this.setControlChecked.bind(this)}
           setArea={this.setArea.bind(this)}
@@ -595,7 +595,7 @@ class RegDemo extends React.Component {
           buttonFlag={this.state.buttonFlag}
           setButtonFlag={this.setButtonFlag.bind(this)}
         />
-          
+
       </div>
     );
   }
@@ -738,7 +738,7 @@ function RegCoefficientDemo(props) {
         <Column title="变量" width={200} dataIndex="value" key="value" fixed="left"/>
         <Column title="总系数" width={100} dataIndex="allCoefficient" key="allCoefficient" fixed="left"/>
         {/* <ColumnGroup title="各城市回归结果"  fixed="left"> */}
-          
+
           {props.result['cities'].map((city) => {
             return (
               <Column title={city} dataIndex={city} key={city} />
@@ -755,7 +755,7 @@ function ResultDemo(props){
   if(props.result.length===0){
     console.log('history ret is null');
     return(
-      <div><p>请先设置数据</p></div>  
+      <div><p>请先设置数据</p></div>
     );
   }
   console.log('resultDemo submitList',props.submitList);
@@ -764,15 +764,15 @@ function ResultDemo(props){
     <div>
       <Collapse defaultActiveKey={['1']} ghost>
         <Panel header="散点图" key="1">
-          <ScatterDemo 
+          <ScatterDemo
             label={props.label}
-            submitList={props.submitList}  
+            submitList={props.submitList}
             result={props.result}
           />
         </Panel>
         <Panel header="回归系数" key="2">
           <RegCoefficientDemo
-            submitList={props.submitList} 
+            submitList={props.submitList}
             result={props.result}
           />
         </Panel>
@@ -818,7 +818,7 @@ class WeatherReg extends React.Component {
     return(
       <Collapse lapse defaultActiveKey={['1']} activeKey={this.state.activeKey} onChange={this.onChange.bind(this)}>
         <Panel header="设置数据" key="1">
-          <RegDemo 
+          <RegDemo
             setResult={this.setResult.bind(this)}
             // checkedList={this.state.checkedList}
             indeterminate={this.state.indeterminate}
@@ -828,9 +828,9 @@ class WeatherReg extends React.Component {
           />
         </Panel>
         <Panel header="回归结果" key="2">
-          <ResultDemo 
+          <ResultDemo
             result={this.state.result}
-            submitList={this.state.submitList}  
+            submitList={this.state.submitList}
             label={this.state.label}
           />
         </Panel>

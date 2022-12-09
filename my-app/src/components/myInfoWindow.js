@@ -2,7 +2,7 @@ import React from "react";
 import "../index.css";
 import {
   Button,
-  Col, 
+  Col,
   Row,
   Table,
   Tabs,
@@ -79,7 +79,7 @@ class Board extends React.Component {
     };
     if(this.props.level===0)this.getHistoryRet(this.state.name);
     else this.getHistory(props.name,'rain',-1,-1);
-    
+
   }
   async getHistory(area,label,minValue=-1,maxValue=-1) {
     var data1=[],tempdata={},result,cities;
@@ -87,11 +87,11 @@ class Board extends React.Component {
     if(this.state.cities[0]===area && this.state.target===label+'/'+minValue+'/'+maxValue){
       // console.log('已有数据')
       return;
-    } 
+    }
     // console.log('无数据')
     // for(let i=1;i<cities.length;i++){
     //   let city=cities[i];
-    await axios.get(process.env.REACT_APP_API + "/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
+    await axios.get("/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
       result=res.data['data'];
       cities=res.data['cities'];
     });
@@ -101,7 +101,7 @@ class Board extends React.Component {
       historyInfo.num=Number(result[key]['num']);
       historyInfo.aboveNum=Number(result[key]['above'].toFixed(2));
       historyInfo.belowNum=Number(result[key]['below'].toFixed(2));
-      
+
       tempdata[key]=historyInfo;
     }
     // }
@@ -181,9 +181,9 @@ class Board extends React.Component {
     if(this.state.cities[0]===area && this.state.target==='history ret'){
       // console.log('已有数据');
       return;
-    } 
+    }
     // console.log('无数据');
-    await axios.get(process.env.REACT_APP_API + "/historyret/"+area).then((res)=>{
+    await axios.get("/historyret/"+area).then((res)=>{
       result=res.data['data'];
     });
     data1.push(result['ret']);
@@ -204,9 +204,9 @@ class Board extends React.Component {
     if(this.state.cities[0]===area && this.state.target==='data source'){
       // console.log('已有数据');
       return;
-    } 
+    }
     // console.log('无数据');
-    await axios.get(process.env.REACT_APP_API + "/datasource/"+area).then((res)=>{
+    await axios.get("/datasource/"+area).then((res)=>{
       result=res.data['data'];
     });
     var i=0;
@@ -226,7 +226,7 @@ class Board extends React.Component {
     if(this.state.cities[0]===area && this.state.target==='tip'){
       // console.log('已有数据');
       return;
-    } 
+    }
     // console.log('无数据');
     const formData = new FormData();
     formData.append('city',area);
@@ -236,7 +236,7 @@ class Board extends React.Component {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`process.env.REACT_APP_API/gettip`,
+      url:`/gettip`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){
@@ -278,9 +278,9 @@ class Board extends React.Component {
       this.getHistory(this.state.name,activeKey,-1,-1);
       this.setEchartsFlag(false);
     }
-    
+
   }
-  
+
   render() {
     //this.props.level--点击图标的等级 是否有历史收益率和建议
     return (
@@ -299,7 +299,7 @@ class Board extends React.Component {
             }
           </TabPane>
           }
-          
+
           <TabPane tab={this.state.labels[0]} key="rain">
             <div className="hmtabdiv">
               <HistoryPercentile label={this.state.cixu[0]} result={this.state.result}/>
@@ -345,7 +345,7 @@ class MyInfoWindow extends React.Component{
     return(
       <div>
         {this.props.isOpen===false?<></>:
-        <CustomOverlay 
+        <CustomOverlay
           position={{
             lng: this.props.selectPosition.lng,
             lat: this.props.selectPosition.lat,
@@ -361,9 +361,9 @@ class MyInfoWindow extends React.Component{
               </h3>
               </Col>
               <Col span={12}>
-                <Button 
+                <Button
                   style={{float:'right',margin:5}}
-                  type="link" 
+                  type="link"
                   icon={this.getPic()}
                   onClick={this.props.closeInfoWindow}
                 ></Button>
@@ -371,15 +371,15 @@ class MyInfoWindow extends React.Component{
               </Col>
             </Row>
             <Divider style={{margin:0}}/>
-            <Board 
-              name={this.props.selectPosition.name} 
+            <Board
+              name={this.props.selectPosition.name}
               selectWeather={this.props.selectWeather}
               level={this.props.selectWeather===''?1:0}
             />
           </div>
         </CustomOverlay>
         }
-        
+
       </div>
     );
   }

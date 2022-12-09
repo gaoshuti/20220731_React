@@ -289,9 +289,9 @@ function MySider(props) {
     },
   ];
   return (
-    <Sider 
-      collapsible 
-      collapsed={props.collapsed} 
+    <Sider
+      collapsible
+      collapsed={props.collapsed}
       onCollapse={(value) => props.setCollapsed(value)}
       style={{
         overflowY: 'auto',
@@ -342,13 +342,13 @@ function MyMarker(props) {
               position={{ lng: item.lng, lat: item.lat }}
               onClick={props.clickMarker}
               onMouseover={props.moveInMarker}
-              
+
               // fillColor={'#1abc9c'}
               // onMouseout={this.moveOutMarker.bind(this)}
               // icon={"loc_blue"}
               icon={"simple_blue"}
             />
-           
+
         );
       })}
       {candidate.map((item) => {
@@ -384,9 +384,9 @@ function MyMarker(props) {
         title={props.selectPosition.name+' '+props.selectWeather}
         onClose={props.closeInfoWindow}
       >
-       
-        <Board 
-          name={props.selectPosition.name} 
+
+        <Board
+          name={props.selectPosition.name}
           selectWeather={props.selectWeather}
           level={props.selectWeather===''?1:0}
         />
@@ -532,10 +532,10 @@ class MyMap extends React.Component {
       // this.state.setLastPosition(this.props.selectPosition.name);
       this.state.setPosition(name, e.target.latLng.lng, e.target.latLng.lat);
     }
-    
+
   }
   moveInMarker(e) {
-    if(this.state.isLocked) return; 
+    if(this.state.isLocked) return;
     let name;
     let lng = e.target.latLng.lng.toFixed(4);
     let lat = e.target.latLng.lat.toFixed(4);
@@ -698,7 +698,7 @@ class History extends React.Component {
     let result;
     if((name in city2districtId)===false) result = '';
     else{
-      await axios.get(process.env.REACT_APP_API + "/weather/"+name).then((res)=>{
+      await axios.get("/weather/"+name).then((res)=>{
         let weatherInfo = res.data['data']['day'][0];
         // console.log(res.data['data']['day']);
         // console.log(weatherInfo['text']+' '+weatherInfo['low']+'­°C-'+weatherInfo['high']+'­°C');

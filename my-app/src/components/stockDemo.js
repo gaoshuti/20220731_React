@@ -3,12 +3,12 @@ import React from "react";
 import "../index.css";
 import {
   Button,
-  Col, 
+  Col,
   Divider,
   Form,
   Input,
   Row,
-  
+
 } from "antd";
 import EChartsReact from 'echarts-for-react';
 import { useNavigate } from "react-router-dom";
@@ -33,16 +33,16 @@ function SelectDemo(props) {
       props.setButtonFlag(true);
       console.log('submit:',values.stkcd);
       let stkcd = values.stkcd;
-      await axios.get(process.env.REACT_APP_API + "/stockInfo/"+stkcd).then((res0)=>{
+      await axios.get("/stockInfo/"+stkcd).then((res0)=>{
         var result0=res0.data;
         if(result0['ret']===0)  {//成功
           props.setInfo(result0['data']);
-          axios.get(process.env.REACT_APP_API + "/stock365/"+stkcd).then((res)=>{
+          axios.get("/stock365/"+stkcd).then((res)=>{
             var result=res.data;
             if(result['ret']===0)  {//成功
               // console.log('stock365:',result['data'])
               props.setResult(result);
-              axios.get(process.env.REACT_APP_API + "/stock/"+stkcd).then((res2)=>{
+              axios.get("/stock/"+stkcd).then((res2)=>{
                 var result1=res2.data;
                 if(result['ret']===0)  {//成功
                   // console.log('stock:',result1['data'])
@@ -106,8 +106,8 @@ function SelectDemo(props) {
             <Col span={6}>
               <Input maxLength={6}
                 bordered={false}
-                defaultValue={props.stkcd}	
-                value={props.stkcd}	
+                defaultValue={props.stkcd}
+                value={props.stkcd}
                 // pattern={'\d+'}
                 onPressEnter={onInputChange}
                 onChange={onInputChange}
@@ -164,7 +164,7 @@ function StockInfo(props) {
               :
               <>{props.info['place2']}</>
             }
-            
+
           </p>
         </Col>
       </Row>
@@ -187,8 +187,9 @@ function StockInfo(props) {
     </div>
   );
 }
+
 function StockHistoryPrice(props) {
-  // console.log('history:',props.historyData[0]);//日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+  // console.log('history:',props.historyData[0]);//日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
   let data0 = props.splitData(props.historyData);
   let option = {
     title: {
@@ -219,10 +220,10 @@ function StockHistoryPrice(props) {
           // htmlStr += seriesName+ '<br/>';
           htmlStr += '股价<br/>';
           var point2 = '<span style="margin-left:3px;margin-right:8px;display:inline-block;width:4px;height:4px;border-radius:2px;background-color:'+color+';"></span>';
-          htmlStr += point2 + 'open：' + value[1] + '<br/>';
-          htmlStr += point2 + 'close：' + value[2] + '<br/>';
-          htmlStr += point2 + 'highest：' + value[3] + '<br/>';
-          htmlStr += point2 + 'lowest：' + value[4] + '<br/>';
+          htmlStr += point2 + '开盘：' + value[1] + '<br/>';
+          htmlStr += point2 + '收盘：' + value[2] + '<br/>';
+          htmlStr += point2 + '最高：' + value[3] + '<br/>';
+          htmlStr += point2 + '最低：' + value[4] + '<br/>';
           var otherInfo = data0.otherInfo[xName];
           let color1 = '#888888'
           htmlStr += point1(color1) + '成交量：' + otherInfo[0] + '<br/>';
@@ -231,7 +232,7 @@ function StockHistoryPrice(props) {
           htmlStr += point1(color1) + '涨跌幅：' + otherInfo[3] + '%<br/>';
           htmlStr += point1(color1) + '涨跌额：' + otherInfo[4] + '<br/>';
           htmlStr += point1(color1) + '换手率：' + otherInfo[5] + '%<br/>';
-          
+
           htmlStr += '</div>';
         }
         return htmlStr;
@@ -363,14 +364,13 @@ function StockHistoryPrice(props) {
       <EChartsReact option={option}/>
     </div>
   );
-  
-  
 }
+
 class StockPrice extends React.Component {
   componentDidMount() {
     //设置定时器，5s更新一次
     this.timer = setInterval(() => {
-      axios.get(process.env.REACT_APP_API + "/stock/"+this.props.stkcd).then((res)=>{
+      axios.get("/stock/"+this.props.stkcd).then((res)=>{
         console.log('loading:',res.data['data']['data'][res.data['data']['data'].length-1][0]);
         var result=res.data;
         if(res.data['data']['data'][res.data['data']['data'].length-1][0].split(' ')[1]==='15:00:00'){
@@ -427,11 +427,11 @@ class StockPrice extends React.Component {
             var otherInfo = data0.otherInfo[xName];
             htmlStr += '股价<br/>';
             var point2 = '<span style="margin-left:3px;margin-right:8px;display:inline-block;width:4px;height:4px;border-radius:2px;background-color:'+color+';"></span>';
-            htmlStr += point2 + 'open：' + otherInfo[0] + '<br/>';
-            htmlStr += point2 + 'close：' + otherInfo[1] + '<br/>';
-            htmlStr += point2 + 'highest：' + otherInfo[2] + '<br/>';
-            htmlStr += point2 + 'lowest：' + otherInfo[3] + '<br/>';
-            htmlStr += point2 + 'change：' + ((otherInfo[1]/lastPrice)*100-100).toFixed(2) + '%<br/>';
+            htmlStr += point2 + '开盘：' + otherInfo[0] + '<br/>';
+            htmlStr += point2 + '收盘：' + otherInfo[1] + '<br/>';
+            htmlStr += point2 + '最高：' + otherInfo[2] + '<br/>';
+            htmlStr += point2 + '最低：' + otherInfo[3] + '<br/>';
+            htmlStr += point2 + '涨跌幅：' + ((otherInfo[1]/lastPrice)*100-100).toFixed(2) + '%<br/>';
             let color1 = '#888888'
             htmlStr += point1(color1) + '成交量：' + otherInfo[4] + '<br/>';
             htmlStr += point1(color1) + '成交额：' + otherInfo[5] + '<br/>';
@@ -539,16 +539,16 @@ class StockPrice extends React.Component {
               color: '#333'
             },
             label: {
-              position:"end" 
+              position:"end"
             },
             data: [
-              { 
+              {
                 yAxis: lastPrice ,
               }
             ]
           }
         },
-        
+
       ]
     };
     return option;
@@ -562,7 +562,7 @@ class StockPrice extends React.Component {
       </div>
     );
   }
-  
+
 }
 class StockDemo extends React.Component {
   constructor(props) {
@@ -586,8 +586,8 @@ class StockDemo extends React.Component {
       // buttonFlag: false,  //控制按钮是否可用
     };
     console.log('submit:',stkcd);
-    
-    axios.get(process.env.REACT_APP_API + "/stockInfo/"+stkcd).then((res)=>{
+
+    axios.get("/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -608,20 +608,20 @@ class StockDemo extends React.Component {
         console.log(result['msg']);
       };
     });
-    
-    axios.get(process.env.REACT_APP_API + "/stock365/"+stkcd).then((res)=>{
+
+    axios.get("/stock365/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
-          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get(process.env.REACT_APP_API + "/stock/"+stkcd).then((res2)=>{
+        axios.get("/stock/"+stkcd).then((res2)=>{
           var result1=res2.data;
           if(result1['ret']===0)  {//成功
             this.setState({
               data: result1['data']['data'],
-              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价 
+              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
             });
           } else { //失败
             console.log(result['msg'])
@@ -695,7 +695,7 @@ class StockDemo extends React.Component {
       stkcd: stkcd,
       stkcd2: stkcd
     });
-    axios.get(process.env.REACT_APP_API + "/stockInfo/"+stkcd).then((res)=>{
+    axios.get("/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -716,19 +716,19 @@ class StockDemo extends React.Component {
         console.log(result['msg']);
       };
     });
-    axios.get(process.env.REACT_APP_API + "/stock365/"+stkcd).then((res)=>{
+    axios.get("/stock365/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
-          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get(process.env.REACT_APP_API + "/stock/"+stkcd).then((res2)=>{
+        axios.get("/stock/"+stkcd).then((res2)=>{
           var result1=res2.data;
           if(result1['ret']===0)  {//成功
             this.setState({
               data: result1['data']['data'],
-              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价 
+              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
             });
           } else { //失败
             console.log(result['msg'])
@@ -752,14 +752,14 @@ class StockDemo extends React.Component {
     // console.log('result["data"]["data"]:',result['data']['data']);
     this.setState({
       historyData: result['data']['data'],
-      //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率 
+      //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
     });
   }
   setData(result) {
     // console.log('setData:',result['data']['data'][0][0]);
     this.setState({
       data: result['data']['data'],
-      //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价 
+      //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
     });
   }
   setButtonFlag(flag) {
@@ -772,7 +772,7 @@ class StockDemo extends React.Component {
   //     info: this.state.info
   //   });
   // }
-  
+
   render() {
     // console.log('parent data',this.state.data[0]);
     if(this.state.stkcd2!==this.props.stkcd){
@@ -782,7 +782,7 @@ class StockDemo extends React.Component {
     return(
       <div>
         {/* <p>实时股价</p> */}
-        <SelectDemo 
+        <SelectDemo
           stkcd={this.state.stkcd}
           setStkcd={this.setStkcd.bind(this)}
           kind={this.props.kind}
@@ -795,11 +795,10 @@ class StockDemo extends React.Component {
         <Divider></Divider>
         {this.state.info['name']===''?<div><p>暂无数据</p></div>:
           <div>
-            <StockInfo 
-              info={this.state.info} 
+            <StockInfo
+              info={this.state.info}
               searchCity={this.props.searchCity}
               kind={this.props.kind}
-            
             />
             <Divider/>
             {this.state.data.length===0?
@@ -816,7 +815,7 @@ class StockDemo extends React.Component {
                   // lastPrice={this.state.historyData[this.state.historyData.length-1][2]}
                 />
               )
-            
+
             }
             <Divider/>
             {this.state.historyData.length===0?<div><p>暂无数据</p></div>:
@@ -824,12 +823,12 @@ class StockDemo extends React.Component {
               historyData={this.state.historyData}
               splitData={this.splitData.bind(this)}
             />}
-            
+            <Divider/>
           </div>
         }
       </div>
     );
   }
-  
+
 }
 export default StockDemo;

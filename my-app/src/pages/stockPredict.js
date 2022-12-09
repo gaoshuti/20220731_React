@@ -3,13 +3,13 @@ import "../index.css";
 import {
   Button,
   Card,
-  Col, 
+  Col,
   DatePicker,
   Divider,
   Form,
   Input,
   Row,
-  
+
 } from "antd";
 import EChartsReact from 'echarts-for-react';
 
@@ -33,7 +33,7 @@ function SelectDemo(props) {
   };
   const onRangePickerChange = (dates, dateStrings) => {
     console.log('dateStrings:',dateStrings);
-    
+
     props.setSelectedDate(dateStrings[0].replace(/-/g,''),dateStrings[1].replace(/-/g,''));
   };
   const onFinish = async (values) => {
@@ -54,7 +54,7 @@ function SelectDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`${process.env.REACT_APP_API}/stockpredict`,
+      url:`/stockpredict`,
       data: formData,
     }).then(res => {
       if(res && res.status === 200){
@@ -71,7 +71,7 @@ function SelectDemo(props) {
       console.log(err);
       props.setButtonFlag(false);
     });
-    
+
   };
   return (
     <>
@@ -101,7 +101,7 @@ function SelectDemo(props) {
           ]}
         >
           <Input allowClear maxLength={6}
-            initialvalue={props.stkcd}	
+            initialvalue={props.stkcd}
             onPressEnter={onInputChange}
             onChange={onInputChange}
           />
@@ -114,7 +114,7 @@ function SelectDemo(props) {
             },
           ]}
         >
-          <RangePicker 
+          <RangePicker
             disabled={props.rangePickerFlag}
             disabledDate={disabledDate}
             onChange={onRangePickerChange}
@@ -126,7 +126,7 @@ function SelectDemo(props) {
           {/* <Row>
             <Col span={6}>
               <Input allowClear maxLength={6}
-                defaultValue={props.stkcd}	
+                defaultValue={props.stkcd}
 
                 onPressEnter={onInputChange}
                 onChange={onInputChange}
@@ -134,7 +134,7 @@ function SelectDemo(props) {
             </Col>
             <Col span={2}></Col>
             <Col span={10}>
-              <Form.Item name='time' 
+              <Form.Item name='time'
                 rules={[
                   {
                     required: true,
@@ -142,7 +142,7 @@ function SelectDemo(props) {
                   },
                 ]}
               >
-                <RangePicker 
+                <RangePicker
                   disabled={props.rangePickerFlag}
                   disabledDate={disabledDate}
                   onChange={onRangePickerChange}
@@ -224,9 +224,9 @@ function PredictData(props) {
       {
         name: 'real',
         type: 'line',
-        lineStyle:{ 
+        lineStyle:{
           color:'red' //改变折线颜色
-        }, 
+        },
         symbol: 'none',
         // areaStyle: {},
         data: data1
@@ -265,7 +265,7 @@ class StockPredict extends React.Component{
       predict: [],              //预测的股票价格
       dates: [],                //数据中的交易日日期
     };
-    axios.get(process.env.REACT_APP_API + "/liststkdate/"+props.stkcd).then((res)=>{
+    axios.get("/liststkdate/"+props.stkcd).then((res)=>{
       var result=res.data;
       // console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
       if(result['ret']===0)  {//成功
@@ -289,7 +289,7 @@ class StockPredict extends React.Component{
   async setStkcd(stkcd) {
     this.setButtonFlag(true);
     if(stkcd.length===6) {
-      await axios.get(process.env.REACT_APP_API + "/liststkdate/"+stkcd).then((res)=>{
+      await axios.get("/liststkdate/"+stkcd).then((res)=>{
         var result=res.data;
         if(result['ret']===0)  {//成功
           this.setState({
@@ -355,10 +355,10 @@ class StockPredict extends React.Component{
         //   background: '#ececec',
         //   height: calc(100% - 50),
         //   padding: '30px',
-          
+
         // }}
       >
-        {/* <SelectDemo 
+        {/* <SelectDemo
           stkcd={this.state.stkcd}
           setStkcd={this.setStkcd.bind(this)}
           rangePickerFlag={this.state.rangePickerFlag}
@@ -382,7 +382,7 @@ class StockPredict extends React.Component{
         <Row gutter={16}>
           <Col span={8}>
             <Card title="设置参数" bordered={true}>
-              <SelectDemo 
+              <SelectDemo
                 stkcd={this.state.stkcd}
                 setStkcd={this.setStkcd.bind(this)}
                 rangePickerFlag={this.state.rangePickerFlag}

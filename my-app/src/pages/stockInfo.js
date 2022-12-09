@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../index.css";
 import {
   Collapse,
-  
+
 } from "antd";
 
 import { useParams } from "react-router-dom";
@@ -21,7 +21,7 @@ function StockInfo(props) {
   const [stkcd2,setStkcd2] = useState('');
   if(stkcd!==stkcd2){
     console.log('stkcd*2:',stkcd2,stkcd)
-    axios.get(process.env.REACT_APP_API + "/stockInfo/"+stkcd).then((res)=>{
+    axios.get("/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         setStkcd2(stkcd);
@@ -32,7 +32,7 @@ function StockInfo(props) {
       };
     });
   }
-  
+
   return(
     <div style={{marginLeft: 50, marginTop: 20}}>
       <StockDemo stkcd={stkcd} kind={2}/>
@@ -43,8 +43,8 @@ function StockInfo(props) {
       </Collapse>
     </div>
   );
-  
-    
+
+
 }
 
 export default StockInfo;

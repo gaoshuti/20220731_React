@@ -51,12 +51,12 @@ function MyHeader(props) {
       // props.setValue(value);
       // navigate("/city");
       navigate(`/city/${value}`,{replace: true});
-  
+
     }else{
       console.log('search error!');
       navigate('/error');
     }
-  
+
   }
   return (
     <Header >
@@ -64,7 +64,7 @@ function MyHeader(props) {
       <div className="search">
         <Search
           maxLength={6}
-          placeholder="input search text"
+          placeholder="搜索股票、城市"
           allowClear
           onSearch={onSearch}
         />
