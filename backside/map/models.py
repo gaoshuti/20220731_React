@@ -119,5 +119,5 @@ class stkBacktestResult(models.Model): # 股票对应的回测结果
   date=models.TextField()#日期
   asset=models.TextField() #资产
   price=models.TextField() #股价
-  inDate=models.CharField(max_length=2550) #买入日期
-  outDate=models.CharField(max_length=2550) #卖出日期
+  inDate=models.TextField() #买入日期
+  outDate=models.TextField() #卖出日期
