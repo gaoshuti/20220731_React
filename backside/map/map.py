@@ -1,6 +1,6 @@
 from webbrowser import get
 from django.http import JsonResponse
-from map.models import map,mapQuery,stkcdInCity,regQuery,predictModelPath,stkPlace
+from map.models import map,mapQuery,stkcdInCity,regQuery,predictModelPath,stkPlace,stkBacktestResult
 from map.stkLSTM import CgcpLSTM
 from map.weatherRegression import regressionInfo
 from keras.models import load_model
@@ -12,6 +12,8 @@ import math
 from chinese_calendar import is_workday
 import json
 import akshare as ak
+import pandas as pd
+import statsmodels.api as sm
 import time
 import datetime
 import urllib.request
@@ -313,7 +315,7 @@ def weather(request,city): #获取实时天气与未来天气
     print('HTTPError')
     print('ErrorCode: %s' % error.code)
   except urllib.request.URLError as error:     # URL错误
-      print(error.reason)
+    print(error.reason)
   html = response.read().decode('utf-8')
   # print(html)
   html=eval(html)
@@ -330,18 +332,18 @@ def weather(request,city): #获取实时天气与未来天气
   }
   myDict['day']=[]
   for i in range(3):
-      dayInfo=html['result']['forecasts'][i]
-      myDict['day'].append(
-        {
-          'date':dayInfo['date'],
-          'text':dayInfo['text_day'],
-          'high':dayInfo['high'],
-          'low':dayInfo['low'],
-          'wind_class':dayInfo['wc_day'],
-          'wind_dir':dayInfo['wd_day'],
-          'week':dayInfo['week']
-        }
-      )
+    dayInfo=html['result']['forecasts'][i]
+    myDict['day'].append(
+      {
+        'date':dayInfo['date'],
+        'text':dayInfo['text_day'],
+        'high':dayInfo['high'],
+        'low':dayInfo['low'],
+        'wind_class':dayInfo['wc_day'],
+        'wind_dir':dayInfo['wd_day'],
+        'week':dayInfo['week']
+      }
+    )
   # print(myDict)
   return JsonResponse({'ret': 0, 'data':myDict})
 
@@ -379,9 +381,11 @@ def stock365(request,stkcd): #历史一年的股价信息
   myDict['data'] = []
   T1 = datetime.datetime.now()
   T1 = T1-datetime.timedelta(days=1)
-  T2 = T1-datetime.timedelta(days=365)
+  # T2 = T1-datetime.timedelta(days=365)
+  begindate='20110101'
   try:
-    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
+    # stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=T2.strftime('%Y%m%d'), end_date=T1.strftime('%Y%m%d'), adjust="")
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=begindate, end_date=T1.strftime('%Y%m%d'), adjust="")
     # print(stock_zh_a_hist_df.iloc[0]) 
     # stock_zh_a_hist_min_em_df = ak.stock_zh_a_hist_min_em(symbol=stkcd, start_date=T2.strftime('%Y-%m-%d %H:%M:%S'), end_date=T1.strftime('%Y-%m-%d %H:%M:%S'), period='1', adjust='')
     for i in range(len(stock_zh_a_hist_df)):
@@ -394,6 +398,8 @@ def stock365(request,stkcd): #历史一年的股价信息
     return JsonResponse({'ret': 1, 'msg': stkcd+' error'})
   except Exception as e:
     print("except:",e)
+    return JsonResponse({'ret': 1, 'msg': stkcd+' error'})
+    
 def stock(request,stkcd): #当日的实时股价信息
   print('real stock:', stkcd)
   myDict = {}
@@ -813,12 +819,102 @@ def getTip(request):#根据当前城市、天气，给出建议
   myDict['tip']=tip
   return JsonResponse({'ret': 0, 'data':myDict})
 
+def getBacktestResult(request,stkcd):#获取回测结果
+  print('get backtest result',stkcd)
+  qs=stkBacktestResult.objects.values()
+  qs=qs.filter(stkcd=stkcd)
+  if len(qs)==0:
+    return JsonResponse({'ret': 1, 'msg':'未能获取该股票的回测结果'})
+  info=qs[0]
+  resultDict={
+    'stkcd':stkcd,
+    'result':info['result'],
+    'date':info['date'].split('#'),
+    'asset':info['asset'].split('#'),
+    'price':info['price'].split('#'),
+    'inDate':info['inDate'].split('#'),
+    'outDate':info['outDate'].split('#'),
+  }
+  return JsonResponse({'ret': 0, 'data':resultDict})
+def predictInOut(request,stkcd,city):#根据策略预测今日应买/卖/不变
+  print('predict in or out')
+  myDict={'date':[], 'maxTemp':[], 'minTemp':[], 'wind':[],
+            'snow':[], 'rain':[], 'cloud':[],
+            'ret':[] }
+  # 模型建立——股票数据收集
+  begindate="20110101"
+  enddate="20181231"
+  try:
+    stock_zh_a_hist_df = ak.stock_zh_a_hist(symbol=stkcd, period="daily", start_date=begindate, end_date=enddate, adjust="")
+  except:
+    print(stkcd,'has no data')
+    return JsonResponse({'ret': 1, 'msg':'未能获取该股票的相关数据'})
+  for i in range(1,len(stock_zh_a_hist_df)):
+    myDict['date'].append(stock_zh_a_hist_df['日期'].values[i])
+    myDict['ret'].append(stock_zh_a_hist_df['涨跌幅'].values[i])
+  # 模型建立——天气数据收集
+  qs = map.objects.values()
+  qs = qs.filter(city=city)
+  if len(qs)==0:
+    print(city,'has no data')
+    return JsonResponse({'ret': 1, 'msg':'未能获取该城市的相关数据'})
+  for info in qs:
+    if info['date'] in myDict['date']:
+      myDict['maxTemp'].append(info['max']-273.15)
+      myDict['minTemp'].append(info['min']-273.15)
+      myDict['wind'].append(info['wind'])
+      myDict['snow'].append(info['snow'])
+      myDict['rain'].append(info['rain'])
+      myDict['cloud'].append(info['cloud'])
+  # 模型建立
+  weatherList = ['snow', 'rain', 'cloud', 'maxTemp', 'minTemp', 'wind', ]# 城市天气
+  label = 'ret'
+  exam_df= pd.DataFrame(myDict)
+  exam_df = exam_df[exam_df!=-100].dropna()
+  x = exam_df[weatherList]
+  y = exam_df[label]
+  x=sm.add_constant(x) #添加常数项
+  est=sm.OLS(y,x)
+  model=est.fit()#建立最小二乘回归模型
 
-
-
-
-
-
+  # 获取未来几日内天气
+  test=[]
+  district_id=str(city2DistrictId[city+'市'])
+  url = 'https://api.map.baidu.com/weather/v1/?district_id='+district_id+'&data_type=all&ak=z29V2EL1hlYaD0XOXOp1xmq3DM9sjtCW'
+  try:
+    request = urllib.request.Request(url)
+    response = urllib.request.urlopen(request)
+  except urllib.request.HTTPError as error:    # HTTP错误
+    print('HTTPError')
+    print('ErrorCode: %s' % error.code)
+  except urllib.request.URLError as error:     # URL错误
+    print(error.reason)
+  html = response.read().decode('utf-8')
+  # print(html)
+  html=eval(html)
+  for i in range(2):
+    dayInfo=html['result']['forecasts'][i]
+    state=handleWeather(dayInfo['text_day'])
+    test.append(
+      [1,state[1],state[0],state[2],dayInfo['high'],dayInfo['low'],
+      int(dayInfo['wc_day'][len(dayInfo['wc_day'])-2])]
+    )
+  # print(test)
+  result=0
+  b=''
+  inSignal=''
+  outSignal=''
+  for i in range(len(test)):
+    a=model.predict(test[i])[0]
+    print(a)
+    b+='1' if a>=0 else '0' 
+    inSignal+='1'
+    outSignal+='0'
+  if b==inSignal: #未来三天预测为涨，买入
+    result = 1
+  elif b==outSignal: #未来三天预测为跌，卖出
+    result = -1
+  return  JsonResponse({'ret': 0, 'data':result})
 
   # 根据session判断用户是否登录
   # if 'usertype' not in request.session:

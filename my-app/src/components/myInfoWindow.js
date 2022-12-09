@@ -14,7 +14,7 @@ import {
 import DataSource from "../components/dataSource";
 import HistoryPercentile from "../components/historyPercentile";
 import HistoryData from "../components/historyData";
-import { LockOutlined, UnlockOutlined, CloseOutlined } from '@ant-design/icons';
+import { LockOutlined, CloseOutlined } from '@ant-design/icons';
 
 const axios = require('axios');
 const { TabPane } = Tabs;
