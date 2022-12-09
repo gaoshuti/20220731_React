@@ -111,3 +111,13 @@ class stkPlace(models.Model): # 股票对应的全称、注册地、办公地
   name2=models.CharField(max_length=255) #全称
   place1=models.CharField(max_length=255) #注册地
   place2=models.CharField(max_length=255) #办公地
+
+
+class stkBacktestResult(models.Model): # 股票对应的回测结果
+  stkcd=models.CharField(primary_key=True,max_length=255)
+  result=models.CharField(max_length=255) #回测最终资产值
+  date=models.TextField()#日期
+  asset=models.TextField() #资产
+  price=models.TextField() #股价
+  inDate=models.CharField(max_length=2550) #买入日期
+  outDate=models.CharField(max_length=2550) #卖出日期

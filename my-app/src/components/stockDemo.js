@@ -47,7 +47,18 @@ function SelectDemo(props) {
                 if(result['ret']===0)  {//成功
                   // console.log('stock:',result1['data'])
                   props.setData(result1);
-                  props.setButtonFlag(false);
+
+                  axios.get("/backtestresult/"+stkcd).then((res3)=>{
+                    var result3=res3.data;
+                    if(result3['ret']===0)  {//成功
+                      props.setBacktestData(result3);
+                      props.setButtonFlag(false);
+                    }else{
+                      console.log(result3['msg']);
+                      props.setButtonFlag(false);
+                    };
+                  });
+
                 } else { //失败
                   console.log(result['msg'])
                   props.setButtonFlag(false);
@@ -156,7 +167,7 @@ function StockInfo(props) {
           <p>注 册 地 ：{props.info['place1']}</p>
         </Col>
         <Col span={12}>
-          <p> 办 公 地 ：
+          <p>所 在 地 ：
             {props.kind===1?
               <Button size="small" type="ghost" onClick={props.searchCity}>
                 {props.info['place2']}
@@ -226,12 +237,12 @@ function StockHistoryPrice(props) {
           htmlStr += point2 + '最低：' + value[4] + '<br/>';
           var otherInfo = data0.otherInfo[xName];
           let color1 = '#888888'
-          htmlStr += point1(color1) + '成交量：' + otherInfo[0] + '<br/>';
-          htmlStr += point1(color1) + '成交额：' + otherInfo[1] + '<br/>';
-          htmlStr += point1(color1) + '振幅：' + otherInfo[2] + '%<br/>';
-          htmlStr += point1(color1) + '涨跌幅：' + otherInfo[3] + '%<br/>';
-          htmlStr += point1(color1) + '涨跌额：' + otherInfo[4] + '<br/>';
-          htmlStr += point1(color1) + '换手率：' + otherInfo[5] + '%<br/>';
+          htmlStr += point1(color1) + '成交量：' + otherInfo[4] + '<br/>';
+          htmlStr += point1(color1) + '成交额：' + otherInfo[5] + '<br/>';
+          htmlStr += point1(color1) + '振幅：' + otherInfo[6] + '%<br/>';
+          htmlStr += point1(color1) + '涨跌幅：' + otherInfo[7] + '%<br/>';
+          htmlStr += point1(color1) + '涨跌额：' + otherInfo[8] + '<br/>';
+          htmlStr += point1(color1) + '换手率：' + otherInfo[9] + '%<br/>';
 
           htmlStr += '</div>';
         }
@@ -264,14 +275,14 @@ function StockHistoryPrice(props) {
     dataZoom: [
       {
         type: 'inside',
-        start: 50,
+        start: 90,
         end: 100
       },
       {
         show: true,
         type: 'slider',
         top: '90%',
-        start: 50,
+        start: 90,
         end: 100
       }
     ],
@@ -564,6 +575,204 @@ class StockPrice extends React.Component {
   }
 
 }
+
+function StockBacktest(props) {
+  let dates = props.backtestData['date'];
+  let assets = [], prices = [];
+  let initialPrice = props.backtestData['price'][0];
+  let ins = [], outs = [], k = 0;
+  let l1 = props.backtestData['inDate'].length, l2 = props.backtestData['outDate'].length;
+  for(let i = 0; i < dates.length; i++) {
+    assets.push((props.backtestData['asset'][i]/10000-1).toFixed(2));
+    prices.push((props.backtestData['price'][i]/initialPrice-1).toFixed(2));
+    if(k < l1 && dates[i]===props.backtestData['inDate'][k]){
+      ins.push(i);
+    }
+    if(k < l2 && dates[i]===props.backtestData['outDate'][k]){
+      outs.push(i);
+      k++;
+    }
+  }
+  let pieces = [];
+  for(let i = 0; i < outs.length; i++) {
+    pieces.push({gt: ins[i], lt: outs[i], color: 'rgba(0, 0, 180, 0.4)'});
+  }
+  if(ins.length>outs.length){
+    pieces.push({gt: ins[ins.length-1], color: 'rgba(0, 0, 180, 0.4)'},)
+  }
+  let points = [];
+  for(let i = 0; i < ins.length; i++) {
+    points.push({name: "买", value: "", xAxis: ins[i], yAxis: assets[ins[i]],
+    itemStyle: {normal: { color: "green" },},})
+  }
+  for(let i = 0; i < outs.length; i++) {
+    points.push({name: "卖", value: "", xAxis: outs[i], yAxis: assets[outs[i]],
+    itemStyle: {normal: { color: "red" },},})
+  }
+  //合并历史数据
+  let data0 = props.splitData(props.historyData);
+
+
+  let option = {
+    title: {
+      text: '回测结果',
+      left: 0
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      },
+      formatter: function (params, ticket, callback) {
+        var htmlStr = '';
+        const point1 = (color) => {
+          return '<span style="margin-right:5px;display:inline-block;width:10px;height:10px;border-radius:5px;background-color:'+color+';"></span>';
+        };
+        if(params[1].value > 0) var color = upColor;
+        else var color = downColor;
+        for(var i=0;i<params.length;i++){
+          var param = params[i];
+          var xName = param.name;//x轴的名称
+          // var seriesName = param.seriesName;//图例名称
+          var value = param.value;//y轴值
+          // var color = param.color;//图例颜色
+          if(i===0){
+            htmlStr += xName + '<br/>';//x轴的名称
+          }
+          htmlStr +='<div>';
+          if(i==0)
+            htmlStr += point1("#5470C6") + '回测涨跌幅：' + value + '<br/>';
+          else
+            htmlStr += point1(color) + '股价涨跌幅：' + value + '<br/>';
+          // htmlStr += point1(color);
+          // // htmlStr += seriesName+ '<br/>';
+          // htmlStr += '股价<br/>';
+          // var point2 = '<span style="margin-left:3px;margin-right:8px;display:inline-block;width:4px;height:4px;border-radius:2px;background-color:'+color+';"></span>';
+
+          // htmlStr += point2 + 'open：' + value[1] + '<br/>';
+          // htmlStr += point2 + 'close：' + value[2] + '<br/>';
+          // htmlStr += point2 + 'highest：' + value[3] + '<br/>';
+          // htmlStr += point2 + 'lowest：' + value[4] + '<br/>';
+
+
+
+        }
+        var otherInfo = data0.otherInfo[xName];
+        htmlStr += point1(color);
+        htmlStr += '股价<br/>';
+        var point2 = '<span style="margin-left:3px;margin-right:8px;display:inline-block;width:4px;height:4px;border-radius:2px;background-color:'+color+';"></span>';
+        htmlStr += point2 + 'open：' + otherInfo[0] + '<br/>';
+        htmlStr += point2 + 'close：' + otherInfo[1] + '<br/>';
+        htmlStr += point2 + 'highest：' + otherInfo[2] + '<br/>';
+        htmlStr += point2 + 'lowest：' + otherInfo[3] + '<br/>';
+
+        let color1 = '#888888'
+        htmlStr += point1(color1) + '成交量：' + otherInfo[4] + '<br/>';
+        htmlStr += point1(color1) + '成交额：' + otherInfo[5] + '<br/>';
+        htmlStr += point1(color1) + '振幅：' + otherInfo[6] + '%<br/>';
+        htmlStr += point1(color1) + '涨跌幅：' + otherInfo[7] + '%<br/>';
+        htmlStr += point1(color1) + '涨跌额：' + otherInfo[8] + '<br/>';
+        htmlStr += point1(color1) + '换手率：' + otherInfo[9] + '%<br/>';
+        htmlStr += '</div>';
+        return htmlStr;
+       }
+    },
+    legend: {
+      data: ['回测涨跌幅','股价涨跌幅']
+    },
+    color:["#0000ff","#ff0000"],//红绿蓝
+    grid: {
+      left: '10%',
+      right: '10%',
+      bottom: '17%'
+    },
+    visualMap: {
+      type: 'piecewise',
+      show: false,
+      dimension: 0,
+      seriesIndex: 0,
+      pieces: pieces
+    },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100
+      },
+      {
+        show: true,
+        type: 'slider',
+        top: '90%',
+        start: 0,
+        end: 100
+      }
+    ],
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: dates,
+      axisLine: { onZero: false },
+      splitLine: { show: false },
+      min: 'dataMin',
+      max: 'dataMax'
+    },
+    yAxis: {
+      type: 'value',
+      // scale: true,
+      // splitArea: {
+      //   show: true
+      // }
+    },
+    series: [
+      {
+        name: '回测涨跌幅',
+        type: 'line',
+        symbol: 'none',
+        lineStyle: {
+          color: '#5470C6',
+          width: 2
+        },
+        data: assets,
+        areaStyle: {},
+        markPoint: {
+          data: points,
+          symbolSize: 4,
+          symbol: 'circle'
+        }
+      },
+      {
+        name: '股价涨跌幅',
+        type: 'line',
+        symbol: 'none',
+        data: prices,
+        markLine: {
+          symbol: "none",
+          silent: false,
+          lineStyle: {
+            color: '#333'
+          },
+          label: {
+            position:"end"
+          },
+          data: [
+            {
+              yAxis: 0 ,
+            }
+          ]
+        }
+      },
+    ]
+  };
+
+  return(
+    <div>
+      {/* <p>回测数据</p> */}
+      <EChartsReact option={option}
+      />
+    </div>
+  );
+}
+
 class StockDemo extends React.Component {
   constructor(props) {
     super(props);
@@ -583,6 +792,7 @@ class StockDemo extends React.Component {
       // info: props.info,   //股票相关信息
       data: [],           //股票实时数据
       historyData: [],    //股票历史数据
+      backtestData: [],   //股票回测数据
       // buttonFlag: false,  //控制按钮是否可用
     };
     console.log('submit:',stkcd);
@@ -762,6 +972,12 @@ class StockDemo extends React.Component {
       //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
     });
   }
+  setBacktestData(result) {
+    console.log('backtestData:',result['data'])
+    this.setState({
+      backtestData: result['data'],
+    });
+  }
   setButtonFlag(flag) {
     this.setState({
       buttonFlag:flag,
@@ -791,6 +1007,7 @@ class StockDemo extends React.Component {
           setInfo={this.setInfo.bind(this)}
           setResult={this.setResult.bind(this)}
           setData={this.setData.bind(this)}
+          setBacktestData={this.setBacktestData.bind(this)}
         />
         <Divider></Divider>
         {this.state.info['name']===''?<div><p>暂无数据</p></div>:
@@ -823,7 +1040,18 @@ class StockDemo extends React.Component {
               historyData={this.state.historyData}
               splitData={this.splitData.bind(this)}
             />}
-            <Divider/>
+
+          </div>
+        }
+        <Divider/>
+        {(this.state.backtestData.length===0||this.state.backtestData['price'].length===0)?
+          <div><p>暂无回测数据</p></div>:
+          <div>
+            <StockBacktest
+              backtestData={this.state.backtestData}
+              historyData={this.state.historyData}
+              splitData={this.splitData.bind(this)}
+            />
           </div>
         }
       </div>
