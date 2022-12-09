@@ -113,7 +113,7 @@ class Weather extends React.Component{
       nowWeather: '', // 实时天气数据
       dayWeather: [], // 今天向后的三天天气数据
     };
-    axios.get("http://localhost:3000/weather/"+props.city).then((res)=>{
+    axios.get(process.env.REACT_APP_API + "/weather/"+props.city).then((res)=>{
       this.setState({
         nowWeather: res.data['data']['now'],
         dayWeather: res.data['data']['day'],
@@ -125,7 +125,8 @@ class Weather extends React.Component{
   
   onChange(value) {
     // console.log('change');
-    axios.get("http://localhost:3000/weather/"+value[1]).then((res)=>{
+    this.props.setCity(value[1]);
+    axios.get(process.env.REACT_APP_API + "/weather/"+value[1]).then((res)=>{
       this.setState({
         city: value[1],
         nowWeather: res.data['data']['now'],

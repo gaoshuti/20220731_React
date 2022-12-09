@@ -572,6 +572,7 @@ class MyMap extends React.Component {
     }
   }
   zoomChange(e) {
+    // console.log('zoom change:',this.props.mapZoom,this.state.zoom,e.target.getZoom());
     this.setState({
         zoomLevel: this.props.mapZoom,
       });
@@ -698,7 +699,7 @@ class History extends React.Component {
     let result;
     if((name in city2districtId)===false) result = '';
     else{
-      await axios.get("http://localhost:3000/weather/"+city2districtId[name]).then((res)=>{
+      await axios.get(process.env.REACT_APP_API + "/weather/"+name).then((res)=>{
         let weatherInfo = res.data['data']['day'][0];
         // console.log(res.data['data']['day']);
         // console.log(weatherInfo['text']+' '+weatherInfo['low']+'­°C-'+weatherInfo['high']+'­°C');
@@ -714,7 +715,7 @@ class History extends React.Component {
     });
   }
   menuOnClick(e) {
-    console.log("click ", e, e.key);
+    console.log("menu click ", e, e.key);
     let lng, lat;
     for (let i = 0; i < provinces.length; i++) {
       let item = provinces[i];
