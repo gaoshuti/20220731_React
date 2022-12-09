@@ -265,7 +265,7 @@ class StockPredict extends React.Component{
       predict: [],              //预测的股票价格
       dates: [],                //数据中的交易日日期
     };
-    axios.get("/liststkdate/"+props.stkcd).then((res)=>{
+    axios.get("/api/map/liststkdate/"+props.stkcd).then((res)=>{
       var result=res.data;
       // console.log(props.stkcd, result['data']['begindate'], result['data']['enddate'])
       if(result['ret']===0)  {//成功
@@ -289,7 +289,7 @@ class StockPredict extends React.Component{
   async setStkcd(stkcd) {
     this.setButtonFlag(true);
     if(stkcd.length===6) {
-      await axios.get("/liststkdate/"+stkcd).then((res)=>{
+      await axios.get("/api/map/liststkdate/"+stkcd).then((res)=>{
         var result=res.data;
         if(result['ret']===0)  {//成功
           this.setState({

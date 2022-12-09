@@ -53,7 +53,7 @@ function CityInfo(props) {
     // console.log('get history ret',area, hrCity);
     if(hisRet!==0 && hrCity===area) return;
     var data1=[],result;
-    await axios.get("/historyret/"+area).then((res)=>{
+    await axios.get("/api/map/historyret/"+area).then((res)=>{
       result=res.data['data'];
     });
     data1.push(result['ret']);
@@ -74,7 +74,7 @@ function CityInfo(props) {
     for(let i = 0; i < labels.length; i++) {
       data1=[]
       label = labels[i];
-      await axios.get("/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
+      await axios.get("/api/map/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
         result=res.data['data'];
         // citiesInArea=res.data['cities'];
       });
@@ -108,7 +108,7 @@ function CityInfo(props) {
     // console.log('get data source',area,dsCity);
     if(dataSour!==0 && dsCity===area) return;
     var data3=[],result;
-    await axios.get("/datasource/"+area).then((res)=>{
+    await axios.get("/api/map/datasource/"+area).then((res)=>{
       result=res.data['data'];
     });
     var i=0;

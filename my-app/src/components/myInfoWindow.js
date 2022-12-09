@@ -91,7 +91,7 @@ class Board extends React.Component {
     // console.log('无数据')
     // for(let i=1;i<cities.length;i++){
     //   let city=cities[i];
-    await axios.get("/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
+    await axios.get("/api/map/history/"+area+'/'+label+'/'+minValue+'/'+maxValue).then((res)=>{
       result=res.data['data'];
       cities=res.data['cities'];
     });
@@ -183,7 +183,7 @@ class Board extends React.Component {
       return;
     }
     // console.log('无数据');
-    await axios.get("/historyret/"+area).then((res)=>{
+    await axios.get("/api/map/historyret/"+area).then((res)=>{
       result=res.data['data'];
     });
     data1.push(result['ret']);
@@ -206,7 +206,7 @@ class Board extends React.Component {
       return;
     }
     // console.log('无数据');
-    await axios.get("/datasource/"+area).then((res)=>{
+    await axios.get("/api/map/datasource/"+area).then((res)=>{
       result=res.data['data'];
     });
     var i=0;

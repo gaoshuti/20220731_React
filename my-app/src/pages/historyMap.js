@@ -699,7 +699,7 @@ class History extends React.Component {
     let result;
     if((name in city2districtId)===false) result = '';
     else{
-      await axios.get("/weather/"+name).then((res)=>{
+      await axios.get("/api/map/weather/"+name).then((res)=>{
         let weatherInfo = res.data['data']['day'][0];
         // console.log(res.data['data']['day']);
         // console.log(weatherInfo['text']+' '+weatherInfo['low']+'­°C-'+weatherInfo['high']+'­°C');

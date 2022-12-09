@@ -33,22 +33,22 @@ function SelectDemo(props) {
       props.setButtonFlag(true);
       console.log('submit:',values.stkcd);
       let stkcd = values.stkcd;
-      await axios.get("/stockInfo/"+stkcd).then((res0)=>{
+      await axios.get("/api/map/stockInfo/"+stkcd).then((res0)=>{
         var result0=res0.data;
         if(result0['ret']===0)  {//成功
           props.setInfo(result0['data']);
-          axios.get("/stock365/"+stkcd).then((res)=>{
+          axios.get("/api/map/stock365/"+stkcd).then((res)=>{
             var result=res.data;
             if(result['ret']===0)  {//成功
               // console.log('stock365:',result['data'])
               props.setResult(result);
-              axios.get("/stock/"+stkcd).then((res2)=>{
+              axios.get("/api/map/stock/"+stkcd).then((res2)=>{
                 var result1=res2.data;
                 if(result['ret']===0)  {//成功
                   // console.log('stock:',result1['data'])
                   props.setData(result1);
 
-                  axios.get("/backtestresult/"+stkcd).then((res3)=>{
+                  axios.get("/api/map/backtestresult/"+stkcd).then((res3)=>{
                     var result3=res3.data;
                     if(result3['ret']===0)  {//成功
                       props.setBacktestData(result3);
@@ -381,7 +381,7 @@ class StockPrice extends React.Component {
   componentDidMount() {
     //设置定时器，5s更新一次
     this.timer = setInterval(() => {
-      axios.get("/stock/"+this.props.stkcd).then((res)=>{
+      axios.get("/api/map/stock/"+this.props.stkcd).then((res)=>{
         console.log('loading:',res.data['data']['data'][res.data['data']['data'].length-1][0]);
         var result=res.data;
         if(res.data['data']['data'][res.data['data']['data'].length-1][0].split(' ')[1]==='15:00:00'){
@@ -797,7 +797,7 @@ class StockDemo extends React.Component {
     };
     console.log('submit:',stkcd);
 
-    axios.get("/stockInfo/"+stkcd).then((res)=>{
+    axios.get("/api/map/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -819,14 +819,14 @@ class StockDemo extends React.Component {
       };
     });
 
-    axios.get("/stock365/"+stkcd).then((res)=>{
+    axios.get("/api/map/stock365/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get("/stock/"+stkcd).then((res2)=>{
+        axios.get("/api/map/stock/"+stkcd).then((res2)=>{
           var result1=res2.data;
           if(result1['ret']===0)  {//成功
             this.setState({
@@ -905,7 +905,7 @@ class StockDemo extends React.Component {
       stkcd: stkcd,
       stkcd2: stkcd
     });
-    axios.get("/stockInfo/"+stkcd).then((res)=>{
+    axios.get("/api/map/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
@@ -926,14 +926,14 @@ class StockDemo extends React.Component {
         console.log(result['msg']);
       };
     });
-    axios.get("/stock365/"+stkcd).then((res)=>{
+    axios.get("/api/map/stock365/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get("/stock/"+stkcd).then((res2)=>{
+        axios.get("/api/map/stock/"+stkcd).then((res2)=>{
           var result1=res2.data;
           if(result1['ret']===0)  {//成功
             this.setState({

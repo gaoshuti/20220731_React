@@ -21,7 +21,7 @@ function StockInfo(props) {
   const [stkcd2,setStkcd2] = useState('');
   if(stkcd!==stkcd2){
     console.log('stkcd*2:',stkcd2,stkcd)
-    axios.get("/stockInfo/"+stkcd).then((res)=>{
+    axios.get("/api/map/stockInfo/"+stkcd).then((res)=>{
       var result=res.data;
       if(result['ret']===0)  {//成功
         setStkcd2(stkcd);
