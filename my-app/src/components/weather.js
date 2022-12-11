@@ -109,12 +109,39 @@ class Weather extends React.Component{
     super(props);
     this.state = {
       city: props.city,
-      city2: props.city,
       nowWeather: '', // 实时天气数据
       dayWeather: [], // 今天向后的三天天气数据
     };
-    axios.get("/api/map/weather/"+props.city).then((res)=>{
+
+    this.initLocalCity(props);
+    
+    this.fetchWeatherByCity(this.props.city || localStorage.getItem('city'));
+  }
+
+  initLocalCity = (props) => {
+    if (props.city) return;
+    if (!window.BMapGL) return;
+    new window.BMapGL.Geolocation().getCurrentPosition((geo) => {
+      console.log(geo);
+      const localCity = geo?.address?.city?.replace('市', '');
+      if (localCity) {
+        this.onChange([props.city, localCity]);
+        localStorage.setItem('city', localCity);
+      }
+      else {
+        this.onChange([props.city, '广州']);
+      }
+    }, (error) => {
+      console.error('geo error', error);
+      this.onChange([props.city, '广州']);
+    });
+  }
+
+  fetchWeatherByCity(city) {
+    if (!city) return Promise.reject('没有初始值');
+    return axios.get("/api/map/weather/"+city).then((res)=>{
       this.setState({
+        city,
         nowWeather: res.data['data']['now'],
         dayWeather: res.data['data']['day'],
       })
@@ -123,25 +150,18 @@ class Weather extends React.Component{
     });
   }
 
-  onChange(value) {
-    // console.log('change');
-    this.props.setCity(value[1]);
-    axios.get("/api/map/weather/"+value[1]).then((res)=>{
-      this.setState({
-        city: value[1],
-        nowWeather: res.data['data']['now'],
-        dayWeather: res.data['data']['day'],
-      })
-    },(err)=>{
-      console.log(err);
-    });
-  };
-  setCity2(value) {
-    this.setState({
-      city: value,
-      city2: value
-    });
+  shouldComponentUpdate(props, oldProps) {
+    if (props.city && props.city !== oldProps.city) this.fetchWeatherByCity(props.city);
+
+    return true;
   }
+
+  onChange = (value) => {
+    const [_, city] = value;
+    this.props.setCity(city)
+    this.fetchWeatherByCity(city);
+  };
+
   render(){
     // const options=[
     //   { label: "安徽省", value: "安徽省", key: "安徽省",
@@ -866,10 +886,6 @@ class Weather extends React.Component{
         ]}
     ];
 
-    if(this.state.city2!==this.props.city) {
-      this.onChange(['',this.props.city]);
-      this.setCity2(this.props.city);
-    }
     return(
       <div
         style={{

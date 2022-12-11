@@ -18,7 +18,7 @@ class Home extends React.Component {
       spans: [7, 16],
       isOpen: true, //天气窗口是否展开
       bgColor: "#F0F0FF", //天气窗口背景颜色
-      city: '北京',        //weather中的天气
+      city: '',        //weather中的天气
     };
   }
   spreadClick() {
