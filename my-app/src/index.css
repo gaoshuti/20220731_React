@@ -68,10 +68,26 @@ html,body{
   height: calc(100vh - 65px);
 }
 
+.hmtabdiv::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent;
+}
+
+.hmtabdiv::-webkit-scrollbar-track {
+  background-color: #f7f7f7;
+}
+
+.hmtabdiv::-webkit-scrollbar-thumb{
+  border-radius: 10px;
+  background-color: #bfbfbf;
+}
 
 
 .card-container p {
   margin: 0;
+}
+.card-container .ant-tabs-content-holder {
+  margin: 0 12px;
 }
 .card-container > .ant-tabs-card .ant-tabs-content {
   height: 120px;
