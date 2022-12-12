@@ -174,10 +174,39 @@ html,body{
     margin-left: 20px;
   } */
 
-  .fortune-telling {
-    text-align:center;
-    font-weight: bolder;
-    font-size: 18px;
-    color: red;
-    width: 100%;
-  }
+.fortune-telling {
+  text-align:center;
+  font-weight: bolder;
+  font-size: 18px;
+  color: #222;
+  width: 100%;
+}
+.stock-red {
+  color: #E03136;
+}
+.stock-green {
+  color: #129E6B;
+}
+.stock-nothing {
+  color: #222;
+}
+.motto {
+  color: revert;
+  font-family: "PingFang SC Regular";
+  text-align: justify;
+  text-indent: 28px;
+  padding: 0 9px;
+  font-size: 14px;
+  position: relative;
+  z-index: 0;
+}
+.motto::before {
+  content: "“";
+  position: absolute;
+  color: darkgrey;
+  left: -18px;
+  top: -36px;
+  font-size: 99px;
+  font-family: sans-serif;
+  z-index: -1;
+}

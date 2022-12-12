@@ -86,7 +86,7 @@ class Home extends React.Component {
             ></Button>
           </Col>
           <Col span={this.state.spans[1]}>
-            <StockDemo stkcd="000001" onStockChange={this.onStockChange} kind={1} searchCity={this.searchCity.bind(this)}/>
+            <StockDemo stkcd={this.state.stock} onStockChange={this.onStockChange} kind={1} searchCity={this.searchCity.bind(this)}/>
           </Col>
         </Row>
       </div>
