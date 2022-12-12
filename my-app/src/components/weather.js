@@ -8,6 +8,7 @@ import {
   Row,
 } from "antd";
 import CityLabels from './city_labels.json';
+import Mottos from './motto.json';
 const axios = require('axios');
 const weatherStrs = {
   //晴
@@ -239,7 +240,7 @@ class Weather extends React.Component{
               </Row>
             <Row>
               {this.state.fortune && <p className={`fortune-telling ${fortuneStyle}`}>{ this.state.fortune }</p>}
-              {/* <p>投资语录</p> */}
+              <p className="motto">{Mottos[new Date().getDate() % Mottos.length]}</p>
             </Row>
         </div>
         }
