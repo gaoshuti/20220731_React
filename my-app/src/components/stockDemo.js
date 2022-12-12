@@ -860,7 +860,7 @@ class StockDemo extends React.Component {
       for (let i = 0; i < rawData.length; i++) {
         categoryData.push(rawData[i].slice(0, 1)[0]);
         values.push(rawData[i].slice(1,5));
-        myDict[rawData[i].slice(0, 1)[0]] = rawData[i].slice(5,12);
+        myDict[rawData[i].slice(0, 1)[0]] = rawData[i].slice(1,12);
         // tradingNum.push(rawData[i].slice(5,6)[0]);
         // tradingValue.push(rawData[i].slice(6,7)[0]);
         // amplitude.push(rawData[i].slice(7,8)[0]);
