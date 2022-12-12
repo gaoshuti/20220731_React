@@ -284,7 +284,7 @@ class Board extends React.Component {
   render() {
     //this.props.level--点击图标的等级 是否有历史收益率和建议
     return (
-      <div className="card-container" style={{width:440,marginLeft:10}}>
+      <div className="card-container">
         <Tabs type="card" onChange={this.changeTab.bind(this)}>
           {(this.props.level===1)?
           <>
@@ -352,10 +352,10 @@ class MyInfoWindow extends React.Component{
           }}
           offset={new window.BMapGL.Size(0, -20)}
         >
-          <div style={{width:450,height:350,background:'#FFFFFF',borderRadius:20}}>
+          <div style={{width:550,height:350,background:'#FFFFFF',borderRadius:20}}>
             <Row>
               <Col span={12}>
-              <h3 style={{margin:10}}>
+              <h3 style={{margin:'10px 10px 10px 16px'}}>
                 {this.props.selectPosition.name}&nbsp;&nbsp;
                 <span style={{fontSize:14}}>{this.props.selectWeather}</span>
               </h3>
