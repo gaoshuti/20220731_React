@@ -897,6 +897,7 @@ class StockDemo extends React.Component {
     this.setState({
       stkcd: stkcd,
     });
+    if (this.props.onStockChange) this.props.onStockChange(stkcd);
     // }
   }
   setStkcd2(stkcd) {

@@ -173,3 +173,11 @@ html,body{
   .game-info {
     margin-left: 20px;
   } */
+
+  .fortune-telling {
+    text-align:center;
+    font-weight: bolder;
+    font-size: 18px;
+    color: red;
+    width: 100%;
+  }

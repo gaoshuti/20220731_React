@@ -19,6 +19,7 @@ class Home extends React.Component {
       isOpen: true, //天气窗口是否展开
       bgColor: "#F0F0FF", //天气窗口背景颜色
       city: '',        //weather中的天气
+      stock: '000001'
     };
   }
   spreadClick() {
@@ -52,6 +53,15 @@ class Home extends React.Component {
       city: city,
     })
   }
+
+  onStockChange = (stock) => {
+    if (!stock || stock.length < 6) return;
+    console.log('stock change', stock);
+    if (this.refWeather && this.refWeather.onStockChange)
+      this.refWeather.onStockChange(stock);
+  }
+  onRefWeather = (ref) => { this.refWeather = ref; }
+
   render(){
     // let bgColor = "#F0F0FF";
     return(
@@ -59,7 +69,9 @@ class Home extends React.Component {
         <p></p>
         <Row>
           <Col span={this.state.spans[0]}>
-            <Weather 
+            <Weather
+              ref={this.onRefWeather}
+              stock={this.state.stock}  
               city={this.state.city}  
               setCity={this.setCity.bind(this)}
               bgColor={this.state.bgColor}
@@ -74,7 +86,7 @@ class Home extends React.Component {
             ></Button>
           </Col>
           <Col span={this.state.spans[1]}>
-            <StockDemo stkcd="000001" kind={1} searchCity={this.searchCity.bind(this)}/>
+            <StockDemo stkcd="000001" onStockChange={this.onStockChange} kind={1} searchCity={this.searchCity.bind(this)}/>
           </Col>
         </Row>
       </div>
