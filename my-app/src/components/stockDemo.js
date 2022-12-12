@@ -91,15 +91,17 @@ function SelectDemo(props) {
   return (
     <>
       <Form
-        labelCol={{
-          span: 4,
-        }}
-        wrapperCol={{
-          span: 14,
-        }}
+        // labelCol={{
+        //   span: 4,
+        // }}
+        // wrapperCol={{
+        //   span: 14,
+        // }}
         layout="horizontal"
         initialValues={{stkcd: props.stkcd}}
         onFinish={onFinish}
+        style={{ marginLeft: -11 }}
+        className='stock-code-form'
       >
         <Form.Item name='stkcd' label="股票代码"
           rules={[
@@ -114,7 +116,7 @@ function SelectDemo(props) {
           ]}
         >
           <Row>
-            <Col span={6}>
+            <Col span={3}>
               <Input maxLength={6}
                 bordered={false}
                 defaultValue={props.stkcd}
