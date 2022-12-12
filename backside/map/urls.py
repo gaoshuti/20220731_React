@@ -25,6 +25,7 @@ urlpatterns = [
 
     re_path(r'^backtestresult/(?P<stkcd>\d+)$',map.getBacktestResult),#给出某只股票回测的结果
     re_path(r'^inout/(?P<stkcd>\d+)/(?P<city>[\u4e00-\u9fa5]+)$',map.predictInOut),#根据策略预测今日应买/卖/不变
+    re_path(r'^inout2/(?P<city>[\u4e00-\u9fa5]+)$',map.predictInOut2),#根据策略预测今日应买/卖/不变
     re_path('signin', sign_in_out.signin),
     re_path('signout', sign_in_out.signout),
 ]

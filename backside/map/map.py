@@ -849,6 +849,8 @@ def predictInOut(request,stkcd,city):#根据策略预测今日应买/卖/不变
   except:
     print(stkcd,'has no data')
     return JsonResponse({'ret': 1, 'msg':'未能获取该股票的相关数据'})
+  if len(stock_zh_a_hist_df)==0:
+    return JsonResponse({'ret': 1, 'msg':'未能获取该股票的相关数据'})
   for i in range(1,len(stock_zh_a_hist_df)):
     myDict['date'].append(stock_zh_a_hist_df['日期'].values[i])
     myDict['ret'].append(stock_zh_a_hist_df['涨跌幅'].values[i])
@@ -915,7 +917,78 @@ def predictInOut(request,stkcd,city):#根据策略预测今日应买/卖/不变
   elif b==outSignal: #未来三天预测为跌，卖出
     result = -1
   return  JsonResponse({'ret': 0, 'data':result})
+def predictInOut2(request,city):#根据策略预测今日应买/卖/不变
+  print('predict in or out v2')
+  myDict={'date':[], 'maxTemp':[], 'minTemp':[], 'wind':[],
+            'snow':[], 'rain':[], 'cloud':[],
+            'ret':[] }
+  # 模型建立——天气数据收集
+  qs = map.objects.values()
+  qs = qs.filter(city=city)
+  if len(qs)==0:
+    print(city,'has no data')
+    return JsonResponse({'ret': 1, 'msg':'未能获取该城市的相关数据'})
+  for info in qs:
+    myDict['date'].append(info['date'])
+    myDict['ret'].append(info['ret'])
+    myDict['maxTemp'].append(info['max'])
+    myDict['minTemp'].append(info['min'])
+    myDict['wind'].append(info['wind'])
+    myDict['snow'].append(info['snow'])
+    myDict['rain'].append(info['rain'])
+    myDict['cloud'].append(info['cloud'])
+  # 模型建立
+  weatherList = ['snow', 'rain', 'cloud', 'maxTemp', 'minTemp', 'wind', ]# 城市天气
+  label = 'ret'
+  exam_df= pd.DataFrame(myDict)
+  exam_df = exam_df[exam_df!=-100].dropna()
+  exam_df['maxTemp'] = exam_df['maxTemp'].apply(lambda x : x-273.15)
+  exam_df['minTemp'] = exam_df['minTemp'].apply(lambda x : x-273.15)
+  x = exam_df[weatherList]
+  y = exam_df[label]
+  x=sm.add_constant(x) #添加常数项
+  est=sm.OLS(y,x)
+  model=est.fit()#建立最小二乘回归模型
 
+  # 获取未来几日内天气
+  test=[]
+  district_id=str(city2DistrictId[city+'市'])
+  url = 'https://api.map.baidu.com/weather/v1/?district_id='+district_id+'&data_type=all&ak=z29V2EL1hlYaD0XOXOp1xmq3DM9sjtCW'
+  try:
+    request = urllib.request.Request(url)
+    response = urllib.request.urlopen(request)
+  except urllib.request.HTTPError as error:    # HTTP错误
+    print('HTTPError')
+    print('ErrorCode: %s' % error.code)
+  except urllib.request.URLError as error:     # URL错误
+    print(error.reason)
+  html = response.read().decode('utf-8')
+  # print(html)
+  html=eval(html)
+  for i in range(2):
+    dayInfo=html['result']['forecasts'][i]
+    state=handleWeather(dayInfo['text_day'])
+    test.append(
+      [1,state[1],state[0],state[2],dayInfo['high'],dayInfo['low'],
+      int(dayInfo['wc_day'][len(dayInfo['wc_day'])-2])]
+    )
+  # print(test)
+  result=0
+  b=''
+  inSignal=''
+  outSignal=''
+  for i in range(len(test)):
+    a=model.predict(test[i])[0]
+    print(a)
+    b+='1' if a>=0 else '0' 
+    inSignal+='1'
+    outSignal+='0'
+  if b==inSignal: #未来三天预测为涨，买入
+    result = 1
+  elif b==outSignal: #未来三天预测为跌，卖出
+    result = -1
+  return  JsonResponse({'ret': 0, 'data':result})
+  
   # 根据session判断用户是否登录
   # if 'usertype' not in request.session:
   #   return JsonResponse({
