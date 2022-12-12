@@ -849,6 +849,8 @@ def predictInOut(request,stkcd,city):#根据策略预测今日应买/卖/不变
   except:
     print(stkcd,'has no data')
     return JsonResponse({'ret': 1, 'msg':'未能获取该股票的相关数据'})
+  if len(stock_zh_a_hist_df)==0:
+    return JsonResponse({'ret': 1, 'msg':'未能获取该股票的相关数据'})
   for i in range(1,len(stock_zh_a_hist_df)):
     myDict['date'].append(stock_zh_a_hist_df['日期'].values[i])
     myDict['ret'].append(stock_zh_a_hist_df['涨跌幅'].values[i])

@@ -30,62 +30,57 @@ function SelectDemo(props) {
   const onFinish = async (values) => {
     if(props.kind===2) navigate(`/stock/${values.stkcd}`,{replace: true});
     else{
-      props.setButtonFlag(true);
-      console.log('submit:',values.stkcd);
-      let stkcd = values.stkcd;
-      await axios.get("/api/map/stockInfo/"+stkcd).then((res0)=>{
-        var result0=res0.data;
-        if(result0['ret']===0)  {//成功
-          props.setInfo(result0['data']);
-          axios.get("/api/map/stock365/"+stkcd).then((res)=>{
-            var result=res.data;
-            if(result['ret']===0)  {//成功
-              // console.log('stock365:',result['data'])
-              props.setResult(result);
-              axios.get("/api/map/stock/"+stkcd).then((res2)=>{
-                var result1=res2.data;
-                if(result['ret']===0)  {//成功
-                  // console.log('stock:',result1['data'])
-                  props.setData(result1);
+      try{
+        props.setButtonFlag(true);
+        console.log('submit:',values.stkcd);
+        let stkcd = values.stkcd;
+        await axios.get("/api/map/stockInfo/"+stkcd).then((stockInfo)=>{//股票相关信息
+          var stockInfoResult=stockInfo.data;
+          if(stockInfoResult['ret']===0)  {//成功
+            props.setInfo(stockInfoResult['data']);
+          }else{
+            console.log(stockInfoResult['msg']);
+          };
+        },err=>{
+          console.log(err);
+        });
+        await axios.get("/api/map/stock365/"+stkcd).then((stock365)=>{//历史数据
+          var stock365Result=stock365.data;
+          if(stock365Result['ret']===0)  {//成功
+            // console.log('stock365:',result['data'])
+            props.setResult(stock365Result);
+          } else { //失败
+            console.log(stock365Result['msg'])
+          }
+        },err=>{
+          console.log(err);
+        });
+        await axios.get("/api/map/stock/"+stkcd).then((stockReal)=>{//实时数据
+          var stockRealResult=stockReal.data;
+          if(stockRealResult['ret']===0)  {//成功
+            // console.log('stock:',result1['data'])
+            props.setData(stockRealResult);
+          } else { //失败
+            console.log(stockRealResult['msg'])
+          }
+        },err2=>{
+          console.log(err2);
+        });
+        await axios.get("/api/map/backtestresult/"+stkcd).then((stockBacktest)=>{//回测数据
+          var stockBacktestResult=stockBacktest.data;
+          if(stockBacktestResult['ret']===0)  {//成功
+            props.setBacktestData(stockBacktestResult['data']);
+          }else{
+            console.log(stockBacktestResult['msg']);
+            props.setBacktestData([]);
+          };
+        });
 
-                  axios.get("/api/map/backtestresult/"+stkcd).then((res3)=>{
-                    var result3=res3.data;
-                    if(result3['ret']===0)  {//成功
-                      props.setBacktestData(result3);
-                      props.setButtonFlag(false);
-                    }else{
-                      console.log(result3['msg']);
-                      props.setButtonFlag(false);
-                    };
-                  });
-
-                } else { //失败
-                  console.log(result['msg'])
-                  props.setButtonFlag(false);
-                }
-              },err2=>{
-                console.log(err2);
-                props.setButtonFlag(false);
-              });
-            } else { //失败
-              console.log(result['msg'])
-              props.setButtonFlag(false);
-            }
-          },err=>{
-            console.log(err);
-            props.setButtonFlag(false);
-          });
-
-        }else{
-          console.log(result0['msg']);
-          props.setButtonFlag(false);
-          // navigate("/error");
-          // return;
-        };
-      },err=>{
-        console.log(err);
+      }catch(e) {
+        console.log(e);
+      }finally{
         props.setButtonFlag(false);
-      });
+      }
     }
   };
   return (
@@ -381,7 +376,7 @@ class StockPrice extends React.Component {
   componentDidMount() {
     //设置定时器，5s更新一次
     this.timer = setInterval(() => {
-      axios.get("/api/map/stock/"+this.props.stkcd).then((res)=>{
+      axios.get("/api/map/stock/"+this.props.stkcd).then((res)=>{//实时数据
         console.log('loading:',res.data['data']['data'][res.data['data']['data'].length-1][0]);
         var result=res.data;
         if(res.data['data']['data'][res.data['data']['data'].length-1][0].split(' ')[1]==='15:00:00'){
@@ -797,8 +792,8 @@ class StockDemo extends React.Component {
     };
     console.log('submit:',stkcd);
 
-    axios.get("/api/map/stockInfo/"+stkcd).then((res)=>{
-      var result=res.data;
+    axios.get("/api/map/stockInfo/"+stkcd).then((stockInfo)=>{//股票信息
+      var result=stockInfo.data;
       if(result['ret']===0)  {//成功
         this.setState({
           info: {
@@ -819,31 +814,32 @@ class StockDemo extends React.Component {
       };
     });
 
-    axios.get("/api/map/stock365/"+stkcd).then((res)=>{
-      var result=res.data;
+    axios.get("/api/map/stock365/"+stkcd).then((stock365)=>{//历史数据
+      var result=stock365.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get("/api/map/stock/"+stkcd).then((res2)=>{
-          var result1=res2.data;
-          if(result1['ret']===0)  {//成功
-            this.setState({
-              data: result1['data']['data'],
-              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
-            });
-          } else { //失败
-            console.log(result['msg'])
-          }
-        },err2=>{
-          console.log(err2);
-        });
+        
       } else { //失败
         console.log(result['msg'])
       }
     },err=>{
       console.log(err);
+    });
+    axios.get("/api/map/stock/"+stkcd).then((stockReal)=>{//实时数据
+      var result=stockReal.data;
+      if(result['ret']===0)  {//成功
+        this.setState({
+          data: result['data']['data'],
+          //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
+        });
+      } else { //失败
+        console.log(result['msg'])
+      }
+    },err2=>{
+      console.log(err2);
     });
   }
   splitData(rawData) {
@@ -906,8 +902,8 @@ class StockDemo extends React.Component {
       stkcd: stkcd,
       stkcd2: stkcd
     });
-    axios.get("/api/map/stockInfo/"+stkcd).then((res)=>{
-      var result=res.data;
+    axios.get("/api/map/stockInfo/"+stkcd).then((stockInfo)=>{//股票信息
+      var result=stockInfo.data;
       if(result['ret']===0)  {//成功
         this.setState({
           info: {
@@ -927,25 +923,25 @@ class StockDemo extends React.Component {
         console.log(result['msg']);
       };
     });
-    axios.get("/api/map/stock365/"+stkcd).then((res)=>{
-      var result=res.data;
+    axios.get("/api/map/stock365/"+stkcd).then((stock365)=>{//历史数据
+      var result=stock365.data;
       if(result['ret']===0)  {//成功
         this.setState({
           historyData: result['data']['data'],
           //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
         });
-        axios.get("/api/map/stock/"+stkcd).then((res2)=>{
-          var result1=res2.data;
-          if(result1['ret']===0)  {//成功
-            this.setState({
-              data: result1['data']['data'],
-              //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
-            });
-          } else { //失败
-            console.log(result['msg'])
-          }
-        },err2=>{
-          console.log(err2);
+      } else { //失败
+        console.log(result['msg'])
+      }
+    },err=>{
+      console.log(err);
+    });
+    axios.get("/api/map/stock/"+stkcd).then((stockReal)=>{//实时数据
+      var result=stockReal.data;
+      if(result['ret']===0)  {//成功
+        this.setState({
+          data: result['data']['data'],
+          //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
         });
       } else { //失败
         console.log(result['msg'])
@@ -974,9 +970,9 @@ class StockDemo extends React.Component {
     });
   }
   setBacktestData(result) {
-    console.log('backtestData:',result['data'])
+    console.log('backtestData:',result)
     this.setState({
-      backtestData: result['data'],
+      backtestData: result,
     });
   }
   setButtonFlag(flag) {
