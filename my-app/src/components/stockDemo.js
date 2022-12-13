@@ -27,13 +27,14 @@ function SelectDemo(props) {
   const onInputChange = (e) => {
     props.setStkcd(e.target.value);
   };
-  const onFinish = async (values) => {
-    if(props.kind===2) navigate(`/stock/${values.stkcd}`,{replace: true});
+  const onFinish = async ({ stkcd }) => {
+    if (!stkcd || stkcd.length < 6) return;
+    
+    if(props.kind===2) navigate(`/stock/${stkcd}`,{replace: true});
     else{
       try{
         props.setButtonFlag(true);
-        console.log('submit:',values.stkcd);
-        let stkcd = values.stkcd;
+        console.log('submit:',stkcd);
         await axios.get("/api/map/stockInfo/"+stkcd).then((stockInfo)=>{//股票相关信息
           var stockInfoResult=stockInfo.data;
           if(stockInfoResult['ret']===0)  {//成功
@@ -83,6 +84,11 @@ function SelectDemo(props) {
       }
     }
   };
+
+  React.useEffect(() => {
+    onFinish(props);
+  }, [props.stkcd]);
+
   return (
     <>
       <Form
@@ -815,34 +821,6 @@ class StockDemo extends React.Component {
         console.log(result['msg']);
       };
     });
-
-    axios.get("/api/map/stock365/"+stkcd).then((stock365)=>{//历史数据
-      var result=stock365.data;
-      if(result['ret']===0)  {//成功
-        this.setState({
-          historyData: result['data']['data'],
-          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
-        });
-        
-      } else { //失败
-        console.log(result['msg'])
-      }
-    },err=>{
-      console.log(err);
-    });
-    axios.get("/api/map/stock/"+stkcd).then((stockReal)=>{//实时数据
-      var result=stockReal.data;
-      if(result['ret']===0)  {//成功
-        this.setState({
-          data: result['data']['data'],
-          //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
-        });
-      } else { //失败
-        console.log(result['msg'])
-      }
-    },err2=>{
-      console.log(err2);
-    });
   }
   splitData(rawData) {
     const categoryData = [];
@@ -898,60 +876,7 @@ class StockDemo extends React.Component {
     if (this.props.onStockChange) this.props.onStockChange(stkcd);
     // }
   }
-  setStkcd2(stkcd) {
-    console.log('prop.stkcd change',stkcd);
-    this.setState({
-      stkcd: stkcd,
-      stkcd2: stkcd
-    });
-    axios.get("/api/map/stockInfo/"+stkcd).then((stockInfo)=>{//股票信息
-      var result=stockInfo.data;
-      if(result['ret']===0)  {//成功
-        this.setState({
-          info: {
-            'place1':result['data']['place1'],           //注册地
-            'place2':result['data']['place2'],           //办公地
-            'name2':result['data']['name2'],             //全称
-            'name':result['data']['name'],               //股票简称
-            'industry':result['data']['industry'],       //行业
-            'TTM':result['data']['TTM'],                 //上市时间
-            'MarCap':result['data']['MarCap'],           //总市值
-            'tradedCap':result['data']['tradedCap'],     //流通市值
-            'stkIssue':result['data']['stkIssue'],       //总股本
-            'tradedIssue':result['data']['tradedIssue'], //流通股本
-          }
-        });
-      }else{
-        console.log(result['msg']);
-      };
-    });
-    axios.get("/api/map/stock365/"+stkcd).then((stock365)=>{//历史数据
-      var result=stock365.data;
-      if(result['ret']===0)  {//成功
-        this.setState({
-          historyData: result['data']['data'],
-          //日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 涨跌幅, 涨跌额, 换手率
-        });
-      } else { //失败
-        console.log(result['msg'])
-      }
-    },err=>{
-      console.log(err);
-    });
-    axios.get("/api/map/stock/"+stkcd).then((stockReal)=>{//实时数据
-      var result=stockReal.data;
-      if(result['ret']===0)  {//成功
-        this.setState({
-          data: result['data']['data'],
-          //时间 2022-09-09 14:59:00, 开盘 0.0, 收盘 12.71, 最高, 最低, 成交量, 成交额, 最新价
-        });
-      } else { //失败
-        console.log(result['msg'])
-      }
-    },err=>{
-      console.log(err);
-    });
-  }
+
   setInfo(info) {
     this.setState({
       info: info
@@ -989,11 +914,6 @@ class StockDemo extends React.Component {
   // }
 
   render() {
-    // console.log('parent data',this.state.data[0]);
-    if(this.state.stkcd2!==this.props.stkcd){
-      this.setStkcd2(this.props.stkcd);
-      // this.setInfo();
-    }
     return(
       <div>
         {/* <p>实时股价</p> */}
