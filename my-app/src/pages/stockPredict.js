@@ -54,7 +54,7 @@ function SelectDemo(props) {
         'Content-Type':'application/json'
       },
       method: 'post',
-      url:`/stockpredict`,
+      url:'/api/map/stockpredict',
       data: formData,
     }).then(res => {
       if(res && res.status === 200){
